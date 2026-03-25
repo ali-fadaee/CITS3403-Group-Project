@@ -1,0 +1,17 @@
+/* Base styles to override Bootstrap defaults */
+
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Main content area */
+main.container {
+  min-height: calc(100vh - 56px);
+  padding-bottom: 2rem;
+}
