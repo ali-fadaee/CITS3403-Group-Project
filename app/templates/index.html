@@ -3,5 +3,31 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  <h1>Hello, World!</h1>
+<div class="index-page">
+  <div class="index-header">
+    <h1><span>~/</span>debates</h1>
+    <a href="/create" class="new-debate-btn">+ new</a>
+  </div>
+
+  <div class="debate-list">
+    {% for debate in debates %}
+    <a href="/debate" class="debate-card">
+      <div class="debate-card-title">{{ debate.title }}</div>
+      <div class="debate-card-footer">
+        <div class="debate-card-tags">
+          {% for tag in debate.tags %}
+          <span class="debate-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        <div class="debate-card-counts">
+          <span class="count-yes">yes {{ debate.yes_count }}</span>
+          <span class="count-no">no {{ debate.no_count }}</span>
+        </div>
+      </div>
+    </a>
+    {% else %}
+    <p class="no-debates">No debates yet. <a href="/create">Start one.</a></p>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
