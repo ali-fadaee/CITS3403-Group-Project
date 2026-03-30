@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Signup{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <h2 class="mb-4">Signup</h2>
+    <form method="POST" action="/signup">
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" placeholder="example@gmail.com" class="form-control" id="email" name="email" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Interests</label>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="interest1" name="interests[]" value="sports">
+            <label class="form-check-label" for="interest1">Sports</label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="interest2" name="interests[]" value="music">
+            <label class="form-check-label" for="interest2">Music</label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="interest3" name="interests[]" value="technology">
+            <label class="form-check-label" for="interest3">Technology</label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="interest4" name="interests[]" value="art">
+            <label class="form-check-label" for="interest4">Art</label>
+        </div>
+    </div>
+      <button type="submit" class="btn btn-primary w-100">Signup</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

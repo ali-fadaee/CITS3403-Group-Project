@@ -12,6 +12,10 @@ def create_app():
     def login():
         return render_template('login.html')
     
+    @app.route('/signup')
+    def signup():
+        return render_template('signup.html')
+    
     @app.route('/profile')
     def profile():
         return render_template('profile.html')
