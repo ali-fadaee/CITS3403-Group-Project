@@ -6,7 +6,17 @@
 <div class="index-page">
   <div class="index-header">
     <h1><span>~/</span>debates</h1>
-    <a href="/create" class="new-debate-btn">+ new</a>
+    <div class="index-header-actions">
+      <a href="/create" class="new-debate-btn">+ new</a>
+      <a href="/debates/mine" class="my-debates-btn">my debates</a>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <a href="?filter=new" class="filter-tab {% if filter == 'new' or not filter %}is-active{% endif %}">new</a>
+    <a href="?filter=for-you" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
+    <a href="?filter=popular" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
+    <a href="?filter=top" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
   </div>
 
   <div class="debate-list">
@@ -23,6 +33,10 @@
           <span class="count-yes">yes {{ debate.yes_count }}</span>
           <span class="count-no">no {{ debate.no_count }}</span>
         </div>
+      </div>
+      <div class="debate-card-meta">
+        <span>created {{ debate.created }}</span>
+        <span>active {{ debate.last_activity }}</span>
       </div>
     </a>
     {% else %}

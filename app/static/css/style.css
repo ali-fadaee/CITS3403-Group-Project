@@ -80,6 +80,11 @@ main.container {
   color: var(--debate-text-dim);
 }
 
+.index-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .new-debate-btn {
   font-size: 0.82rem;
   color: var(--debate-yes);
@@ -91,6 +96,54 @@ main.container {
 
 .new-debate-btn:hover {
   background: rgba(99, 240, 143, 0.08);
+}
+
+.my-debates-btn {
+  font-size: 0.82rem;
+  color: var(--debate-text-dim);
+  border: 1px solid var(--debate-border-soft);
+  padding: 0.3rem 0.75rem;
+  text-decoration: none;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.my-debates-btn:hover {
+  color: var(--debate-text);
+  border-color: var(--debate-border);
+  background: rgba(157, 157, 157, 0.05);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--debate-border-soft);
+  margin-bottom: 1.25rem;
+}
+
+.filter-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--debate-text-faint);
+  text-decoration: none;
+  border-right: 1px solid var(--debate-border-soft);
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.filter-tab:last-child {
+  border-right: none;
+}
+
+.filter-tab:hover {
+  color: var(--debate-text-dim);
+  background: rgba(157, 157, 157, 0.04);
+}
+
+.filter-tab.is-active {
+  color: var(--debate-yes);
+  background: rgba(99, 240, 143, 0.06);
+  border-bottom: 1px solid var(--debate-yes);
 }
 
 .debate-list {
@@ -150,6 +203,14 @@ main.container {
 
 .count-yes { color: var(--debate-yes); }
 .count-no  { color: var(--debate-danger); }
+
+.debate-card-meta {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--debate-text-faint);
+}
 
 .no-debates {
   color: var(--debate-text-faint);
