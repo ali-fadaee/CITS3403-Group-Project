@@ -1,8 +1,13 @@
+import os
 from flask import Flask, render_template, request
+from app.extensions import db
 
 
 def create_app():
     app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+
+    db.init_app(app)
 
     @app.route('/')
     def index():
