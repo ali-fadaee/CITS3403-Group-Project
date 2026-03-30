@@ -152,13 +152,13 @@ main.container {
 }
 
 .debate-card {
-  display: block;
-  padding: 1rem 1.2rem;
+  display: flex;
   border: 1px solid var(--debate-border-soft);
   background: var(--debate-panel);
   text-decoration: none;
   color: var(--debate-text);
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  overflow: hidden;
 }
 
 .debate-card:hover {
@@ -166,6 +166,26 @@ main.container {
   background: var(--debate-panel-soft);
   transform: translateY(-1px);
   color: var(--debate-text);
+}
+
+.vote-bar {
+  display: flex;
+  flex-direction: column;
+  width: 4px;
+  flex-shrink: 0;
+}
+
+.vote-bar-yes {
+  background: var(--debate-yes);
+}
+
+.vote-bar-no {
+  background: var(--debate-danger);
+}
+
+.debate-card-body {
+  flex: 1;
+  padding: 1rem 1.2rem;
 }
 
 .debate-card-title {

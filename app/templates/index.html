@@ -21,22 +21,31 @@
 
   <div class="debate-list">
     {% for debate in debates %}
+    {% set total = debate.yes_count + debate.no_count %}
+    {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+    {% set no_pct = 100 - yes_pct %}
     <a href="/debate" class="debate-card">
-      <div class="debate-card-title">{{ debate.title }}</div>
-      <div class="debate-card-footer">
-        <div class="debate-card-tags">
-          {% for tag in debate.tags %}
-          <span class="debate-tag">{{ tag }}</span>
-          {% endfor %}
-        </div>
-        <div class="debate-card-counts">
-          <span class="count-yes">yes {{ debate.yes_count }}</span>
-          <span class="count-no">no {{ debate.no_count }}</span>
-        </div>
+      <div class="vote-bar">
+        <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
+        <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
       </div>
-      <div class="debate-card-meta">
-        <span>created {{ debate.created }}</span>
-        <span>active {{ debate.last_activity }}</span>
+      <div class="debate-card-body">
+        <div class="debate-card-title">{{ debate.title }}</div>
+        <div class="debate-card-footer">
+          <div class="debate-card-tags">
+            {% for tag in debate.tags %}
+            <span class="debate-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          <div class="debate-card-counts">
+            <span class="count-yes">yes {{ debate.yes_count }}</span>
+            <span class="count-no">no {{ debate.no_count }}</span>
+          </div>
+        </div>
+        <div class="debate-card-meta">
+          <span>created {{ debate.created }}</span>
+          <span>active {{ debate.last_activity }}</span>
+        </div>
       </div>
     </a>
     {% else %}
