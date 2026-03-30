@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="create-page">
+
+  <!-- QUERY EXECUTE HEADER -->
+  <section class="query-header">
+    <div class="terminal-label">
+      <span class="terminal-symbol">&gt;_</span>
+      <span>$ query --create</span>
+    </div>
+    <p class="query-sub">Fill in your thesis and arguments</p>
+  </section>
+
+  <!-- THESIS + CATEGORY -->
+  <section class="create-header">
+    <h2 class="panel-heading">// create</h2>
+
+    <label class="create-label">Thesis</label>
+    <textarea class="create-input" placeholder="Enter your main question or thesis..."></textarea>
+
+    <label class="create-label">Category</label>
+    <select class="create-select">
+      <option>Technology</option>
+      <option>Philosophy</option>
+      <option>Politics</option>
+      <option>Ethics</option>
+      <option>Science</option>
+      <option>Education</option>
+      <option>Economics</option>
+    </select>
+  </section>
+
+  <!-- YES / NO TABLE -->
+  <section class="create-table">
+
+    <!-- YES COLUMN -->
+    <div class="create-column yes-col">
+      <h3 class="col-title">[Y] YES</h3>
+
+      <textarea class="comment-box yes-box" placeholder="YES argument..."></textarea>
+      <textarea class="comment-box yes-box" placeholder="YES argument..."></textarea>
+      <textarea class="comment-box yes-box" placeholder="YES argument..."></textarea>
+
+      <button class="add-btn yes-add">+ Add YES</button>
+    </div>
+
+    <!-- NO COLUMN -->
+    <div class="create-column no-col">
+      <h3 class="col-title">[N] NO</h3>
+
+      <textarea class="comment-box no-box" placeholder="NO argument..."></textarea>
+      <textarea class="comment-box no-box" placeholder="NO argument..."></textarea>
+      <textarea class="comment-box no-box" placeholder="NO argument..."></textarea>
+
+      <button class="add-btn no-add">+ Add NO</button>
+    </div>
+
+  </section>
+<button class="create-final-btn">Create Debate</button>
+</div>    
+</body>
+</html>
