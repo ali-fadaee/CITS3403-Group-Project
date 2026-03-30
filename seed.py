@@ -3,7 +3,8 @@ load_dotenv()
 
 from app import create_app
 from app.extensions import db
-from app.models import Avatar, User, Tag, Debate, Comment
+from app.models import Avatar, User, Tag, Debate, Comment, DebateStatus, CommentSide, Vote
+
 
 app = create_app()
 
@@ -58,13 +59,13 @@ with app.app_context():
         title='Is AI a threat to employment?',
         description='A discussion on how artificial intelligence is reshaping the job market.',
         creator_id=alice.id,
-        status='open',
+        status=DebateStatus.open,
     )
     debate2 = Debate(
         title='Should social media be regulated?',
         description='Exploring the role of governments in regulating social media platforms.',
         creator_id=bob.id,
-        status='open',
+        status=DebateStatus.open,
     )
     db.session.add_all([debate1, debate2])
     db.session.flush()
@@ -75,12 +76,23 @@ with app.app_context():
 
     # Comments
     comments = [
-        Comment(debate_id=debate1.id, user_id=bob.id, content='AI will create more jobs than it destroys.', side='no'),
-        Comment(debate_id=debate1.id, user_id=alice.id, content='Not for low-skilled workers though.', side='yes'),
-        Comment(debate_id=debate2.id, user_id=alice.id, content='Regulation risks stifling free speech.', side='no'),
-        Comment(debate_id=debate2.id, user_id=bob.id, content='Without regulation, misinformation spreads unchecked.', side='yes'),
+        Comment(debate_id=debate1.id, user_id=bob.id, content='AI will create more jobs than it destroys.', side=CommentSide.no),
+        Comment(debate_id=debate1.id, user_id=alice.id, content='Not for low-skilled workers though.', side=CommentSide.yes),
+        Comment(debate_id=debate2.id, user_id=alice.id, content='Regulation risks stifling free speech.', side=CommentSide.no),
+        Comment(debate_id=debate2.id, user_id=bob.id, content='Without regulation, misinformation spreads unchecked.', side=CommentSide.yes),
     ]
     db.session.add_all(comments)
+    db.session.commit()
+
+    # Votes (each user upvotes the other's comments)
+    c1, c2, c3, c4 = comments
+    votes = [
+        Vote(comment_id=c1.id, user_id=alice.id),
+        Vote(comment_id=c2.id, user_id=bob.id),
+        Vote(comment_id=c3.id, user_id=bob.id),
+        Vote(comment_id=c4.id, user_id=alice.id),
+    ]
+    db.session.add_all(votes)
     db.session.commit()
 
     print('Database seeded successfully.')
