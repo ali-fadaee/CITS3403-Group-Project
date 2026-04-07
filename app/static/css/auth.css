@@ -1,0 +1,230 @@
+/* ── page-level spacing ── */
+/* Base styles to override Bootstrap defaults */
+/* ── THEME VARIABLES ── */
+:root {
+  --debate-bg: #050505;
+  --debate-panel: #0d0d0d;
+  --debate-panel-soft: #131313;
+  --debate-border: #9d9d9d;
+  --debate-border-soft: rgba(157, 157, 157, 0.22);
+  --debate-text: #f1f1f1;
+  --debate-text-dim: #b7b7b7;
+  --debate-text-faint: #6e6e6e;
+  --debate-yes: #63f08f;
+  --debate-danger: #ff4e4e;
+}
+
+/* ── BASE ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: var(--debate-bg);
+  color: var(--debate-text);
+  font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+}
+
+.row.justify-content-center {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.auth-heading,
+.auth-msg,
+.auth-label,
+.auth-input.form-control,
+.auth-button,
+.auth-footer p{
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+}
+
+.auth-footer p, .auth-label {
+  font-size: 0.75rem;
+}
+
+.auth-msg, .auth-input.form-control, .auth-button {
+  font-size: 0.85rem;
+}
+
+/* ── heading path ── */
+.auth-heading {
+  color: var(--debate-text);
+  font-size: 1.75rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.02em;
+  padding-inline: 1.6rem;
+}
+
+/* Blinking terminal cursor for the heading */
+.terminal-cursor {
+  display: inline-block;
+  width: 4px;
+  height: 1em;
+  margin-left: 4px;
+  background: var(--debate-yes);
+  vertical-align: text-bottom;
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── outer card ── */
+.auth-card {
+  border: 1px solid var(--debate-border-soft);
+  background: var(--debate-panel);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 140ms ease;
+}
+
+.auth-card:focus-within {
+  border-color: rgba(157, 157, 157, 0.313);
+}
+
+/* ── panel for both login and signup page ── */
+.auth-panel {
+  width: 50%;
+  flex-shrink: 0;
+  padding: 1.6rem 1.6rem 1.4rem;
+} 
+
+/* login uses a single full-width panel */
+.auth-card > form > .auth-panel {
+  width: 100%;
+}
+
+/* ── terminal command line ── */
+.auth-msg {
+  font-size: 0.85rem;
+  color: var(--debate-text-faint);
+  margin-bottom: 1.25rem;
+}
+
+.auth-msg::first-letter {
+  color: rgba(99, 240, 143, 0.75);
+}
+
+.auth-msg span {
+  color: var(--debate-text-dim);
+}
+
+/* ── field labels ── */
+.auth-label {
+  color: var(--debate-text-dim);
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+/* ── inputs — override Bootstrap's form-control ── */
+.auth-input.form-control {
+  background: var(--debate-panel-soft);
+  border: 1px solid var(--debate-border-soft);
+  border-radius: 0;
+  color: var(--debate-text);
+  padding: 0.5rem 0.75rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.auth-input.form-control::placeholder {
+  color: var(--debate-text-faint);
+}
+
+.auth-input.form-control:focus {
+  background: var(--debate-panel-soft);
+  border-color: var(--debate-border);
+  box-shadow: 0 0 0 2px rgba(157, 157, 157, 0.07);
+  color: var(--debate-text);
+  outline: none;
+}
+
+/* ── custom checkbox ── */
+.auth-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--debate-border-soft);
+  background: var(--debate-panel-soft);
+  border-radius: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.auth-checkbox:checked {
+  background: rgba(99, 240, 143, 0.12);
+  border-color: rgba(99, 240, 143, 0.55);
+}
+
+/* Drawing the custom checkmark */
+.auth-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 1.5px solid var(--debate-yes);
+  border-top: none;
+  border-left: none;
+  transform: rotate(40deg);
+}
+
+/* ── buttons ── */
+.auth-button {
+  display: block;
+  padding: 0.48rem 1rem;
+  border: 1px solid var(--debate-yes);
+  background: rgba(99, 240, 143, 0.07);
+  color: var(--debate-yes);
+  cursor: pointer;
+  border-radius: 0;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: background 150ms ease, border-color 150ms ease;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-button:hover {
+  background: rgba(99, 240, 143, 0.15);
+}
+
+.auth-button:active {
+  background: rgba(99, 240, 143, 0.22);
+}
+
+/* ── footer links ── */
+.auth-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 1.6rem;
+  border-top: 1px solid var(--debate-border-soft);
+  background: var(--debate-panel);
+  height: fit-content;
+  text-align: center;
+}
+
+.auth-footer p {
+  margin: 0;
+  line-height: 1.35;
+  color: var(--debate-text-dim);
+}
+
+.auth-footer a {
+  color: var(--debate-text);
+  text-decoration: underline;
+  text-decoration-color: rgba(99, 240, 143, 0.35);
+  text-underline-offset: 2px;
+  transition: color 140ms ease, text-decoration-color 140ms ease;
+}
+
+.auth-footer a:hover {
+  color: var(--debate-yes);
+  text-decoration-color: var(--debate-yes);
+}
