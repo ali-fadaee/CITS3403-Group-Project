@@ -2,57 +2,89 @@
 
 {% block title %}Signup{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-4">
-    <h2 class="mb-4">Signup</h2>
-    <form method="POST" action="/signup">
+  <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
 
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" name="username" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="confirm_password" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" placeholder="example@gmail.com" class="form-control" id="email" name="email" required>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Interests</label>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="interest1" name="interests[]" value="sports">
-            <label class="form-check-label" for="interest1">Sports</label>
-        </div>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="interest2" name="interests[]" value="music">
-            <label class="form-check-label" for="interest2">Music</label>
-        </div>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="interest3" name="interests[]" value="technology">
-            <label class="form-check-label" for="interest3">Technology</label>
-        </div>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="interest4" name="interests[]" value="art">
-            <label class="form-check-label" for="interest4">Art</label>
-        </div>
+    <div class="auth-step-progress" id="signupProgress" role="progressbar" aria-label="Signup progress" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1">
+      <p class="auth-step-progress-text" id="signupProgressText">Step 1 of 2 - Account details</p>
     </div>
-      <button type="submit" class="btn btn-primary w-100">Signup</button>
-    </form>
+
+    <h2 class="mb-4 auth-heading">~/Signup<span class="terminal-cursor"></span></h2>
+
+    <div class="auth-card">
+      <form id="signupForm" method="POST" action="/signup">
+        <div class="auth-step-panels" id="signupPanels">
+          <div class="auth-panel" data-step="1">
+            <p class="auth-msg">$ signup <span>--verify-email</span></p>
+
+            <div class="mb-3">
+              <label class="auth-label form-label" for="email">Email</label>
+              <input type="email" placeholder="example@gmail.com" class="form-control auth-input" id="email" name="email" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="auth-label form-label" for="password">Password</label>
+              <input type="password" class="form-control auth-input" id="password" name="password" autocomplete="new-password" required>
+            </div>
+
+            <div class="mb-4">
+              <label class="auth-label form-label" for="confirm_password">Confirm Password</label>
+              <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+            </div>
+
+            <button type="button" class="auth-button" id="continueToProfile">continue --next</button>
+          </div>
+
+          <div class="auth-panel auth-step-panel" data-step="2">
+            <p class="auth-msg">$ signup <span>--profile-setup</span></p>
+
+            <div class="mb-3">
+              <label class="auth-label form-label" for="username">Username</label>
+              <input type="text" class="form-control auth-input" id="username" name="username" required>
+            </div>
+
+            <div class="mb-4">
+              <label class="auth-label form-label mb-2">Interests (select all that apply)</label>
+
+              <div class="auth-interest-buttons d-flex flex-wrap gap-2">
+                <input type="checkbox" class="btn-check" id="interest1" name="interests[]" value="sports" autocomplete="off">
+                <label class="btn btn-outline-secondary auth-interest-btn" for="interest1">Sports</label>
+
+                <input type="checkbox" class="btn-check" id="interest2" name="interests[]" value="music" autocomplete="off">
+                <label class="btn btn-outline-secondary auth-interest-btn" for="interest2">Music</label>
+
+                <input type="checkbox" class="btn-check" id="interest3" name="interests[]" value="technology" autocomplete="off">
+                <label class="btn btn-outline-secondary auth-interest-btn" for="interest3">Technology</label>
+
+                <input type="checkbox" class="btn-check" id="interest4" name="interests[]" value="art" autocomplete="off">
+                <label class="btn btn-outline-secondary auth-interest-btn" for="interest4">Art</label>
+
+                <input type="checkbox" class="btn-check" id="interest5" name="interests[]" value="economics" autocomplete="off">
+                <label class="btn btn-outline-secondary auth-interest-btn" for="interest5">Economics</label>
+              </div>
+            </div>
+
+            <div class="auth-actions d-flex gap-2">
+              <button type="button" class="auth-button auth-button-second" id="backToVerify">back --edit</button>
+              <button type="submit" class="auth-button">signup --execute</button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="auth-footer mt-3">
+        <p>Already have an account? <a href="/login">Login</a></p>
+      </div>
+    </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/signup.js') }}"></script>
 {% endblock %}

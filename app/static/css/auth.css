@@ -46,6 +46,44 @@ body {
   font-size: 0.85rem;
 }
 
+/* ── progress bar ── */
+.auth-step-progress {
+  position: relative;
+  height: 8px;
+  border: 1px solid var(--debate-border-soft);
+  background: var(--debate-panel-soft);
+  overflow: visible;
+  margin-inline: 1.2rem;
+  margin-bottom: 2.5rem;
+  border-radius: 999px;
+}
+
+/* animated green fill layer */
+.auth-step-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  width: 50%;
+  background: rgba(99, 240, 143, 0.75);
+  border-radius: 999px;
+  transition: width 220ms ease;
+}
+
+.auth-step-progress.is-step-two::before {
+  width: 100%;
+}
+
+.auth-step-progress-text {
+  position: absolute;
+  top: 0.8rem;
+  left: 0;
+  margin: 0;
+  color: var(--debate-text-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
 /* ── heading path ── */
 .auth-heading {
   color: var(--debate-text);
@@ -90,6 +128,17 @@ body {
   flex-shrink: 0;
   padding: 1.6rem 1.6rem 1.4rem;
 } 
+
+.auth-step-panels {
+  display: flex;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 220ms ease;
+}
+
+.auth-step-panels.is-step-two {
+  transform: translateX(-50%);
+}
 
 /* login uses a single full-width panel */
 .auth-card > form > .auth-panel {
@@ -196,6 +245,38 @@ body {
 
 .auth-button:active {
   background: rgba(99, 240, 143, 0.22);
+}
+
+.auth-button-second {
+  border-color: var(--debate-border-soft);
+  color: var(--debate-text-dim);
+  background: rgba(157, 157, 157, 0.08);
+}
+
+.auth-button-second:hover {
+  background: rgba(157, 157, 157, 0.14);
+}
+
+.auth-interest-btn {
+  border-radius: 0;
+  border-color: var(--debate-border-soft);
+  color: var(--debate-text-dim);
+  background: rgba(157, 157, 157, 0.08);
+  font-size: 0.76rem;
+  line-height: 1;
+  padding: 0.35rem 0.7rem;
+}
+
+.auth-interest-buttons .btn-outline-secondary:hover {
+  border-color: rgba(99, 240, 143, 0.4);
+  color: var(--debate-text);
+  background: rgba(157, 157, 157, 0.14);
+}
+
+.auth-interest-buttons .btn-check:checked + .auth-interest-btn {
+  border-color: var(--debate-yes);
+  color: var(--debate-yes);
+  background: rgba(99, 240, 143, 0.16);
 }
 
 /* ── footer links ── */
