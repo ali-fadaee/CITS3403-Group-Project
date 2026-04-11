@@ -5,153 +5,155 @@
 {% block body_class %}debate-body{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-13') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-14') }}">
 {% endblock %}
 
-{% block page_shell %}
-<div class="debate-page" id="debate-app">
-  <aside class="debate-sidebar">
-    <div class="sidebar-panel">
-      <div class="terminal-label">
-        <span class="terminal-symbol">&gt;_</span>
-        <span>$ debate-tree</span>
+{% block sidebar %}
+<div class="debate-sidebar">
+  <div class="sidebar-panel">
+    <div class="terminal-label">
+      <span class="terminal-symbol">&gt;_</span>
+      <span>$ debate-tree</span>
+    </div>
+    <p class="level-line">level: <span id="current-level">1</span></p>
+  </div>
+
+  <section class="sidebar-panel">
+    <h2 class="panel-heading">// current_path</h2>
+    <div class="path-list" id="current-path"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block header_bar %}
+<div class="debate-topbar">
+  <div class="topbar-left">
+    <a class="profile-chip home-chip" href="{{ url_for('index') }}" aria-label="Back home">
+      <div class="profile-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 18 9 12l6-6"></path>
+        </svg>
       </div>
-      <p class="level-line">level: <span id="current-level">1</span></p>
+      <div>
+        <div class="profile-name">back_home</div>
+        <div class="profile-status">all topics</div>
+      </div>
+    </a>
+
+    <button class="profile-chip theme-chip" type="button" aria-label="Theme switch placeholder">
+      <div class="profile-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="profile-name">theme_mode</div>
+        <div class="profile-status">light / dark</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="topbar-right">
+    <button class="topbar-button" type="button" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4a4 4 0 0 0-4 4v1.33c0 .7-.25 1.37-.72 1.87L5.6 13.1A1 1 0 0 0 6.33 14h11.34a1 1 0 0 0 .73-1.7l-1.69-1.9a2.78 2.78 0 0 1-.71-1.87V8a4 4 0 0 0-4-4Z"></path>
+        <path d="M9.5 17a2.5 2.5 0 0 0 5 0"></path>
+      </svg>
+      <span class="notification-badge">3</span>
+    </button>
+
+    <button class="profile-chip" type="button" aria-label="Open profile">
+      <div class="profile-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
+          <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="profile-name">user_dev</div>
+        <div class="profile-status">online</div>
+      </div>
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block main_class %}app-content debate-main{% endblock %}
+
+{% block content %}
+<section class="hero-copy">
+  <h1>&gt; DEBATE_<span>TREE</span></h1>
+  <p>// Navigate complex arguments, one choice at a time</p>
+  <div class="hero-subline">System.out.println("Logic flow analyzer v1.0");</div>
+</section>
+
+<section class="debate-shell">
+  <div class="question-panel">
+    <div class="shell-command">$ query --execute</div>
+    <h2 class="question-text" id="current-question">
+      Should AI replace human developers?
+      <span class="cursor" aria-hidden="true"></span>
+    </h2>
+    <p class="shell-hint">&gt; Select a comment to continue</p>
+  </div>
+
+  <section class="comment-composer" id="comment-composer" hidden>
+    <div class="composer-head">
+      <div>
+        <div class="shell-command" id="composer-title">$ add-comment --yes</div>
+        <p class="composer-hint" id="composer-hint">// Write your argument for this side</p>
+      </div>
+      <button class="close-button composer-close" id="close-composer" type="button" aria-label="Close add comment">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12"></path>
+          <path d="M18 6 6 18"></path>
+        </svg>
+      </button>
     </div>
 
-    <section class="sidebar-panel">
-      <h2 class="panel-heading">// current_path</h2>
-      <div class="path-list" id="current-path"></div>
-    </section>
-  </aside>
-
-  <main class="debate-main">
-    <header class="debate-topbar">
-      <div class="topbar-left">
-        <a class="profile-chip home-chip" href="{{ url_for('index') }}" aria-label="Back home">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M15 18 9 12l6-6"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">back_home</div>
-            <div class="profile-status">all topics</div>
-          </div>
-        </a>
-
-        <button class="profile-chip theme-chip" type="button" aria-label="Theme switch placeholder">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">theme_mode</div>
-            <div class="profile-status">light / dark</div>
-          </div>
-        </button>
-      </div>
-
-      <div class="topbar-right">
-        <button class="topbar-button" type="button" aria-label="Notifications">
+    <form class="composer-form" id="comment-form">
+      <div class="form-row">
+        <input
+          class="form-input"
+          id="comment-input"
+          name="comment"
+          type="text"
+          placeholder="Type your argument here..."
+          autocomplete="off"
+        >
+        <button class="send-button" type="submit">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4a4 4 0 0 0-4 4v1.33c0 .7-.25 1.37-.72 1.87L5.6 13.1A1 1 0 0 0 6.33 14h11.34a1 1 0 0 0 .73-1.7l-1.69-1.9a2.78 2.78 0 0 1-.71-1.87V8a4 4 0 0 0-4-4Z"></path>
-            <path d="M9.5 17a2.5 2.5 0 0 0 5 0"></path>
+            <path d="M21 3 10 14"></path>
+            <path d="m21 3-7 18-4-7-7-4 18-7Z"></path>
           </svg>
-          <span class="notification-badge">3</span>
-        </button>
-
-        <button class="profile-chip" type="button" aria-label="Open profile">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
-              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">user_dev</div>
-            <div class="profile-status">online</div>
-          </div>
+          <span>ADD</span>
         </button>
       </div>
-    </header>
+    </form>
+  </section>
 
-    <section class="hero-copy">
-      <h1>&gt; DEBATE_<span>TREE</span></h1>
-      <p>// Navigate complex arguments, one choice at a time</p>
-      <div class="hero-subline">System.out.println("Logic flow analyzer v1.0");</div>
-    </section>
-
-    <section class="debate-shell">
-      <div class="question-panel">
-        <div class="shell-command">$ query --execute</div>
-        <h2 class="question-text" id="current-question">
-          Should AI replace human developers?
-          <span class="cursor" aria-hidden="true"></span>
-        </h2>
-        <p class="shell-hint">&gt; Select a comment to continue</p>
+  <div class="answer-grid">
+    <article class="answer-column answer-yes">
+      <div class="answer-header">
+        <div class="answer-title answer-title-yes">[Y] YES</div>
+        <button class="add-comment-button add-comment-yes" data-compose-side="yes" type="button">
+          <span>ADD</span>
+        </button>
       </div>
+      <div class="comment-preview-list" id="yes-options"></div>
+    </article>
 
-      <section class="comment-composer" id="comment-composer" hidden>
-        <div class="composer-head">
-          <div>
-            <div class="shell-command" id="composer-title">$ add-comment --yes</div>
-            <p class="composer-hint" id="composer-hint">// Write your argument for this side</p>
-          </div>
-          <button class="close-button composer-close" id="close-composer" type="button" aria-label="Close add comment">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 6l12 12"></path>
-              <path d="M18 6 6 18"></path>
-            </svg>
-          </button>
-        </div>
-
-        <form class="composer-form" id="comment-form">
-          <div class="form-row">
-            <input
-              class="form-input"
-              id="comment-input"
-              name="comment"
-              type="text"
-              placeholder="Type your argument here..."
-              autocomplete="off"
-            >
-            <button class="send-button" type="submit">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 3 10 14"></path>
-                <path d="m21 3-7 18-4-7-7-4 18-7Z"></path>
-              </svg>
-              <span>ADD</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <div class="answer-grid">
-        <article class="answer-column answer-yes">
-          <div class="answer-header">
-            <div class="answer-title answer-title-yes">[Y] YES</div>
-            <button class="add-comment-button add-comment-yes" data-compose-side="yes" type="button">
-              <span>ADD</span>
-            </button>
-          </div>
-          <div class="comment-preview-list" id="yes-options"></div>
-        </article>
-
-        <article class="answer-column answer-no">
-          <div class="answer-header">
-            <div class="answer-title answer-title-no">[N] NO</div>
-            <button class="add-comment-button add-comment-no" data-compose-side="no" type="button">
-              <span>ADD</span>
-            </button>
-          </div>
-          <div class="comment-preview-list" id="no-options"></div>
-        </article>
+    <article class="answer-column answer-no">
+      <div class="answer-header">
+        <div class="answer-title answer-title-no">[N] NO</div>
+        <button class="add-comment-button add-comment-no" data-compose-side="no" type="button">
+          <span>ADD</span>
+        </button>
       </div>
-    </section>
-  </main>
-</div>
+      <div class="comment-preview-list" id="no-options"></div>
+    </article>
+  </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
