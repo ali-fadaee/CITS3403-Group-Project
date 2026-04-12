@@ -1,40 +1,6 @@
-/* ── page-level spacing ── */
-/* Base styles to override Bootstrap defaults */
-/* ── THEME VARIABLES ── */
-:root {
-  --debate-bg: #050505;
-  --debate-panel: #0d0d0d;
-  --debate-panel-soft: #131313;
-  --debate-border: #9d9d9d;
-  --debate-border-soft: rgba(157, 157, 157, 0.22);
-  --debate-text: #f1f1f1;
-  --debate-text-dim: #b7b7b7;
-  --debate-text-faint: #6e6e6e;
-  --debate-yes: #63f08f;
-  --debate-danger: #ff4e4e;
-}
-
-/* ── BASE ── */
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-  min-height: 100vh;
-  background: var(--debate-bg);
-  color: var(--debate-text);
-  font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
-}
-
 .row.justify-content-center {
   padding-top: 3rem;
   padding-bottom: 3rem;
-}
-
-.auth-heading,
-.auth-msg,
-.auth-label,
-.auth-input.form-control,
-.auth-button,
-.auth-footer p{
   font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
 }
 
