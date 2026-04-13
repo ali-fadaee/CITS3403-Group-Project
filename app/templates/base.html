@@ -15,8 +15,7 @@
       <a class="navbar-brand" href="/"><span>~/</span>app</a>
       <div class="navbar-nav ms-auto flex-row gap-3">
         <a class="nav-link" href="/login">Login</a>
-        <a class="nav-link" href="/profile">Profile</a>
-
+        <a class="nav-link" href="#" onclick="toggleProfileDropdown(); return false;">Profile</a>
       </div>
     </div>
   </nav>
@@ -25,7 +24,45 @@
     {% block content %}{% endblock %}
   </main>
   {% endblock %}
+
+  <!-- ── CREATE DEBATE MODAL ── -->
+  <div class="modal-backdrop" id="createModalBackdrop" onclick="closeModal('createModal')"></div>
+  <div class="app-modal" id="createModal">
+    <div class="app-modal-card">
+      <div class="app-modal-head">
+        <span class="app-modal-title">create debate</span>
+        <button class="app-modal-close" onclick="closeModal('createModal')">✕</button>
+      </div>
+      <div class="app-modal-body" id="createModalBody">
+        <!-- content injected in later commits -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROFILE DROPDOWN ── -->
+  <div class="profile-nav-wrapper" id="profileNavWrapper">
+    <!-- populated in commit 2 -->
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function openModal(id) {
+      document.getElementById(id + 'Backdrop').classList.add('active');
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Backdrop').classList.remove('active');
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function toggleProfileDropdown() {
+      // wired up in commit 2
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal('createModal');
+    });
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

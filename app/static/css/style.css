@@ -175,13 +175,8 @@ main.container {
   flex-shrink: 0;
 }
 
-.vote-bar-yes {
-  background: var(--debate-yes);
-}
-
-.vote-bar-no {
-  background: var(--debate-danger);
-}
+.vote-bar-yes { background: var(--debate-yes); }
+.vote-bar-no  { background: var(--debate-danger); }
 
 .debate-card-body {
   flex: 1;
@@ -240,3 +235,66 @@ main.container {
 .no-debates a {
   color: var(--debate-yes);
 }
+
+/* ── App-wide modal overlay ── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 1040;
+}
+.modal-backdrop.active { display: block; }
+
+.app-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.app-modal.active { display: flex; }
+
+.app-modal-card {
+  background: var(--debate-panel);
+  border: 1px solid var(--debate-border-soft);
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  pointer-events: all;
+  animation: modalSlideIn 0.18s ease;
+}
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.app-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--debate-border-soft);
+}
+.app-modal-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--debate-text);
+}
+.app-modal-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: var(--debate-text-dim);
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+.app-modal-close:hover { color: var(--debate-text); }
+.app-modal-body { padding: 1.25rem; }
