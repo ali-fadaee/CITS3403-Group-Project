@@ -390,3 +390,21 @@ main.container {
   border-color: var(--debate-danger);
   background: rgba(255, 78, 78, 0.06);
 }
+
+/* ── Profile full modal ── */
+.app-modal-card-wide {
+  max-width: 600px;
+}
+
+/* z-index fixes: ID specificity beats profile.css class rules */
+#profileFullModalBackdrop,
+#createModalBackdrop { z-index: 1040; }
+
+#profileFullModal,
+#createModal { z-index: 1050; }
+
+#avatarBackdrop,
+#interestsBackdrop { z-index: 1060; }
+
+#avatarModal,
+#interestsModal { z-index: 1070; }
