@@ -15,7 +15,22 @@
       <a class="navbar-brand" href="/"><span>~/</span>app</a>
       <div class="navbar-nav ms-auto flex-row gap-3">
         <a class="nav-link" href="/login">Login</a>
-        <a class="nav-link" href="#" onclick="toggleProfileDropdown(); return false;">Profile</a>
+        <div class="profile-nav-wrapper">
+          <a class="nav-link" href="#" onclick="toggleProfileDropdown(); return false;">Profile</a>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-top">
+              <div class="profile-dropdown-avatar" id="modalAvatarDisplay">🤖</div>
+              <div class="profile-dropdown-info">
+                <div class="profile-dropdown-username">h4ck3rm1nd</div>
+                <div class="profile-dropdown-email">user@debate.sh</div>
+              </div>
+            </div>
+            <div class="profile-dropdown-actions">
+              <button class="profile-action-btn" onclick="expandProfileModal()">edit profile</button>
+              <button class="profile-action-btn profile-action-logout">logout</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -39,11 +54,6 @@
     </div>
   </div>
 
-  <!-- ── PROFILE DROPDOWN ── -->
-  <div class="profile-nav-wrapper" id="profileNavWrapper">
-    <!-- populated in commit 2 -->
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function openModal(id) {
@@ -57,10 +67,23 @@
       document.body.style.overflow = '';
     }
     function toggleProfileDropdown() {
-      // wired up in commit 2
+      document.getElementById('profileDropdown').classList.toggle('active');
     }
+    function closeProfileDropdown() {
+      document.getElementById('profileDropdown').classList.remove('active');
+    }
+    function expandProfileModal() {
+      // wired up in commit 3
+    }
+    document.addEventListener('click', function(e) {
+      const wrapper = document.querySelector('.profile-nav-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) closeProfileDropdown();
+    });
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeModal('createModal');
+      if (e.key === 'Escape') {
+        closeModal('createModal');
+        closeProfileDropdown();
+      }
     });
   </script>
   {% block extra_js %}{% endblock %}

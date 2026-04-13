@@ -298,3 +298,95 @@ main.container {
 }
 .app-modal-close:hover { color: var(--debate-text); }
 .app-modal-body { padding: 1.25rem; }
+
+/* ── Profile dropdown ── */
+.profile-nav-wrapper {
+  position: relative;
+}
+
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 230px;
+  background: var(--debate-panel);
+  border: 1px solid var(--debate-border-soft);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 1060;
+  animation: modalSlideIn 0.15s ease;
+}
+.profile-dropdown.active { display: block; }
+
+.profile-dropdown-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--debate-border-soft);
+}
+
+.profile-dropdown-avatar {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.profile-dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.profile-dropdown-username {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--debate-text);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-email {
+  font-size: 0.72rem;
+  color: var(--debate-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.profile-action-btn {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--debate-border-soft);
+  color: var(--debate-text-dim);
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.profile-action-btn:hover {
+  color: var(--debate-text);
+  border-color: var(--debate-border);
+}
+.profile-action-logout {
+  color: var(--debate-danger);
+  border-color: rgba(255, 78, 78, 0.3);
+}
+.profile-action-logout:hover {
+  color: var(--debate-danger);
+  border-color: var(--debate-danger);
+  background: rgba(255, 78, 78, 0.06);
+}
