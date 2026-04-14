@@ -366,3 +366,55 @@
   .danger-actions { flex-direction: column; align-items: flex-start; }
   .delete-btn { margin-left: 0; }
 }
+
+/* ── Terminal title bar (shared by profile + create modals) ── */
+.term-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.term-cmd {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--debate-text);
+  letter-spacing: 0.03em;
+}
+
+.term-sym {
+  color: var(--debate-yes);
+  margin-right: 0.15rem;
+}
+
+.term-cursor {
+  display: inline-block;
+  color: var(--debate-text);
+  animation: termBlink 1s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes termBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Scanline + scrollbar (shared by profile + create modals) ── */
+.app-modal-card {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.04) 3px,
+      rgba(0, 0, 0, 0.04) 4px
+    ),
+    var(--debate-panel);
+}
+
+.app-modal-card::-webkit-scrollbar { width: 3px; }
+.app-modal-card::-webkit-scrollbar-track { background: transparent; }
+.app-modal-card::-webkit-scrollbar-thumb {
+  background: var(--debate-border-soft);
+  border-radius: 2px;
+}
+.app-modal-card::-webkit-scrollbar-thumb:hover { background: var(--debate-yes); }
