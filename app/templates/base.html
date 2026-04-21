@@ -12,11 +12,21 @@
   {% block page_shell %}
   <nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="/"><span>~/</span>app</a>
-      <div class="navbar-nav ms-auto flex-row gap-3">
+      <a class="navbar-brand" href="/"><span>> DEBATE_APP</a>
+      <div class="navbar-nav ms-auto flex-row align-items-center gap-3">
         <a class="nav-link" href="/login">Login</a>
-        <a class="nav-link" href="/profile">Profile</a>
-
+        <a class="profile-chip" href="/profile" aria-label="Open profile">
+          <div class="profile-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
+              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="profile-name">user_dev</div>
+            <div class="profile-status">online</div>
+          </div>
+        </a>
       </div>
     </div>
   </nav>

@@ -25,17 +25,15 @@ body {
 /* ── NAVBAR ── */
 .navbar {
   box-shadow: none !important;
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
 }
 
 .navbar-brand {
-  font-size: 1.1rem;
+  font-size: 2.0rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--debate-text) !important;
-}
-
-.navbar-brand span {
-  color: var(--debate-text-dim);
 }
 
 .nav-link {
@@ -46,6 +44,65 @@ body {
 
 .nav-link:hover {
   color: var(--debate-text) !important;
+}
+
+/* ── PROFILE CHIP ── */
+.profile-chip {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.95rem;
+  text-decoration: none;
+  border: 1px solid rgba(157, 157, 157, 0.75);
+  background: rgba(12, 12, 12, 0.94);
+  color: var(--debate-text);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.profile-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--debate-border);
+  background: rgba(20, 20, 20, 0.98);
+  color: var(--debate-text);
+}
+
+.profile-chip:active {
+  transform: scale(0.98);
+}
+
+.profile-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(157, 157, 157, 0.45);
+  background: rgba(24, 24, 24, 0.96);
+}
+
+.profile-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.profile-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+}
+
+.profile-status {
+  font-size: 0.82rem;
+  color: var(--debate-text-dim);
+  line-height: 1.15;
 }
 
 /* ── MAIN CONTENT ── */
