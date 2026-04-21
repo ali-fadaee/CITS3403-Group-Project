@@ -24,8 +24,6 @@ body {
 
 /* ── NAVBAR ── */
 .navbar {
-  background: rgba(8, 8, 8, 0.94) !important;
-  border-bottom: 1px solid var(--debate-border-soft) !important;
   box-shadow: none !important;
 }
 
