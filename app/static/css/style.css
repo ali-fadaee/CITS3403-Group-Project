@@ -17,9 +17,19 @@
 
 body {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--debate-bg);
   color: var(--debate-text);
   font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+body > .site-footer {
+  flex-shrink: 0;
 }
 
 /* ── NAVBAR ── */
@@ -107,8 +117,35 @@ body {
 
 /* ── MAIN CONTENT ── */
 main.container {
-  min-height: calc(100vh - 56px);
   padding-bottom: 2rem;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  border-top: 1px solid var(--debate-border-soft);
+  background: var(--debate-bg);
+  color: var(--debate-text-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.footer-prompt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footer-tag {
+  color: var(--debate-text-dim);
 }
 
 /* ── INDEX PAGE ── */
