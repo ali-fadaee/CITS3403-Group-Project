@@ -34,8 +34,32 @@ function initSignupStepper() {
   setStep(1);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initSignupStepper);
-} else {
-  initSignupStepper();
+function InterestCounter() {
+  const form = document.getElementById("signupForm");
+  const interests = form ? form.elements["interests[]"] : null;
+  const count = document.getElementById("interestCount");
+
+  if (!interests || !count) {
+    return;
+  }
+
+  function updateCount() {
+    let selected = 0;
+    for (let i = 0; i < interests.length; i++) {
+      if (interests[i].checked) {
+        selected++;
+      }
+    }
+    count.textContent = String(selected);
+  }
+
+  for (let i = 0; i < interests.length; i++) {
+    interests[i].addEventListener("change", updateCount);
+  }
+
+  updateCount();
 }
+
+initSignupStepper();
+InterestCounter();
+

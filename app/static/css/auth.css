@@ -84,7 +84,7 @@
   transition: border-color 140ms ease;
 }
 
-.auth-card:focus-within {
+.auth-card:has(.auth-input.form-control:focus-visible) {
   border-color: rgba(157, 157, 157, 0.313);
 }
 
@@ -131,6 +131,17 @@
   color: var(--debate-text-dim);
   margin-bottom: 0.4rem;
   display: block;
+}
+
+.auth-help {
+  color: var(--debate-text-faint);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+#interestCount {
+  color: var(--debate-text-dim);
+  font-weight: 400;
 }
 
 /* ── inputs — override Bootstrap's form-control ── */
