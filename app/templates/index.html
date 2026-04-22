@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}DEBATE_APP{% endblock %}
 
 {% block content %}
 <div class="index-page">
   <div class="index-header">
-    <h1><span>~/</span>debates</h1>
+    <h1><span>$ </span>debates<span> --{{ filter or 'new' }}</span></h1>
     <div class="index-header-actions">
       <a href="/create" class="new-debate-btn">+ new</a>
       <a href="/debates/mine" class="my-debates-btn">my debates</a>
@@ -13,11 +13,14 @@
   </div>
 
   <div class="filter-tabs">
+    <span class="filter-prompt" aria-hidden="true">&gt;</span>
     <a href="?filter=new" class="filter-tab {% if filter == 'new' or not filter %}is-active{% endif %}">new</a>
     <a href="?filter=for-you" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
     <a href="?filter=popular" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
     <a href="?filter=top" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
   </div>
+
+  <p class="filter-hint">// Select a debate to join in</p>
 
   <div class="debate-list">
     {% for debate in debates %}
@@ -52,5 +55,23 @@
     <p class="no-debates">No debates yet. <a href="/create">Start one.</a></p>
     {% endfor %}
   </div>
+
+  {% if total_pages > 1 %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if has_prev %}
+    <a class="pagination-btn" href="?filter={{ filter or 'new' }}&page={{ page - 1 }}"><span class="terminal-symbol">&lt;</span> prev</a>
+    {% else %}
+    <span class="pagination-btn is-disabled"><span class="terminal-symbol">&lt;</span> prev</span>
+    {% endif %}
+
+    <span class="pagination-info"><span class="terminal-symbol">//</span> page {{ page }} / {{ total_pages }}</span>
+
+    {% if has_next %}
+    <a class="pagination-btn" href="?filter={{ filter or 'new' }}&page={{ page + 1 }}">next <span class="terminal-symbol">&gt;</span></a>
+    {% else %}
+    <span class="pagination-btn is-disabled">next <span class="terminal-symbol">&gt;</span></span>
+    {% endif %}
+  </nav>
+  {% endif %}
 </div>
 {% endblock %}

@@ -15,6 +15,24 @@
 /* ── BASE ── */
 *, *::before, *::after { box-sizing: border-box; }
 
+.terminal-symbol {
+  color: var(--debate-text-dim);
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.55rem;
+  height: 1em;
+  margin-left: 0.3rem;
+  background: var(--debate-text);
+  vertical-align: -0.12em;
+  animation: cursor-blink 1s steps(1, end) infinite;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+
 body {
   min-height: 100vh;
   display: flex;
@@ -24,11 +42,12 @@ body {
   font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
 }
 
-body > main {
+body > main,
+body > .debate-page {
   flex: 1 0 auto;
 }
 
-body > .site-footer {
+.site-footer {
   flex-shrink: 0;
 }
 
@@ -207,9 +226,26 @@ main.container {
 
 .filter-tabs {
   display: flex;
+  align-items: stretch;
   gap: 0;
   border: 1px solid var(--debate-border-soft);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.filter-hint {
+  margin: 0 0 1.25rem;
+  font-size: 0.8rem;
+  color: var(--debate-text-dim);
+}
+
+.filter-prompt {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--debate-text-dim);
+  border-right: 1px solid var(--debate-border-soft);
+  display: inline-flex;
+  align-items: center;
 }
 
 .filter-tab {
@@ -241,6 +277,39 @@ main.container {
 .debate-list {
   display: grid;
   gap: 0.75rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--debate-border-soft);
+  font-size: 0.82rem;
+}
+
+.pagination-btn {
+  color: var(--debate-text);
+  text-decoration: none;
+  padding: 0.15rem 0.4rem;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.pagination-btn:hover {
+  color: var(--debate-yes);
+  background: rgba(99, 240, 143, 0.06);
+}
+
+.pagination-btn.is-disabled {
+  color: var(--debate-text-faint);
+  pointer-events: none;
+  cursor: default;
+}
+
+.pagination-info {
+  color: var(--debate-text-dim);
 }
 
 .debate-card {
