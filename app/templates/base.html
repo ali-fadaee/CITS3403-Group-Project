@@ -14,7 +14,10 @@
   {% block page_shell %}
   <nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="/"><span>~/</span>debates-app</a>
+      <div class="navbar-brand-wrap">
+        <a class="navbar-brand" href="/"><span>~/</span>debates-app</a>
+        <span class="nav-version">v1.0.0</span>
+      </div>
       <div class="navbar-nav ms-auto flex-row gap-3">
         <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
           <div class="profile-icon">
@@ -218,12 +221,10 @@
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
       document.getElementById(id).classList.add('active');
-      document.body.style.overflow = 'hidden';
     }
     function closeModal(id) {
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
-      document.body.style.overflow = '';
     }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -232,6 +233,6 @@
       }
     });
   </script>
-  {% block extra_js %}{% endblock %}
+{% block extra_js %}{% endblock %}
 </body>
 </html>
