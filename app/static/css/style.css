@@ -22,6 +22,8 @@
 /* ── BASE ── */
 *, *::before, *::after { box-sizing: border-box; }
 
+html { overflow-y: scroll; }
+
 body {
   min-height: 100vh;
   display: flex;
@@ -341,8 +343,7 @@ main.container {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.65);
   z-index: 1040;
 }
 .modal-backdrop.active { display: block; }
