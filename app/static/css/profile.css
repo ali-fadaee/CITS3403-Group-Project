@@ -296,7 +296,7 @@
 }
 .modal-done-btn {
   padding: 0.5rem 1.2rem;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   font-family: inherit;
   background: rgba(99,240,143,0.15);
   border: 1px solid var(--debate-yes);
@@ -355,7 +355,7 @@
   margin-left: auto;
 }
 .delete-btn:hover { background: rgba(255,78,78,0.12); border-color: var(--debate-danger); }
-.danger-note { font-size: 0.72rem; color: var(--debate-text-faint); margin-top: 0.85rem; }
+.danger-note { font-size: var(--font-size-xs); color: var(--debate-text-faint); margin-top: 0.85rem; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 580px) {
@@ -375,7 +375,7 @@
 }
 
 .term-cmd {
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--debate-text);
   letter-spacing: 0.03em;

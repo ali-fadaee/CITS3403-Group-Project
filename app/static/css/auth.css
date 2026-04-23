@@ -1,7 +1,7 @@
 .row.justify-content-center {
   padding-top: 3rem;
   padding-bottom: 3rem;
-  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  font-family: var(--font-mono);
 }
 
 .auth-footer p, .auth-label {

@@ -10,6 +10,13 @@
   --debate-text-faint: #6e6e6e;
   --debate-yes: #63f08f;
   --debate-danger: #ff4e4e;
+
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+  --font-size-xs:   0.72rem;
+  --font-size-sm:   0.82rem;
+  --font-size-base: 0.88rem;
+  --font-size-md:   0.95rem;
+  --font-size-lg:   1.1rem;
 }
 
 /* ── BASE ── */
@@ -19,7 +26,7 @@ body {
   min-height: 100vh;
   background: var(--debate-bg);
   color: var(--debate-text);
-  font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+  font-family: var(--font-mono);
 }
 
 /* ── NAVBAR ── */
@@ -30,7 +37,7 @@ body {
 }
 
 .navbar-brand {
-  font-size: 1.1rem;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--debate-text) !important;
@@ -86,7 +93,7 @@ main.container {
 }
 
 .new-debate-btn {
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   color: var(--debate-yes);
   border: 1px solid rgba(99, 240, 143, 0.45);
   padding: 0.3rem 0.75rem;
@@ -99,7 +106,7 @@ main.container {
 }
 
 .my-debates-btn {
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   color: var(--debate-text-dim);
   border: 1px solid var(--debate-border-soft);
   padding: 0.3rem 0.75rem;
@@ -184,7 +191,7 @@ main.container {
 }
 
 .debate-card-title {
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   margin-bottom: 0.75rem;
   line-height: 1.4;
 }
@@ -203,7 +210,7 @@ main.container {
 }
 
 .debate-tag {
-  font-size: 0.72rem;
+  font-size: var(--font-size-xs);
   color: var(--debate-text-faint);
   border: 1px solid rgba(157, 157, 157, 0.18);
   padding: 0.15rem 0.45rem;
@@ -223,13 +230,13 @@ main.container {
   display: flex;
   gap: 1.25rem;
   margin-top: 0.6rem;
-  font-size: 0.72rem;
+  font-size: var(--font-size-xs);
   color: var(--debate-text-faint);
 }
 
 .no-debates {
   color: var(--debate-text-faint);
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
 }
 
 .no-debates a {
@@ -341,7 +348,7 @@ main.container {
 }
 
 .profile-dropdown-username {
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   font-weight: 700;
   color: var(--debate-text);
   letter-spacing: 0.03em;
@@ -351,7 +358,7 @@ main.container {
 }
 
 .profile-dropdown-email {
-  font-size: 0.72rem;
+  font-size: var(--font-size-xs);
   color: var(--debate-text-dim);
   white-space: nowrap;
   overflow: hidden;
