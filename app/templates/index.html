@@ -7,7 +7,7 @@
   <div class="index-header">
     <h1><span>~/</span>debates</h1>
     <div class="index-header-actions">
-      <a href="/create" class="new-debate-btn">+ new</a>
+      <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">+ new</a>
       <a href="/debates/mine" class="my-debates-btn">my debates</a>
     </div>
   </div>
@@ -49,7 +49,7 @@
       </div>
     </a>
     {% else %}
-    <p class="no-debates">No debates yet. <a href="/create">Start one.</a></p>
+    <p class="no-debates">No debates yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
     {% endfor %}
   </div>
 </div>
