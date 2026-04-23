@@ -7,14 +7,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+<div class="auth-page">
 
     <div class="auth-step-progress" id="signupProgress" role="progressbar" aria-label="Signup progress" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1">
       <p class="auth-step-progress-text" id="signupProgressText">Step 1 of 2 - Account details</p>
     </div>
 
-    <h2 class="mb-4 auth-heading">~/Signup<span class="terminal-cursor"></span></h2>
+    <h1 class="index-heading"><span>~/</span>signup<span class="terminal-cursor"></span></h1>
 
     <div class="auth-card">
       <form id="signupForm" method="POST" action="/signup">
@@ -81,7 +80,6 @@
         <p>Already have an account? <a href="/login">Login</a></p>
       </div>
     </div>
-  </div>
 </div>
 {% endblock %}
 
