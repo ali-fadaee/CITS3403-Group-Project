@@ -4,6 +4,10 @@
   padding: 2.5rem 1rem;
 }
 
+.auth-heading { 
+  padding-inline: 1.6rem; 
+}
+
 .auth-footer p, .auth-label {
   font-size: 0.75rem;
 }
