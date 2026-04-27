@@ -25,17 +25,20 @@
             <div class="mb-3">
               <label class="auth-label form-label" for="email">Email</label>
               <input type="email" placeholder="example@gmail.com" class="form-control auth-input" id="email" name="email" required>
+              <span id="emailFeedback" class="auth-help mt-2"></span>
             </div>
 
             <div class="mb-3">
               <label class="auth-label form-label" for="password">Password</label>
               <input type="password" class="form-control auth-input" id="password" name="password" autocomplete="new-password" required>
+              <span id="passwordFeedback" class="auth-help mt-2"></span>
               <p class="auth-help mt-2">Use at least 8 characters and include at least one lowercase letter, one uppercase letter, and one number.</p>
             </div>
 
             <div class="mb-4">
               <label class="auth-label form-label" for="confirm_password">Confirm Password</label>
               <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+              <span id="confirmPasswordFeedback" class="auth-help mt-2"></span>
             </div>
 
             <button type="button" class="auth-button" id="continueToProfile">continue --next</button>
@@ -47,7 +50,8 @@
             <div class="mb-3">
               <label class="auth-label form-label" for="username">Username</label>
               <input type="text" class="form-control auth-input" id="username" name="username" required>
-              <p class="auth-help mt-2">Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen</p>
+              <span id="usernameFeedback" class="auth-help mt-2"></span>
+              <p class="auth-help mt-2">Username must be 3–20 characters, using only letters, numbers, and hyphens. It cannot start or end with a hyphen.</p>
             </div>
 
             <div class="mb-4">
