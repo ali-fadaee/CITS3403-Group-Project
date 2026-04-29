@@ -17,40 +17,59 @@
     <h2 class="mb-4 auth-heading">~/Signup<span class="terminal-cursor"></span></h2>
 
     <div class="auth-card">
-      <form id="signupForm" method="POST" action="/signup">
+      <form id="signupForm" method="POST" action="{{ url_for('signup') }}">
+        {{ form.hidden_tag() }}
         <div class="auth-step-panels" id="signupPanels">
           <div class="auth-panel" data-step="1">
             <p class="auth-msg">$ signup <span>--verify-email</span></p>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="email">Email</label>
-              <input type="email" placeholder="example@gmail.com" class="form-control auth-input" id="email" name="email" required>
-              <span id="emailFeedback" class="auth-help mt-2"></span>
+              {{ form.email.label(class="auth-label form-label") }}
+              {{ form.email(class="form-control auth-input", placeholder="example@gmail.com") }}
+
+              {% if not form.email.errors %} 
+                <span id="emailFeedback" class="auth-help mt-2"></span>
+              {% endif %}
+              {% if form.email.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.email.errors[0] }}</span>
+              {% endif %}
             </div>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="password">Password</label>
-              <input type="password" class="form-control auth-input" id="password" name="password" autocomplete="new-password" required>
+              {{ form.password.label(class="auth-label form-label") }}
+              {{ form.password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="passwordFeedback" class="auth-help mt-2"></span>
+              {% if form.password.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.password.errors[0] }}</span>
+              {% endif %}
               <p class="auth-help mt-2">Use at least 8 characters and include at least one lowercase letter, one uppercase letter, and one number.</p>
             </div>
 
             <div class="mb-4">
-              <label class="auth-label form-label" for="confirm_password">Confirm Password</label>
-              <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+              {{ form.confirm_password.label(class="auth-label form-label") }}
+              {{ form.confirm_password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="confirmPasswordFeedback" class="auth-help mt-2"></span>
+              {% if form.confirm_password.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.confirm_password.errors[0] }}</span>
+              {% endif %}
             </div>
 
             <button type="button" class="auth-button" id="continueToProfile">continue --next</button>
           </div>
 
-          <div class="auth-panel auth-step-panel" data-step="2">
+          <div class="auth-panel" data-step="2">
             <p class="auth-msg">$ signup <span>--profile-setup</span></p>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="username">Username</label>
-              <input type="text" class="form-control auth-input" id="username" name="username" required>
-              <span id="usernameFeedback" class="auth-help mt-2"></span>
+              {{ form.username.label(class="auth-label form-label") }}
+              {{ form.username(class="form-control auth-input", autocomplete="username", required=True) }}
+
+              {% if not form.username.errors %}
+                <span id="usernameFeedback" class="auth-help mt-2"></span>
+              {% endif %}
+              {% if form.username.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.username.errors[0] }}</span>
+              {% endif %}
               <p class="auth-help mt-2">Username must be 3–20 characters, using only letters, numbers, and hyphens. It cannot start or end with a hyphen.</p>
             </div>
 
@@ -78,14 +97,14 @@
 
             <div class="auth-actions d-flex gap-2">
               <button type="button" class="auth-button auth-button-second" id="backToVerify">back --edit</button>
-              <button type="submit" class="auth-button">signup --execute</button>
+              {{ form.submit(class="auth-button") }}
             </div>
           </div>
         </div>
       </form>
 
       <div class="auth-footer mt-3">
-        <p>Already have an account? <a href="/login">Login</a></p>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
       </div>
     </div>
   </div>

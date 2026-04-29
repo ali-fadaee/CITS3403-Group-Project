@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash, redirect, url_for
+from app.forms import LoginForm, SignupForm
 
 
 def create_app():
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'your_secret_key_here'
 
     @app.route('/')
     def index():
@@ -14,13 +16,22 @@ def create_app():
         filter = request.args.get('filter', 'new')
         return render_template('index.html', debates=debates, filter=filter)
 
-    @app.route('/login')
+    @app.route('/login', methods=['GET', 'POST'])
     def login():
-        return render_template('login.html')
+        form = LoginForm()
+        if form.validate_on_submit():
+            flash('Login successful')
+            return redirect(url_for('index'))
+        return render_template('login.html', form=form)
     
-    @app.route('/signup')
+    @app.route('/signup', methods=['GET', 'POST'])
     def signup():
-        return render_template('signup.html')
+        form = SignupForm()
+        if form.validate_on_submit():
+            interests = request.form.getlist('interests[]')
+            flash('Account created successfully')
+            return redirect(url_for('login'))
+        return render_template('signup.html', form=form)
     
     @app.route('/profile')
     def profile():
