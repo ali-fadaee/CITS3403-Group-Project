@@ -25,7 +25,7 @@ body.debate-body {
     radial-gradient(circle at bottom left, rgba(255, 78, 78, 0.05), transparent 24%),
     var(--debate-bg);
   color: var(--debate-text);
-  font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+  font-family: var(--font-mono);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
@@ -138,7 +138,7 @@ body.debate-body [hidden] {
 }
 
 .path-step {
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   color: var(--debate-text-dim);
 }
 
@@ -148,7 +148,7 @@ body.debate-body [hidden] {
   justify-content: center;
   padding: 0.15rem 0.45rem;
   border: 1px solid currentColor;
-  font-size: 0.72rem;
+  font-size: var(--font-size-xs);
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -166,7 +166,7 @@ body.debate-body [hidden] {
 }
 
 .path-question {
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
   line-height: 1.45;
 }
 
@@ -264,7 +264,7 @@ body.debate-body [hidden] {
 .tree-answer {
   padding: 0.18rem 0.45rem;
   border: 1px solid currentColor;
-  font-size: 0.88rem;
+  font-size: var(--font-size-base);
 }
 
 .tree-answer[data-answer="yes"] {
@@ -394,6 +394,14 @@ body.debate-body [hidden] {
   color: var(--debate-text);
 }
 
+.theme-chip {
+  cursor: pointer;
+}
+
+.theme-chip .profile-icon {
+  background: rgba(18, 18, 18, 0.96);
+}
+
 .profile-icon {
   width: 2.1rem;
   height: 2.1rem;
@@ -405,7 +413,7 @@ body.debate-body [hidden] {
 }
 
 .profile-name {
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
 }
 
@@ -438,7 +446,7 @@ body.debate-body [hidden] {
 
 .hero-subline {
   margin-top: 0.45rem;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
 .debate-shell {
@@ -457,7 +465,7 @@ body.debate-body [hidden] {
 
 .shell-command {
   margin-bottom: 0.85rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-md);
 }
 
 .question-text {
@@ -603,7 +611,7 @@ body.debate-body [hidden] {
 
 .argument-label {
   margin-bottom: 0.7rem;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
 .answer-no .argument-label {
@@ -663,7 +671,7 @@ body.debate-body [hidden] {
 
 .comment-text {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
   line-height: 1.45;
 }
 
