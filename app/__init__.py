@@ -1,18 +1,17 @@
-import os
 from flask import Flask, render_template, request
 from sqlalchemy.orm import selectinload
-from app.extensions import db
+from app.extensions import db, migrate
+from app.config import Config
 
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
+    app.config.from_object(Config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
-    with app.app_context():
-        from app import models
-        db.create_all()
+    from app import models
 
     from app.models import Debate
 
