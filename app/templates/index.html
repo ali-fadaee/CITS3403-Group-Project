@@ -40,7 +40,7 @@
           <div class="debate-card-footer">
             <div class="debate-card-tags">
               {% for tag in debate.tags %}
-              <span class="debate-tag">{{ tag }}</span>
+              <span class="debate-tag">{{ tag.name }}</span>
               {% endfor %}
             </div>
             <div class="debate-card-counts">
@@ -49,8 +49,8 @@
             </div>
           </div>
           <div class="debate-card-meta">
-            <span>created {{ debate.created }}</span>
-            <span>active {{ debate.last_activity }}</span>
+            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
+            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
           </div>
         </div>
       </a>
