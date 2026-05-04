@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}My Activity{% endblock %}
+
+{% block content %}
+<div class="index-page">
+
+  <h1 class="index-heading"><span>~/</span>my-activity<span class="terminal-cursor"></span></h1>
+
+  <div class="index-header">
+    <p class="index-cmd"><span class="sym">$</span> ls <span>--mine --{{ tab }}</span></p>
+    <div class="index-header-actions">
+      <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">&gt; new --debate</a>
+      <a href="/" class="my-debates-btn">&gt; cd --home</a>
+    </div>
+  </div>
+  <p class="index-hint"><span class="sym">//</span> your created debates and arguments</p>
+
+  <div class="index-card">
+
+    <div class="index-toolbar">
+      <div class="filter-tabs">
+        <a href="?tab=debates" class="filter-tab {% if tab == 'debates' or not tab %}is-active{% endif %}">debates</a>
+        <a href="?tab=arguments" class="filter-tab {% if tab == 'arguments' %}is-active{% endif %}">arguments</a>
+      </div>
+    </div>
+
+    {% if not session.get('user_id') %}
+    <div class="debate-list">
+      <p class="no-debates">// you must be logged in to view your activity. <a href="/login">Login</a></p>
+    </div>
+
+    {% elif tab == 'arguments' %}
+    <div class="debate-list">
+      {% for comment in items %}
+      <a href="/debate" class="debate-card">
+        <div class="vote-bar">
+          <div class="vote-bar-{{ comment.side.value }}" style="height: 100%"></div>
+        </div>
+        <div class="debate-card-body">
+          <div class="debate-card-title">{{ comment.debate.title }}</div>
+          <div class="debate-card-footer">
+            <div class="debate-card-tags">
+              <span class="debate-tag">{{ comment.side.value }}</span>
+            </div>
+            <div class="debate-card-counts">
+              <span class="count-yes">+{{ comment.upvote_count }}</span>
+            </div>
+          </div>
+          <div class="debate-card-meta">
+            <span>{{ comment.content }}</span>
+            <span>{{ comment.created_at.strftime('%d %b %Y') }}</span>
+          </div>
+        </div>
+      </a>
+      {% else %}
+      <p class="no-debates">// no arguments made yet.</p>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="debate-list">
+      {% for debate in items %}
+      {% set total = debate.yes_count + debate.no_count %}
+      {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+      {% set no_pct = 100 - yes_pct %}
+      <a href="/debate" class="debate-card">
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
+        </div>
+        <div class="debate-card-body">
+          <div class="debate-card-title">{{ debate.title }}</div>
+          <div class="debate-card-footer">
+            <div class="debate-card-tags">
+              {% for tag in debate.tags %}
+              <span class="debate-tag">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+            <div class="debate-card-counts">
+              <span class="count-yes">yes {{ debate.yes_count }}</span>
+              <span class="count-no">no {{ debate.no_count }}</span>
+            </div>
+          </div>
+          <div class="debate-card-meta">
+            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
+            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+          </div>
+        </div>
+      </a>
+      {% else %}
+      <p class="no-debates">// no debates created yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+      {% if page > 1 %}
+      <a class="page-btn" href="?tab={{ tab }}&page={{ page - 1 }}">&lt; prev</a>
+      {% else %}
+      <span class="page-btn page-btn-disabled">&lt; prev</span>
+      {% endif %}
+
+      <span class="page-info">// page {{ page }} of {{ total_pages }}</span>
+
+      {% if page < total_pages %}
+      <a class="page-btn" href="?tab={{ tab }}&page={{ page + 1 }}">next &gt;</a>
+      {% else %}
+      <span class="page-btn page-btn-disabled">next &gt;</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
