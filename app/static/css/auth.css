@@ -99,6 +99,17 @@
   display: block;
 }
 
+.auth-help {
+  color: var(--debate-text-faint);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+#interestCount {
+  color: var(--debate-text-dim);
+  font-weight: 400;
+}
+
 /* ── inputs — override Bootstrap's form-control ── */
 .auth-input.form-control {
   background: var(--debate-panel-soft);
