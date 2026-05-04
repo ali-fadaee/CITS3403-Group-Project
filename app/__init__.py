@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from sqlalchemy.orm import selectinload
-from app.extensions import db, migrate
+from app.extensions import db, migrate, mail
 from app.config import Config
 
 
@@ -10,6 +10,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
 
     from app import models
 
