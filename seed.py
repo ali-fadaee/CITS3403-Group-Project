@@ -13,8 +13,6 @@ random.seed(42)
 app = create_app()
 
 with app.app_context():
-    db.drop_all()
-    db.create_all()
 
     # Avatars
     avatars = [
@@ -45,17 +43,17 @@ with app.app_context():
     alice = User(
         username='alice',
         email='alice@example.com',
-        password_hash='placeholder',
         bio='Loves debating technology and philosophy.',
         avatar_id=avatars[0].id,
     )
+    alice.set_password('placeholder')
     bob = User(
         username='bob',
         email='bob@example.com',
-        password_hash='placeholder',
         bio='Passionate about politics and the environment.',
         avatar_id=avatars[1].id,
     )
+    bob.set_password('placeholder')
     db.session.add_all([alice, bob])
     db.session.flush()
 
@@ -82,12 +80,13 @@ with app.app_context():
         User(
             username=uname,
             email=email,
-            password_hash='placeholder',
             bio=bio,
             avatar_id=avatars[i % len(avatars)].id,
         )
         for i, (uname, email, bio) in enumerate(extra_user_data)
     ]
+    for u in extra_users:
+        u.set_password('placeholder')
     db.session.add_all(extra_users)
     db.session.flush()
 
