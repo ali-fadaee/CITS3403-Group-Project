@@ -1,7 +1,7 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-default_db_path = "sqlite:///" + os.path.join(basedir, "app.db")
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+default_db_path = "sqlite:///" + os.path.join(basedir, "instance", "app.db")
 
 
 class Config:
