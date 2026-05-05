@@ -182,10 +182,10 @@
           <h2 class="panel-heading">// create</h2>
 
           <label class="create-label">--thesis</label>
-          <textarea class="create-input" placeholder="// enter your main question or thesis..."></textarea>
+          <textarea class="create-input" id="debateTitle" placeholder="// enter your main question or thesis..."></textarea>
 
-          <label class="create-label">--category</label>
-          <select class="create-select">
+          <label class="create-label" >--category</label>
+          <select class="create-select" id="debateCategory">
             <option>Technology</option>
             <option>Philosophy</option>
             <option>Politics</option>
@@ -207,7 +207,7 @@
           </div>
         </section>
 
-        <button class="create-final-btn">$ create --execute</button>
+        <button class="create-final-btn" id="createDebateBtn">$ create --execute</button>
 
       </div>
     </div>
@@ -230,6 +230,30 @@
         closeModal('profileFullModal');
       }
     });
+    document.getElementById('createDebateBtn').addEventListener('click', async function() {
+  const title = document.getElementById('debateTitle').value.trim();
+  const category = document.getElementById('debateCategory').value;
+
+  if (!title) {
+    alert('// error: thesis cannot be empty');
+    return;
+  }
+
+  const res = await fetch('/api/debates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, category })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    closeModal('createModal');
+    window.location.reload(); // refresh index to show new debate
+  } else {
+    alert('// error: ' + data.error);
+  }
+})
   </script>
 {% block extra_js %}{% endblock %}
 </body>

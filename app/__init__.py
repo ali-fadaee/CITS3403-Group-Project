@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from sqlalchemy.orm import selectinload
 from app.extensions import db, migrate
 from app.config import Config
@@ -13,7 +13,7 @@ def create_app():
 
     from app import models
 
-    from app.models import Debate
+    from app.models import Debate, Tag, DebateStatus
 
     @app.route('/')
     def index():
@@ -50,5 +50,32 @@ def create_app():
     @app.route('/debate')
     def debate():
         return render_template('debate.html')
+    
+    
+    @app.route('/api/debates', methods=['POST'])
+    def create_debate():
+        data = request.get_json()
+
+        title = data.get('title', '').strip()
+        category = data.get('category', '').strip()
+
+        if not title:
+            return jsonify({'error': 'title is required'}), 400
+
+        tag = Tag.query.filter_by(name=category).first()
+        if not tag:
+            tag = Tag(name=category)
+            db.session.add(tag)
+
+        debate = Debate(
+            title=title,
+            creator_id=1,
+            status=DebateStatus.open
+        )
+        debate.tags.append(tag)
+        db.session.add(debate)
+        db.session.commit()
+
+        return jsonify({'id': debate.id}), 201
 
     return app
