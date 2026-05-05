@@ -20,24 +20,20 @@
           <div class="mb-3">
             {{ form.usernameEmail.label(class="auth-label form-label") }}
             {{ form.usernameEmail(class="form-control auth-input", autocomplete="username", required=True) }}
-            {% if form.usernameEmail.errors %}
-                <span class="auth-help mt-2" style="color: red">{{ form.usernameEmail.errors[0] }}</span>
-            {% endif %}
           </div>
 
           <div class="mb-4">
             {{ form.password.label(class="auth-label form-label") }}
             {{ form.password(class="form-control auth-input", autocomplete="current-password", required=True) }}
-            {% if form.password.errors %}
-                <span class="auth-help mt-2" style="color: red">{{ form.password.errors[0] }}</span>
-            {% endif %}
           </div>
 
           <div class="mb-4 d-flex align-items-center gap-2"> 
             {{ form.remember(class="auth-checkbox") }}
             {{ form.remember.label(class="auth-label form-label mb-0") }}
           </div>
-
+          {% if login_error %}
+            <p class="auth-help mt-2" style="color: red ;text-align: center">{{ login_error }}</p>
+          {% endif %}
           {{ form.loginSubmit(class="auth-button") }}
         </div>
       </form>

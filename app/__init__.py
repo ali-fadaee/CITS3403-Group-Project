@@ -3,6 +3,7 @@ from app.forms import LoginForm, SignupForm
 from sqlalchemy.orm import selectinload
 from app.extensions import db, migrate
 from app.config import Config
+from flask_login import login_user
 
 
 def create_app():
@@ -14,7 +15,7 @@ def create_app():
 
     from app import models
 
-    from app.models import Debate
+    from app.models import Debate, User, Tag
 
     @app.route('/')
     def index():
@@ -36,18 +37,54 @@ def create_app():
     def login():
         form = LoginForm()
         if form.validate_on_submit():
-            flash('Login successful')
+            user = User.query.filter(
+                (User.email == form.usernameEmail.data) | (User.username == form.usernameEmail.data)
+            ).first()
+
+            if not user or not user.check_password(form.password.data):
+                return render_template("login.html", form=form, login_error="Invalid username/email or password.")
+
+            login_user(user, remember=form.remember.data)
             return redirect(url_for('index'))
         return render_template('login.html', form=form)
     
     @app.route('/signup', methods=['GET', 'POST'])
     def signup():
+        interests_options = [
+            'Sports',
+            'Music',
+            'Technology',
+            'Art',
+            'Science',
+            'Philosophy',
+            'Environment',
+            'Economics',
+            'Education',
+            'Ethics',
+            'Health',
+            'Lifestyle'
+        ]
         form = SignupForm()
         if form.validate_on_submit():
+            user = User(username=form.username.data, 
+                        email=form.email.data,
+            )
+
+            user.set_password(form.password.data)
             interests = request.form.getlist('interests[]')
+            tags = []
+            for interest in interests:
+                tag = Tag.query.filter_by(name=interest).first()
+                if not tag:
+                    tag = Tag(name=interest)
+                    db.session.add(tag)
+                tags.append(tag)
+            user.interests = tags
+            db.session.add(user)
+            db.session.commit()
             flash('Account created successfully')
             return redirect(url_for('login'))
-        return render_template('signup.html', form=form)
+        return render_template('signup.html', form=form, interests=interests_options)
     
     @app.route('/profile')
     def profile():

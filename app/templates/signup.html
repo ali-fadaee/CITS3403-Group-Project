@@ -76,20 +76,10 @@
               <label class="auth-label form-label mb-2">Interests (select all that apply)</label>
 
               <div class="auth-interest-buttons d-flex flex-wrap gap-2">
-                <input type="checkbox" class="btn-check" id="interest1" name="interests[]" value="sports" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest1">Sports</label>
-
-                <input type="checkbox" class="btn-check" id="interest2" name="interests[]" value="music" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest2">Music</label>
-
-                <input type="checkbox" class="btn-check" id="interest3" name="interests[]" value="technology" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest3">Technology</label>
-
-                <input type="checkbox" class="btn-check" id="interest4" name="interests[]" value="art" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest4">Art</label>
-
-                <input type="checkbox" class="btn-check" id="interest5" name="interests[]" value="economics" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest5">Economics</label>
+                {% for interest in interests %}
+                  <input type="checkbox" class="btn-check" id="interest{{ loop.index }}" name="interests[]" value="{{ interest }}" autocomplete="off">
+                  <label class="btn btn-outline-secondary auth-interest-btn" for="interest{{ loop.index }}">{{ interest }}</label>
+                {% endfor %}
               </div>
               <p class="auth-help mt-2 mb-0">Selected: <span id="interestCount">0</span></p>
             </div>
