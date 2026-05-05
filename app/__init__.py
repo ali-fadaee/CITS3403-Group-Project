@@ -1,18 +1,35 @@
 from flask import Flask, render_template, request
+from sqlalchemy.orm import selectinload
+from app.extensions import db, migrate
+from app.config import Config
 
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    from app import models
+
+    from app.models import Debate
 
     @app.route('/')
     def index():
-        debates = [
-            {'title': 'Is AI a threat to employment?', 'tags': ['Technology', 'Science'], 'yes_count': 3, 'no_count': 1, 'created': '28 Mar 2026', 'last_activity': '30 Mar 2026'},
-            {'title': 'Should social media be regulated?', 'tags': ['Politics', 'Technology'], 'yes_count': 2, 'no_count': 8, 'created': '25 Mar 2026', 'last_activity': '29 Mar 2026'},
-            {'title': 'Am I a horrible person for cheating on my wife?', 'tags': ['Lifestyle', 'Relationships'], 'yes_count': 10, 'no_count': 2, 'created': '20 Mar 2026', 'last_activity': '30 Mar 2026'},
-        ]
         filter = request.args.get('filter', 'new')
-        return render_template('index.html', debates=debates, filter=filter)
+        page = max(1, request.args.get('page', 1, type=int))
+        per_page = 10
+
+        query = Debate.query.options(selectinload(Debate.tags))
+        if filter in ('popular', 'top'):
+            query = query.order_by(Debate.comment_count.desc(), Debate.created_at.desc())
+        else:
+            query = query.order_by(Debate.created_at.desc())
+
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        return render_template('index.html', debates=pagination.items, filter=filter,
+                               page=pagination.page, total_pages=pagination.pages or 1)
 
     @app.route('/login')
     def login():

@@ -3,36 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}App{% endblock %}</title>
+  <title>{% block title %}~/debates-app{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
   {% block page_shell %}
   <nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="/"><span>~/</span>app</a>
+      <div class="navbar-brand-wrap">
+        <a class="navbar-brand" href="/"><span>~/</span>debates-app</a>
+        <span class="nav-version">v1.0.0</span>
+      </div>
       <div class="navbar-nav ms-auto flex-row gap-3">
-        <a class="nav-link" href="/login">Login</a>
-        <div class="profile-nav-wrapper">
-          <a class="nav-link" href="#" onclick="toggleProfileDropdown(); return false;">Profile</a>
-          <div class="profile-dropdown" id="profileDropdown">
-            <div class="profile-dropdown-top">
-              <div class="profile-dropdown-avatar" id="modalAvatarDisplay">🤖</div>
-              <div class="profile-dropdown-info">
-                <div class="profile-dropdown-username">h4ck3rm1nd</div>
-                <div class="profile-dropdown-email">user@debate.sh</div>
-              </div>
-            </div>
-            <div class="profile-dropdown-actions">
-              <button class="profile-action-btn" onclick="expandProfileModal()">$ edit --profile</button>
-              <button class="profile-action-btn profile-action-logout">$ exit</button>
-            </div>
+        <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
+          <div class="profile-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
+              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
+            </svg>
           </div>
-        </div>
+          <div>
+            <div class="profile-name">h4ck3rm1nd</div>
+            <div class="profile-status">online</div>
+          </div>
+        </button>
       </div>
     </div>
   </nav>
@@ -40,6 +36,14 @@
   <main class="{% block main_class %}container py-4{% endblock %}">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="footer-status-dot"></span>
+      <span class="footer-status-text">system online</span>
+      <span class="footer-copy">&copy; 2026 debates-app &mdash; v1.0.0</span>
+    </div>
+  </footer>
   {% endblock %}
 
   <!-- ── PROFILE FULL MODAL ── -->
@@ -215,35 +219,18 @@
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
       document.getElementById(id).classList.add('active');
-      document.body.style.overflow = 'hidden';
     }
     function closeModal(id) {
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
-      document.body.style.overflow = '';
     }
-    function toggleProfileDropdown() {
-      document.getElementById('profileDropdown').classList.toggle('active');
-    }
-    function closeProfileDropdown() {
-      document.getElementById('profileDropdown').classList.remove('active');
-    }
-    function expandProfileModal() {
-      closeProfileDropdown();
-      openModal('profileFullModal');
-    }
-    document.addEventListener('click', function(e) {
-      const wrapper = document.querySelector('.profile-nav-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) closeProfileDropdown();
-    });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeModal('createModal');
         closeModal('profileFullModal');
-        closeProfileDropdown();
       }
     });
   </script>
-  {% block extra_js %}{% endblock %}
+{% block extra_js %}{% endblock %}
 </body>
 </html>

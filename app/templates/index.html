@@ -1,56 +1,82 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
-
 {% block content %}
 <div class="index-page">
+
+  <h1 class="index-heading"><span>~/</span>debates<span class="terminal-cursor"></span></h1>
+
   <div class="index-header">
-    <h1><span>~/</span>debates</h1>
+    <p class="index-cmd">$ debates <span>--list --filter {{ filter }}</span></p>
     <div class="index-header-actions">
-      <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">+ new</a>
-      <a href="/debates/mine" class="my-debates-btn">my debates</a>
+      <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">&gt; new --debate</a>
+      <a href="/debates/mine" class="my-debates-btn">&gt; ls --mine</a>
     </div>
   </div>
+  <p class="index-hint">// use the filters to browse — click any debate to read, argue, and vote</p>
 
-  <div class="filter-tabs">
-    <a href="?filter=new" class="filter-tab {% if filter == 'new' or not filter %}is-active{% endif %}">new</a>
-    <a href="?filter=for-you" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
-    <a href="?filter=popular" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
-    <a href="?filter=top" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
-  </div>
+  <div class="index-card">
 
-  <div class="debate-list">
-    {% for debate in debates %}
-    {% set total = debate.yes_count + debate.no_count %}
-    {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
-    {% set no_pct = 100 - yes_pct %}
-    <a href="/debate" class="debate-card">
-      <div class="vote-bar">
-        <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
-        <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
+    <div class="index-toolbar">
+      <div class="filter-tabs">
+        <a href="?filter=new" class="filter-tab {% if filter == 'new' or not filter %}is-active{% endif %}">new</a>
+        <a href="?filter=for-you" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
+        <a href="?filter=popular" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
+        <a href="?filter=top" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
       </div>
-      <div class="debate-card-body">
-        <div class="debate-card-title">{{ debate.title }}</div>
-        <div class="debate-card-footer">
-          <div class="debate-card-tags">
-            {% for tag in debate.tags %}
-            <span class="debate-tag">{{ tag }}</span>
-            {% endfor %}
+    </div>
+
+    <div class="debate-list">
+      {% for debate in debates %}
+      {% set total = debate.yes_count + debate.no_count %}
+      {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+      {% set no_pct = 100 - yes_pct %}
+      <a href="/debate" class="debate-card">
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
+        </div>
+        <div class="debate-card-body">
+          <div class="debate-card-title">{{ debate.title }}</div>
+          <div class="debate-card-footer">
+            <div class="debate-card-tags">
+              {% for tag in debate.tags %}
+              <span class="debate-tag">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+            <div class="debate-card-counts">
+              <span class="count-yes">yes {{ debate.yes_count }}</span>
+              <span class="count-no">no {{ debate.no_count }}</span>
+            </div>
           </div>
-          <div class="debate-card-counts">
-            <span class="count-yes">yes {{ debate.yes_count }}</span>
-            <span class="count-no">no {{ debate.no_count }}</span>
+          <div class="debate-card-meta">
+            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
+            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
           </div>
         </div>
-        <div class="debate-card-meta">
-          <span>created {{ debate.created }}</span>
-          <span>active {{ debate.last_activity }}</span>
-        </div>
-      </div>
-    </a>
-    {% else %}
-    <p class="no-debates">No debates yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
-    {% endfor %}
+      </a>
+      {% else %}
+      <p class="no-debates">No debates yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
+      {% endfor %}
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+      {% if page > 1 %}
+      <a class="page-btn" href="?filter={{ filter }}&page={{ page - 1 }}">&lt; prev</a>
+      {% else %}
+      <span class="page-btn page-btn-disabled">&lt; prev</span>
+      {% endif %}
+
+      <span class="page-info">// page {{ page }} of {{ total_pages }}</span>
+
+      {% if page < total_pages %}
+      <a class="page-btn" href="?filter={{ filter }}&page={{ page + 1 }}">next &gt;</a>
+      {% else %}
+      <span class="page-btn page-btn-disabled">next &gt;</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}

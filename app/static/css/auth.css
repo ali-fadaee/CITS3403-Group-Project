@@ -1,7 +1,11 @@
-.row.justify-content-center {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+.auth-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem;
+}
+
+.auth-heading { 
+  padding-inline: 1.6rem; 
 }
 
 .auth-footer p, .auth-label {
@@ -31,7 +35,7 @@
   inset: 0 auto 0 0;
   height: 100%;
   width: 50%;
-  background: rgba(99, 240, 143, 0.75);
+  background: var(--debate-yes-muted);
   border-radius: 999px;
   transition: width 220ms ease;
 }
@@ -48,44 +52,6 @@
   color: var(--debate-text-dim);
   font-size: 0.72rem;
   letter-spacing: 0.02em;
-}
-
-/* ── heading path ── */
-.auth-heading {
-  color: var(--debate-text);
-  font-size: 1.75rem;
-  margin-bottom: 0.6rem;
-  letter-spacing: 0.02em;
-  padding-inline: 1.6rem;
-}
-
-/* Blinking terminal cursor for the heading */
-.terminal-cursor {
-  display: inline-block;
-  width: 4px;
-  height: 1em;
-  margin-left: 4px;
-  background: var(--debate-yes);
-  vertical-align: text-bottom;
-  animation: blink 1s linear infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-/* ── outer card ── */
-.auth-card {
-  border: 1px solid var(--debate-border-soft);
-  background: var(--debate-panel);
-  border-radius: 4px;
-  overflow: hidden;
-  transition: border-color 140ms ease;
-}
-
-.auth-card:focus-within {
-  border-color: rgba(157, 157, 157, 0.313);
 }
 
 /* ── panel for both login and signup page ── */
@@ -119,7 +85,7 @@
 }
 
 .auth-msg::first-letter {
-  color: rgba(99, 240, 143, 0.75);
+  color: var(--debate-yes-muted);
 }
 
 .auth-msg span {
@@ -131,6 +97,17 @@
   color: var(--debate-text-dim);
   margin-bottom: 0.4rem;
   display: block;
+}
+
+.auth-help {
+  color: var(--debate-text-faint);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+#interestCount {
+  color: var(--debate-text-dim);
+  font-weight: 400;
 }
 
 /* ── inputs — override Bootstrap's form-control ── */
@@ -194,7 +171,7 @@
   display: block;
   padding: 0.48rem 1rem;
   border: 1px solid var(--debate-yes);
-  background: rgba(99, 240, 143, 0.07);
+  background: var(--debate-yes-bg-dim);
   color: var(--debate-yes);
   cursor: pointer;
   border-radius: 0;
@@ -206,7 +183,7 @@
 }
 
 .auth-button:hover {
-  background: rgba(99, 240, 143, 0.15);
+  background: var(--debate-yes-bg);
 }
 
 .auth-button:active {
@@ -234,7 +211,7 @@
 }
 
 .auth-interest-buttons .btn-outline-secondary:hover {
-  border-color: rgba(99, 240, 143, 0.4);
+  border-color: var(--debate-yes-border);
   color: var(--debate-text);
   background: rgba(157, 157, 157, 0.14);
 }
@@ -242,7 +219,7 @@
 .auth-interest-buttons .btn-check:checked + .auth-interest-btn {
   border-color: var(--debate-yes);
   color: var(--debate-yes);
-  background: rgba(99, 240, 143, 0.16);
+  background: var(--debate-yes-bg);
 }
 
 /* ── footer links ── */

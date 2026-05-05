@@ -5,7 +5,7 @@
 {% block body_class %}debate-body{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-12') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-13') }}">
 {% endblock %}
 
 {% block page_shell %}
@@ -39,6 +39,18 @@
             <div class="profile-status">all topics</div>
           </div>
         </a>
+
+        <button class="profile-chip theme-chip" type="button" aria-label="Theme switch placeholder">
+          <div class="profile-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="profile-name">theme_mode</div>
+            <div class="profile-status">light / dark</div>
+          </div>
+        </button>
       </div>
 
       <div class="topbar-right">
