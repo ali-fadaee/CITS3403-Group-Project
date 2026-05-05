@@ -12,7 +12,7 @@ class LoginForm(FlaskForm):
         validators=[DataRequired(message='Please fill in this field')]
     )
     remember = BooleanField('Remember me')
-    submit = SubmitField('login --execute')
+    loginSubmit = SubmitField('login --execute')
 
 class SignupForm(FlaskForm):
     email = EmailField(
@@ -45,4 +45,4 @@ class SignupForm(FlaskForm):
             Regexp(r'^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$', message='Username does not meet requirements.')
         ]
     )
-    submit = SubmitField('signup --execute')
+    signupSubmit = SubmitField('signup --execute')
