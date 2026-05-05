@@ -7,10 +7,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+<div class="auth-page">
 
-    <h2 class="mb-4 auth-heading">~/Login<span class = "terminal-cursor"></span></h2>
+    <h1 class="mb-4 auth-heading"><span>~/</span>login<span class="terminal-cursor"></span></h1>
 
     <div class="auth-card">
       <form  id="loginForm" method="POST" action="{{ url_for('login') }}">
@@ -47,6 +46,5 @@
         <p>Forgot password? <a href="/reset">Reset</a></p> 
       </div>
     </div>  
-  </div>
 </div>
 {% endblock %}
