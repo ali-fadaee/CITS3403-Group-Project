@@ -91,6 +91,7 @@
             </div>
           </div>
           <div class="save-row">
+            <span id="profileError" style="color: var(--debate-no, #ff4d4d); font-size: 0.8rem; display:none;"></span>
             <button class="save-btn" id="saveProfileBtn">$ save --apply</button>
           </div>
         </div>
@@ -219,6 +220,7 @@
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
       if (id === 'profileFullModal') {
+        clearProfileError();
         document.getElementById('pwChangeFields').hidden = true;
         document.getElementById('changePwBtn').textContent = '$ change';
         document.getElementById('currentPassword').value = '';

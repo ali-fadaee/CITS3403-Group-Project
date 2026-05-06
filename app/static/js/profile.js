@@ -152,6 +152,17 @@
 
     renderTags();
 
+    function showProfileError(msg) {
+      const el = document.getElementById('profileError');
+      el.textContent = msg;
+      el.style.display = 'inline';
+    }
+    function clearProfileError() {
+      const el = document.getElementById('profileError');
+      el.textContent = '';
+      el.style.display = 'none';
+    }
+
     /* ══════════════════════════════
        SAVE PROFILE
        ══════════════════════════════ */
@@ -164,10 +175,10 @@
       const confirmPw = document.getElementById('confirmPassword').value.trim();
 
       if (currentPw || newPw || confirmPw) {
-        if (!currentPw) { alert('// error: enter your current password'); return; }
-        if (!newPw)     { alert('// error: enter a new password'); return; }
-        if (newPw !== confirmPw) { alert('// error: passwords do not match'); return; }
-        if (newPw.length < 6)   { alert('// error: password too short (min 6)'); return; }
+        if (!currentPw) { showProfileError('// enter your current password'); return; }
+        if (!newPw)     { showProfileError('// enter a new password'); return; }
+        if (newPw !== confirmPw) { showProfileError('// passwords do not match'); return; }
+        if (newPw.length < 6)   { showProfileError('// password too short (min 6 chars)'); return; }
         body.current_password = currentPw;
         body.password = newPw;
       }
@@ -176,7 +187,7 @@
       }
 
       if (!Object.keys(body).length) {
-        alert('// nothing to save');
+        showProfileError('// nothing to save');
         return;
       }
 
@@ -199,12 +210,12 @@
           document.getElementById('confirmPassword').value = '';
           setTimeout(() => { btn.textContent = '$ save --apply'; btn.disabled = false; }, 2000);
         } else {
-          alert('// error: ' + (data.error || 'save failed'));
+          showProfileError(data.error || '// save failed');
           btn.disabled = false;
           btn.textContent = '$ save --apply';
         }
       } catch (err) {
-        alert('// error: network failure');
+        showProfileError('// network failure');
         btn.disabled = false;
         btn.textContent = '$ save --apply';
       }
