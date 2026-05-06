@@ -128,6 +128,8 @@ def api_save_profile():
     data = request.get_json()
     if data.get('password'):
         user.set_password(data['password'])
+    if data.get('avatar_id'):
+        user.avatar_id = data['avatar_id']
 
     db.session.commit()
     return jsonify({'ok': True}), 200

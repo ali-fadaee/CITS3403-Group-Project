@@ -42,8 +42,8 @@ with app.app_context():
         Avatar(name='Lightning',    image_url='/static/images/avatars/lightning.svg'),
         Avatar(name='Dark Moon',    image_url='/static/images/avatars/dark_moon.svg'),
         Avatar(name='Masks',        image_url='/static/images/avatars/masks.svg'),
-        Avatar(name='Wolf',         image_url='/static/images/avatars/wolf_emoji.svg'),
-        Avatar(name='Fox',          image_url='/static/images/avatars/fox_emoji.svg'),
+        Avatar(name='Wolf',         image_url='/static/images/avatars/wolf.svg'),
+        Avatar(name='Fox',          image_url='/static/images/avatars/fox.svg'),
     ]
     db.session.add_all(avatars)
 

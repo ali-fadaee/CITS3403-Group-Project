@@ -1,30 +1,43 @@
-/* ══════════════════════════════
-       AVATAR
-    ══════════════════════════════ */
-    const FACES = [
-      '🤖','👾','🦾','🧠','👽','🐲','🦊',
-      '🐺','🦁','🐯','🦅','🐙','🦑','🦂',
-      '🧟','🧛','🧙','🥷','👻','💀','🃏',
-      '🦇','🐉','🔮','🛸','⚡','🌑','🎭'
-    ];
-    let selectedFace = '🤖';
+    /* ══════════════════════════════
+        AVATAR
+      ══════════════════════════════ */
+    let selectedAvatarId = null;
 
     const avatarDisplay = document.getElementById('avatarDisplay');
     const avatarGrid    = document.getElementById('avatarGrid');
 
-    FACES.forEach(f => {
-      const btn = document.createElement('button');
-      btn.className = 'avatar-option' + (f === selectedFace ? ' is-selected' : '');
-      btn.textContent = f;
-      btn.addEventListener('click', () => {
-        avatarGrid.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('is-selected'));
-        btn.classList.add('is-selected');
-        avatarDisplay.textContent = f;
-        selectedFace = f;
-        setTimeout(closeAvatarModal, 180);
+    fetch('/api/avatars')
+      .then(res => res.json())
+      .then(avatars => {
+        avatars.forEach(a => {
+          const btn = document.createElement('button');
+          btn.className = 'avatar-option';
+          btn.dataset.avatarId = a.id;
+
+          const img = document.createElement('img');
+          img.src = a.url;
+          img.alt = a.name;
+          img.width = 48;
+          img.height = 48;
+
+          btn.appendChild(img);
+          btn.addEventListener('click', () => {
+            avatarGrid.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+            avatarDisplay.innerHTML = '';
+            const preview = document.createElement('img');
+            preview.src = a.url;
+            preview.alt = a.name;
+            preview.style.width = '100%';
+            preview.style.height = '100%';
+            avatarDisplay.appendChild(preview);
+            selectedAvatarId = a.id;
+            setTimeout(closeAvatarModal, 180);
+          });
+
+          avatarGrid.appendChild(btn);
+        });
       });
-      avatarGrid.appendChild(btn);
-    });
 
     function openAvatarModal() {
       document.getElementById('avatarBackdrop').classList.add('is-open');
@@ -109,13 +122,24 @@
        PASSWORD
     ══════════════════════════════ */
     function togglePassword() {
-      const f = document.getElementById('passwordField');
+      const f   = document.getElementById('passwordField');
+      const btn = document.querySelector('.change-btn');
+
       if (f.readOnly) {
-        f.readOnly = false; f.type = 'text'; f.value = ''; f.focus();
+        // State 1 → 2: unlock for editing
+        f.readOnly = false; f.value = ''; f.focus();
+        btn.textContent = '$ show';
+      } else if (f.type === 'password') {
+        // State 2 → 3: reveal text
+        f.type = 'text';
+        btn.textContent = '$ hide';
       } else {
-        f.readOnly = true; f.type = 'password'; f.value = '';
+        // State 3 → 2: hide text again
+        f.type = 'password';
+        btn.textContent = '$ show';
       }
     }
+        
 
     renderTags();
 
@@ -129,6 +153,9 @@
 
       if (!password.readOnly && password.value.trim()) {
         body.password = password.value.trim();
+      }
+      if (selectedAvatarId !== null) {
+        body.avatar_id = selectedAvatarId;
       }
 
       if (!Object.keys(body).length) {
@@ -150,7 +177,8 @@
           btn.textContent = '$ saved ✓';
           password.readOnly = true;
           password.type = 'password';
-          password.value = '';
+          password.value = '••••••••';
+          document.querySelector('.change-btn').textContent = '$ change';
           setTimeout(() => { btn.textContent = '$ save --apply'; btn.disabled = false; }, 2000);
         } else {
           alert('// error: ' + (data.error || 'save failed'));
@@ -163,5 +191,3 @@
         btn.textContent = '$ save --apply';
       }
     });
-
-    /*�

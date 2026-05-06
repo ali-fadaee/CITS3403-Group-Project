@@ -213,6 +213,12 @@
     function closeModal(id) {
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
+      if (id === 'profileFullModal') {
+        const f = document.getElementById('passwordField');
+        const btn = document.querySelector('.change-btn');
+        if (f) { f.readOnly = true; f.type = 'password'; f.value = '••••••••'; }
+        if (btn) { btn.textContent = '$ change'; }
+      }
     }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -224,4 +230,3 @@
 {% block extra_js %}{% endblock %}
 </body>
 </html>
-                                                                                                                                                 
