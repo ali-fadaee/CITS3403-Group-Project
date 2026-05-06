@@ -130,6 +130,15 @@ def api_save_profile():
         user.set_password(data['password'])
     if data.get('avatar_id'):
         user.avatar_id = data['avatar_id']
+    if 'interests' in data:
+        tags = []
+        for name in data['interests']:
+            tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
+            if not tag:
+                tag = Tag(name=name)
+                db.session.add(tag)
+            tags.append(tag)
+        user.interests = tags
 
     db.session.commit()
     return jsonify({'ok': True}), 200

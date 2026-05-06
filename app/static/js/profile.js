@@ -112,6 +112,12 @@
     function closeInterestsModal() {
       document.getElementById('interestsBackdrop').classList.remove('is-open');
       document.getElementById('interestsModal').classList.remove('is-open');
+
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interests: [...activeInterests] })
+      });
     }
 
     document.addEventListener('keydown', e => {
