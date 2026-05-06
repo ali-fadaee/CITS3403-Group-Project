@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
 from app.forms import LoginForm, SignupForm
 from sqlalchemy.orm import selectinload
-from app.extensions import db, migrate
+from app.extensions import db, migrate, login_manager
 from app.config import Config
 from flask_login import login_user
 
@@ -12,6 +12,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
 
     from app import models
 

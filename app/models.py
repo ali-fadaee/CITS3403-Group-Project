@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from sqlalchemy import event, update
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin   
+from app.extensions import login_manager
 
 
 class DebateStatus(enum.Enum):
@@ -29,7 +31,7 @@ class Avatar(db.Model):
     users = db.relationship('User', back_populates='avatar')
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -164,3 +166,7 @@ def _vote_after_delete(mapper, connection, target):
             upvote_count=Comment.upvote_count - 1
         )
     )
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
