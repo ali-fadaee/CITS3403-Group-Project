@@ -98,6 +98,11 @@
           const chip = categoryGrid.querySelector(`[data-cat="${cat}"]`);
           if (chip) chip.classList.remove('is-selected');
           renderTags();
+          fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ interests: [...activeInterests] })
+          });
         });
         tag.appendChild(label);
         tag.appendChild(rm);
