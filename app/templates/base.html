@@ -79,8 +79,13 @@
               <div class="field">
                 <label class="field-label">--password</label>
                 <div class="pw-row">
-                  <input class="field-input" type="password" value="supersecret" readonly id="passwordField" />
-                  <button class="change-btn" onclick="togglePassword()">$ change</button>
+                  <input class="field-input" type="password" value="••••••••" readonly id="passwordField" />
+                  <button class="change-btn" id="changePwBtn" onclick="togglePassword()">$ change</button>
+                </div>
+                <div id="pwChangeFields" hidden style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
+                  <input class="field-input" type="password" id="currentPassword" placeholder="// current password" />
+                  <input class="field-input" type="password" id="newPassword" placeholder="// new password" />
+                  <input class="field-input" type="password" id="confirmPassword" placeholder="// confirm new password" />
                 </div>
               </div>
             </div>
@@ -214,10 +219,11 @@
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
       if (id === 'profileFullModal') {
-        const f = document.getElementById('passwordField');
-        const btn = document.querySelector('.change-btn');
-        if (f) { f.readOnly = true; f.type = 'password'; f.value = '••••••••'; }
-        if (btn) { btn.textContent = '$ change'; }
+        document.getElementById('pwChangeFields').hidden = true;
+        document.getElementById('changePwBtn').textContent = '$ change';
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
       }
     }
     document.addEventListener('keydown', function(e) {

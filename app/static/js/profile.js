@@ -128,21 +128,19 @@
        PASSWORD
     ══════════════════════════════ */
     function togglePassword() {
-      const f   = document.getElementById('passwordField');
-      const btn = document.querySelector('.change-btn');
+      const fields = document.getElementById('pwChangeFields');
+      const btn    = document.getElementById('changePwBtn');
 
-      if (f.readOnly) {
-        // State 1 → 2: unlock for editing
-        f.readOnly = false; f.value = ''; f.focus();
-        btn.textContent = '$ show';
-      } else if (f.type === 'password') {
-        // State 2 → 3: reveal text
-        f.type = 'text';
-        btn.textContent = '$ hide';
+      if (!fields.hidden) {
+        fields.hidden = true;
+        btn.textContent = '$ change';
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
       } else {
-        // State 3 → 2: hide text again
-        f.type = 'password';
-        btn.textContent = '$ show';
+        fields.hidden = false;
+        btn.textContent = '$ cancel';
+        document.getElementById('currentPassword').focus();
       }
     }
         
@@ -154,11 +152,19 @@
        ══════════════════════════════ */
     document.getElementById('saveProfileBtn').addEventListener('click', async function () {
       const btn      = this;
-      const password = document.getElementById('passwordField');
       const body     = {};
 
-      if (!password.readOnly && password.value.trim()) {
-        body.password = password.value.trim();
+      const currentPw = document.getElementById('currentPassword').value.trim();
+      const newPw     = document.getElementById('newPassword').value.trim();
+      const confirmPw = document.getElementById('confirmPassword').value.trim();
+
+      if (currentPw || newPw || confirmPw) {
+        if (!currentPw) { alert('// error: enter your current password'); return; }
+        if (!newPw)     { alert('// error: enter a new password'); return; }
+        if (newPw !== confirmPw) { alert('// error: passwords do not match'); return; }
+        if (newPw.length < 6)   { alert('// error: password too short (min 6)'); return; }
+        body.current_password = currentPw;
+        body.password = newPw;
       }
       if (selectedAvatarId !== null) {
         body.avatar_id = selectedAvatarId;
@@ -181,10 +187,11 @@
         const data = await res.json();
         if (res.ok) {
           btn.textContent = '$ saved ✓';
-          password.readOnly = true;
-          password.type = 'password';
-          password.value = '••••••••';
-          document.querySelector('.change-btn').textContent = '$ change';
+          document.getElementById('pwChangeFields').hidden = true;
+          document.getElementById('changePwBtn').textContent = '$ change';
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
           setTimeout(() => { btn.textContent = '$ save --apply'; btn.disabled = false; }, 2000);
         } else {
           alert('// error: ' + (data.error || 'save failed'));
