@@ -69,11 +69,11 @@
               <div class="field-row">
                 <div class="field">
                   <label class="field-label">--username</label>
-                  <input class="field-input" type="text" value="h4ck3rm1nd" placeholder="// set username" />
+                  <input class="field-input" type="text" value="h4ck3rm1nd" placeholder="// set username" readonly/>
                 </div>
                 <div class="field">
                   <label class="field-label">--email</label>
-                  <input class="field-input" type="email" value="user@debate.sh" placeholder="// set email" />
+                  <input class="field-input" type="email" value="user@debate.sh" placeholder="// set email" readonly/>
                 </div>
               </div>
               <div class="field">
@@ -86,7 +86,7 @@
             </div>
           </div>
           <div class="save-row">
-            <button class="save-btn">$ save --apply</button>
+            <button class="save-btn" id="saveProfileBtn">$ save --apply</button>
           </div>
         </div>
 
@@ -182,10 +182,10 @@
           <h2 class="panel-heading">// create</h2>
 
           <label class="create-label">--thesis</label>
-          <textarea class="create-input" placeholder="// enter your main question or thesis..."></textarea>
+          <textarea class="create-input" id="thesisInput" placeholder="// enter your main question or thesis..."></textarea>
 
-          <label class="create-label">--category</label>
-          <select class="create-select">
+          <label class="create-label" >--category</label>
+          <select class="create-select" id="categorySelect">
             <option>Technology</option>
             <option>Philosophy</option>
             <option>Politics</option>
@@ -195,7 +195,8 @@
             <option>Economics</option>
           </select>
         </section>
-        <button class="create-final-btn">$ create --execute</button>
+
+        <button class="create-final-btn" id="createDebateBtn">$ create --execute</button>
 
       </div>
     </div>
@@ -203,6 +204,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create.js') }}"></script>
   <script>
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
@@ -222,3 +224,4 @@
 {% block extra_js %}{% endblock %}
 </body>
 </html>
+                                                                                                                                                 

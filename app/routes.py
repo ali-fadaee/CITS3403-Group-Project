@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from app.extensions import db
-from app.models import Debate, Comment, User, debate_tags, user_tags
+from app.models import Debate, Comment, User, debate_tags, user_tags, Tag
 
 main = Blueprint('main', __name__)
 
@@ -62,8 +62,8 @@ def create():
     return render_template('create.html')
 
 
-@main.route('/debate')
-def debate():
+@main.route('/debate/<int:debate_id>')
+def debate(debate_id):
     return render_template('debate.html')
 
 
@@ -92,3 +92,49 @@ def my_activity():
 
     return render_template('my_activity.html', tab=tab, items=pagination.items,
                            page=pagination.page, total_pages=pagination.pages or 1)
+
+
+@main.route('/api/debates', methods=['POST'])
+def api_create_debate():
+    data     = request.get_json()
+    title    = (data.get('title') or '').strip()
+    category = (data.get('category') or 'Technology').strip()
+
+    if not title:
+        return jsonify({'error': 'title is required'}), 400
+
+    user_id = session.get('user_id', 1)   # TODO: replace 1 with real auth
+
+    tag = Tag.query.filter_by(name=category).first()
+    if not tag:
+        tag = Tag(name=category)
+        db.session.add(tag)
+
+    debate = Debate(title=title, creator_id=user_id)
+    debate.tags.append(tag)
+    db.session.add(debate)
+    db.session.commit()
+
+    return jsonify({'id': debate.id}), 201
+
+
+@main.route('/api/profile', methods=['POST'])
+def api_save_profile():
+    user_id = session.get('user_id', 1)   # TODO: replace 1 with real auth
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'not logged in'}), 401
+
+    data = request.get_json()
+    if data.get('password'):
+        user.set_password(data['password'])
+
+    db.session.commit()
+    return jsonify({'ok': True}), 200
+
+
+@main.route('/api/avatars', methods=['GET'])
+def api_avatars():
+    from app.models import Avatar
+    avatars = Avatar.query.all()
+    return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])

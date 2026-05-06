@@ -113,8 +113,55 @@
       if (f.readOnly) {
         f.readOnly = false; f.type = 'text'; f.value = ''; f.focus();
       } else {
-        f.readOnly = true; f.type = 'password'; f.value = 'supersecret';
+        f.readOnly = true; f.type = 'password'; f.value = '';
       }
     }
 
     renderTags();
+
+    /* ══════════════════════════════
+       SAVE PROFILE
+       ══════════════════════════════ */
+    document.getElementById('saveProfileBtn').addEventListener('click', async function () {
+      const btn      = this;
+      const password = document.getElementById('passwordField');
+      const body     = {};
+
+      if (!password.readOnly && password.value.trim()) {
+        body.password = password.value.trim();
+      }
+
+      if (!Object.keys(body).length) {
+        alert('// nothing to save');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '$ saving...';
+
+      try {
+        const res = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          btn.textContent = '$ saved ✓';
+          password.readOnly = true;
+          password.type = 'password';
+          password.value = '';
+          setTimeout(() => { btn.textContent = '$ save --apply'; btn.disabled = false; }, 2000);
+        } else {
+          alert('// error: ' + (data.error || 'save failed'));
+          btn.disabled = false;
+          btn.textContent = '$ save --apply';
+        }
+      } catch (err) {
+        alert('// error: network failure');
+        btn.disabled = false;
+        btn.textContent = '$ save --apply';
+      }
+    });
+
+    /*�
