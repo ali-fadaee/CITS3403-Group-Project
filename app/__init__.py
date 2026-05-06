@@ -3,7 +3,7 @@ from app.forms import LoginForm, SignupForm
 from sqlalchemy.orm import selectinload
 from app.extensions import db, migrate, login_manager
 from app.config import Config
-from flask_login import login_user
+from flask_login import login_user, logout_user, login_required, current_user
 
 
 def create_app():
@@ -86,6 +86,12 @@ def create_app():
             flash('Account created successfully')
             return redirect(url_for('login'))
         return render_template('signup.html', form=form, interests=interests_options)
+
+    @app.route('/logout')
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for('index'))
     
     @app.route('/profile')
     def profile():
