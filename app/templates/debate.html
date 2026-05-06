@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block page_shell %}
-<div class="debate-page" id="debate-app">
+<div class="debate-page" id="debate-app" data-debate-id="{{ debate.id if debate else '' }}">
   <aside class="debate-sidebar">
     <div class="sidebar-panel">
       <div class="terminal-label">
@@ -87,7 +87,7 @@
       <div class="question-panel">
         <div class="shell-command">$ query --execute</div>
         <h2 class="question-text" id="current-question">
-          Should AI replace human developers?
+          {{ debate.title if debate else 'Loading debate...' }}
           <span class="cursor" aria-hidden="true"></span>
         </h2>
         <p class="shell-hint">&gt; Select a comment to continue</p>
@@ -155,5 +155,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/debate.js', v='thread-nav-14') }}"></script>
+  <script src="{{ url_for('static', filename='js/debate.js', v='backend-comments-1') }}"></script>
 {% endblock %}

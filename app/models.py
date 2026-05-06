@@ -101,6 +101,7 @@ class Comment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     debate_id = db.Column(db.Integer, db.ForeignKey('debates.id'), nullable=False, index=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     content = db.Column(db.Text, nullable=False)
     side = db.Column(db.Enum(CommentSide), nullable=False)
@@ -108,6 +109,8 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=_utcnow)
 
     debate = db.relationship('Debate', back_populates='comments')
+    parent = db.relationship('Comment', remote_side=[id], back_populates='replies')
+    replies = db.relationship('Comment', back_populates='parent', cascade='all, delete-orphan')
     user = db.relationship('User', back_populates='comments')
     votes = db.relationship('Vote', back_populates='comment', cascade='all, delete-orphan')
 
