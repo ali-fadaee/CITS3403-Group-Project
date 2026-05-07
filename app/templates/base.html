@@ -17,18 +17,22 @@
         <span class="nav-version">v1.0.0</span>
       </div>
       <div class="navbar-nav ms-auto flex-row gap-3">
-        <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
-              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">h4ck3rm1nd</div>
-            <div class="profile-status">online</div>
-          </div>
-        </button>
+        {% if current_user.is_authenticated %}
+          <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
+            <div class="profile-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
+                <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="profile-name">{{ current_user.username }}</div>
+              <div class="profile-status">online</div>
+            </div>
+          </button>
+        {% else %}
+          <a href="{{ url_for('main.login') }}" class="profile-chip">Login</a>
+        {% endif %}
       </div>
     </div>
   </nav>
