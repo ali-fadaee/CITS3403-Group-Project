@@ -17,18 +17,19 @@
         <span class="nav-version">v1.0.0</span>
       </div>
       <div class="navbar-nav ms-auto flex-row gap-3">
-        <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
-              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">h4ck3rm1nd</div>
-            <div class="profile-status">online</div>
-          </div>
-        </button>
+        {% if current_user.is_authenticated %}
+          <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
+            <div class="profile-icon">
+              <img src="{{ current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '/static/images/avatars/robot.svg' }}" alt="avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            </div>
+            <div>
+              <div class="profile-name">{{ current_user.username }}</div>
+              <div class="profile-status">online</div>
+            </div>
+          </button>
+        {% else %}
+          <a href="{{ url_for('main.login') }}" class="profile-chip">Login</a>
+        {% endif %}
       </div>
     </div>
   </nav>
@@ -69,11 +70,11 @@
               <div class="field-row">
                 <div class="field">
                   <label class="field-label">--username</label>
-                  <input class="field-input" type="text" value="h4ck3rm1nd" placeholder="// set username" readonly/>
+                  <input class="field-input" type="text" value="{{ current_user.username }}" placeholder="// set username" readonly/>
                 </div>
                 <div class="field">
                   <label class="field-label">--email</label>
-                  <input class="field-input" type="email" value="user@debate.sh" placeholder="// set email" readonly/>
+                  <input class="field-input" type="email" value="{{ current_user.email }}" placeholder="// set email" readonly/>
                 </div>
               </div>
               <div class="field">
@@ -106,7 +107,7 @@
         <div class="danger-panel">
           <div class="panel-title">// danger zone</div>
           <div class="danger-actions">
-            <button class="logout-btn">
+            <button class="logout-btn" onclick="window.location.href='/logout'">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -209,6 +210,10 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const USER_INTERESTS = {{ current_user.interests | map(attribute='name') | list | tojson if current_user.is_authenticated else '[]' }};
+    const USER_AVATAR_URL = {{ (current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '') | tojson }};
+  </script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/create.js') }}"></script>
   <script>

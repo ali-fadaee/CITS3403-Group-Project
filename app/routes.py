@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, session, jsonify
+
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from app.extensions import db
-from app.models import Debate, Comment, User, debate_tags, user_tags, Tag
+from app.models import Debate, Comment, User, Tag, debate_tags, user_tags
+from app.forms import LoginForm, SignupForm
+from flask_login import login_user, logout_user, login_required, current_user
 
 main = Blueprint('main', __name__)
 
@@ -42,15 +45,55 @@ def index():
                            page=pagination.page, total_pages=pagination.pages or 1)
 
 
-@main.route('/login')
+@main.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter(
+            (User.email == form.usernameEmail.data) | (User.username == form.usernameEmail.data)
+        ).first()
+
+        if not user or not user.check_password(form.password.data):
+            return render_template("login.html", form=form, login_error="Invalid username/email or password.")
+
+        login_user(user, remember=form.remember.data)
+        return redirect(url_for('main.index'))
+    return render_template('login.html', form=form)
 
 
-@main.route('/signup')
+@main.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    interests_options = [
+        'Sports','Music', 'Technology', 'Art', 'Science', 'Philosophy',
+        'Environment', 'Economics', 'Education', 'Ethics', 'Health', 'Lifestyle'
+    ]
+    form = SignupForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, 
+                    email=form.email.data,
+        )
 
+        user.set_password(form.password.data)
+        interests = request.form.getlist('interests[]')
+        tags = []
+        for interest in interests:
+            tag = Tag.query.filter_by(name=interest).first()
+            if not tag:
+                tag = Tag(name=interest)
+                db.session.add(tag)
+            tags.append(tag)
+        user.interests = tags
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created successfully')
+        return redirect(url_for('main.login'))
+    return render_template('signup.html', form=form, interests=interests_options)
+
+@main.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.index'))
 
 @main.route('/profile')
 def profile():
@@ -103,7 +146,7 @@ def api_create_debate():
     if not title:
         return jsonify({'error': 'title is required'}), 400
 
-    user_id = session.get('user_id', 1)   # TODO: replace 1 with real auth
+    user_id = current_user.id
 
     tag = Tag.query.filter_by(name=category).first()
     if not tag:
@@ -120,10 +163,9 @@ def api_create_debate():
 
 @main.route('/api/profile', methods=['POST'])
 def api_save_profile():
-    user_id = session.get('user_id', 1)   # TODO: replace 1 with real auth
-    user = User.query.get(user_id)
-    if not user:
+    if not current_user.is_authenticated:
         return jsonify({'error': 'not logged in'}), 401
+    user = current_user
 
     data = request.get_json()
     if data.get('password'):

@@ -21,6 +21,17 @@
           img.height = 48;
 
           btn.appendChild(img);
+          if (USER_AVATAR_URL && a.url === USER_AVATAR_URL) {
+            btn.classList.add('is-selected');
+            avatarDisplay.innerHTML = '';
+            const preview = document.createElement('img');
+            preview.src = a.url;
+            preview.alt = a.name;
+            preview.style.width = '100%';
+            preview.style.height = '100%';
+            avatarDisplay.appendChild(preview);
+            selectedAvatarId = a.id;
+          }
           btn.addEventListener('click', () => {
             avatarGrid.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('is-selected'));
             btn.classList.add('is-selected');
@@ -52,15 +63,11 @@
        INTERESTS
     ══════════════════════════════ */
     const ALL_CATEGORIES = [
-      'politics','AI ethics','climate','philosophy','economics',
-      'technology','science','history','law','psychology',
-      'geopolitics','religion','education','healthcare','media',
-      'culture','finance','military','environment','human rights',
-      'energy','space','sport','urbanism','nutrition'
+      'Sports', 'Music', 'Technology', 'Art', 'Science', 'Philosophy',
+      'Environment', 'Economics', 'Education', 'Ethics', 'Health', 'Lifestyle'
     ];
 
-    const activeInterests = new Set(['politics','AI ethics','climate','philosophy','economics','technology']);
-
+    const activeInterests = new Set(typeof USER_INTERESTS !== 'undefined' ? USER_INTERESTS : []);
     const interestsRow = document.getElementById('interestsRow');
     const addBtn       = document.getElementById('addInterestBtn');
     const categoryGrid = document.getElementById('categoryGrid');
