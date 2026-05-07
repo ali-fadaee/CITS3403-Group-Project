@@ -95,6 +95,16 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
+
+@main.route('/api/account/delete', methods=['POST'])
+@login_required
+def api_delete_account():
+    user = User.query.get(current_user.id)
+    logout_user()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'ok': True}), 200
+
 @main.route('/profile')
 def profile():
     return render_template('profile.html')
