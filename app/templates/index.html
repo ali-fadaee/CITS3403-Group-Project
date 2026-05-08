@@ -30,7 +30,7 @@
       {% set total = debate.yes_count + debate.no_count %}
       {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
       {% set no_pct = 100 - yes_pct %}
-      <a href="/debate" class="debate-card">
+      <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
         <div class="vote-bar">
           <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
           <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>

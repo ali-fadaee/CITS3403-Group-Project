@@ -1,32 +1,19 @@
 (function () {
-  const authorPools = {
-    yes: ["tech_optimist", "ml_engineer", "startup_dev", "systems_researcher", "qa_lead", "logic_fan"],
-    no: ["senior_dev", "architect_jane", "code_reviewer", "risk_analyst", "product_owner", "sec_engineer"],
-  };
+  const app = document.getElementById("debate-app");
+  if (!app) {
+    return;
+  }
 
-  const votesBySide = {
-    yes: [42, 38, 29, 24, 18, 13],
-    no: [45, 33, 27, 21, 17, 12],
-  };
-
-  const rootThread = {
-    id: "root",
-    topic: "Should AI replace human developers?",
-    yesComments: [
-      createComment("root-y1", "yes", "tech_optimist", "AI can analyze codebases faster and find patterns humans miss. This leads to more consistent quality.", 42),
-      createComment("root-y2", "yes", "ml_engineer", "Studies show AI-assisted code has 40% fewer bugs. The data does not lie.", 38),
-      createComment("root-y3", "yes", "startup_dev", "I have been using Copilot for 6 months. My productivity doubled and code quality improved.", 29),
-    ],
-    noComments: [
-      createComment("root-n1", "no", "senior_dev", "AI does not understand context or business requirements. It just pattern matches.", 45),
-      createComment("root-n2", "no", "architect_jane", "Human intuition and experience are irreplaceable for complex system design.", 33),
-      createComment("root-n3", "no", "code_reviewer", "AI suggestions often introduce subtle bugs that only experienced devs catch.", 27),
-    ],
-  };
+  const debateId = app.dataset.debateId;
+  const initialTopic = app.dataset.debateTitle || "Debate";
+  const REFRESH_INTERVAL_MS = 7000;
 
   const state = {
-    currentPath: [createPathEntry(rootThread, null)],
+    currentPath: [{ id: "root", topic: initialTopic, viaSide: null }],
+    comments: { yes: [], no: [] },
     composerSide: null,
+    isLoading: false,
+    refreshTimer: null,
   };
 
   const elements = {
@@ -44,84 +31,58 @@
     composeButtons: Array.from(document.querySelectorAll("[data-compose-side]")),
   };
 
-  function createComment(id, side, author, text, votes) {
-    return { id, side, author, text, votes, liked: false, next: null };
+  function currentEntry() {
+    return state.currentPath[state.currentPath.length - 1];
   }
 
-  function createPathEntry(thread, viaSide) {
-    return { thread, viaSide };
+  function currentParentId() {
+    return currentEntry().id || "root";
   }
 
-  function currentThread() {
-    return state.currentPath[state.currentPath.length - 1].thread;
+  function threadUrl(parentId) {
+    return `/api/debates/${encodeURIComponent(debateId)}/thread?parent_id=${encodeURIComponent(parentId || "root")}`;
   }
 
-  function getCommentsForSide(thread, side) {
-    return side === "yes" ? thread.yesComments : thread.noComments;
-  }
-
-  function ensureNextThread(comment) {
-    if (comment.next) {
-      return comment.next;
-    }
-
-    comment.next = buildThreadFromComment(comment, state.currentPath.length + 1);
-    return comment.next;
-  }
-
-  function buildThreadFromComment(comment, depth) {
-    const seed = hashString(`${comment.id}:${comment.text}:${depth}`);
-
-    return {
-      id: `${comment.id}-thread-${depth}`,
-      topic: comment.text,
-      yesComments: buildGeneratedComments("yes", comment.text, depth, seed),
-      noComments: buildGeneratedComments("no", comment.text, depth, seed + 17),
-    };
-  }
-
-  function buildGeneratedComments(side, topic, depth, seed) {
-    const templates = side === "yes"
-      ? [
-          'That point becomes stronger if we focus on implementation detail: "%s"',
-          'The supporting case here is that "%s" already happens in practice.',
-          'A fair extension of this argument is "%s" at scale.',
-        ]
-      : [
-          'The main weakness in that argument is "%s" under real constraints.',
-          'A strong counterpoint is that "%s" ignores edge cases.',
-          'That statement falls apart once "%s" meets production reality.',
-        ];
-
-    const snippet = compactTopic(topic);
-
-    return templates.map((template, index) => {
-      const authorPool = authorPools[side];
-      const votesPool = votesBySide[side];
-      const author = authorPool[(seed + index) % authorPool.length];
-      const votes = Math.max(3, votesPool[(seed + index) % votesPool.length] - depth * 2 + index);
-
-      return createComment(
-        `${side}-${seed}-${depth}-${index}`,
-        side,
-        author,
-        template.replace("%s", snippet),
-        votes
-      );
+  async function requestJson(url, options) {
+    const response = await fetch(url, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
     });
-  }
 
-  function compactTopic(topic) {
-    const trimmed = topic.replace(/\s+/g, " ").trim();
-    return trimmed.length > 118 ? `${trimmed.slice(0, 115)}...` : trimmed;
-  }
-
-  function hashString(value) {
-    let hash = 0;
-    for (let index = 0; index < value.length; index += 1) {
-      hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "request failed");
     }
-    return hash;
+
+    return payload;
+  }
+
+  async function loadThread(options = {}) {
+    if (!debateId || state.isLoading) {
+      return;
+    }
+
+    state.isLoading = true;
+    try {
+      const payload = await requestJson(threadUrl(currentParentId()));
+      const topic = payload.topic || {};
+      currentEntry().topic = topic.text || currentEntry().topic;
+      state.comments = payload.comments || { yes: [], no: [] };
+      render();
+    } catch (error) {
+      if (!options.silent) {
+        renderError(error.message);
+      }
+    } finally {
+      state.isLoading = false;
+    }
+  }
+
+  function renderError(message) {
+    const fallback = createEmptyState(`Unable to load debate data: ${message}`);
+    elements.yesOptions.innerHTML = "";
+    elements.noOptions.innerHTML = "";
+    elements.yesOptions.appendChild(fallback);
   }
 
   function renderPath() {
@@ -129,7 +90,6 @@
     elements.currentPath.innerHTML = "";
 
     state.currentPath.forEach((entry, index) => {
-      const thread = entry.thread;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "path-card";
@@ -151,12 +111,13 @@
           <span class="path-step">step_${index + 1}</span>
           ${pathBadge(entry.viaSide, index)}
         </span>
-        <span class="path-question">${escapeHtml(thread.topic)}</span>
+        <span class="path-question">${escapeHtml(entry.topic)}</span>
       `;
 
       button.addEventListener("click", () => {
         state.currentPath = state.currentPath.slice(0, index + 1);
-        render();
+        closeComposer();
+        loadThread();
       });
 
       elements.currentPath.appendChild(button);
@@ -164,11 +125,11 @@
   }
 
   function renderTopic() {
-    elements.currentQuestion.innerHTML = `${escapeHtml(currentThread().topic)} <span class="cursor" aria-hidden="true"></span>`;
+    elements.currentQuestion.innerHTML = `${escapeHtml(currentEntry().topic)} <span class="cursor" aria-hidden="true"></span>`;
   }
 
   function renderCommentColumn(side, target) {
-    const comments = getCommentsForSide(currentThread(), side);
+    const comments = state.comments[side] || [];
     target.innerHTML = "";
 
     if (!comments.length) {
@@ -192,17 +153,17 @@
 
     card.innerHTML = `
       <div class="comment-meta">[#${index + 1}] @${escapeHtml(comment.author)}</div>
-      <p class="comment-text">"${escapeHtml(comment.text)}"</p>
+      <p class="comment-text">"${escapeHtml(comment.content)}"</p>
       <div class="comment-footer">
         <button
           class="vote-button${comment.liked ? " is-liked" : ""}"
           type="button"
-          data-like-id="${escapeHtml(comment.id)}"
+          data-like-id="${escapeHtml(String(comment.id))}"
           aria-pressed="${comment.liked ? "true" : "false"}"
           aria-label="Like this comment"
         >
           ${likeIcon()}
-          <span>${comment.votes}</span>
+          <span>${comment.upvote_count}</span>
         </button>
       </div>
     `;
@@ -217,31 +178,42 @@
     return empty;
   }
 
-  function findCommentById(thread, commentId) {
-    const allComments = [...thread.yesComments, ...thread.noComments];
-    return allComments.find((comment) => comment.id === commentId) || null;
+  function findCommentById(commentId) {
+    const id = Number(commentId);
+    return [...(state.comments.yes || []), ...(state.comments.no || [])]
+      .find((comment) => comment.id === id) || null;
   }
 
-  function openCommentBranch(commentId) {
-    const comment = findCommentById(currentThread(), commentId);
+  async function openCommentBranch(commentId) {
+    const comment = findCommentById(commentId);
     if (!comment) {
       return;
     }
 
-    state.currentPath = [...state.currentPath, createPathEntry(ensureNextThread(comment), comment.side)];
+    state.currentPath = [
+      ...state.currentPath,
+      { id: comment.id, topic: comment.content, viaSide: comment.side },
+    ];
     closeComposer();
-    render();
+    await loadThread();
   }
 
-  function toggleLike(commentId) {
-    const comment = findCommentById(currentThread(), commentId);
+  async function toggleLike(commentId) {
+    const comment = findCommentById(commentId);
     if (!comment) {
       return;
     }
 
-    comment.liked = !comment.liked;
-    comment.votes += comment.liked ? 1 : -1;
-    render();
+    try {
+      const payload = await requestJson(`/api/comments/${encodeURIComponent(comment.id)}/vote`, {
+        method: "POST",
+      });
+      comment.liked = payload.liked;
+      comment.upvote_count = payload.upvote_count;
+      render();
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   function openComposer(side) {
@@ -268,27 +240,29 @@
     elements.commentForm.reset();
   }
 
-  function addComment(text) {
+  async function addComment(text) {
     if (!state.composerSide) {
       return;
     }
 
-    const side = state.composerSide;
-    const comment = createComment(
-      `${currentThread().id}-${side}-${Date.now()}`,
-      side,
-      "user_dev",
-      text,
-      0
-    );
-
-    getCommentsForSide(currentThread(), side).unshift(comment);
-    closeComposer();
-    render();
+    try {
+      await requestJson(`/api/debates/${encodeURIComponent(debateId)}/comments`, {
+        method: "POST",
+        body: JSON.stringify({
+          parent_id: currentParentId(),
+          side: state.composerSide,
+          content: text,
+        }),
+      });
+      closeComposer();
+      await loadThread();
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   function escapeHtml(value) {
-    return value
+    return String(value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -324,6 +298,7 @@
   function handleCommentActivation(event, container) {
     const likeButton = event.target.closest("[data-like-id]");
     if (likeButton && container.contains(likeButton)) {
+      event.stopPropagation();
       toggleLike(likeButton.dataset.likeId);
       return;
     }
@@ -341,6 +316,19 @@
     renderTopic();
     renderCommentColumn("yes", elements.yesOptions);
     renderCommentColumn("no", elements.noOptions);
+  }
+
+  function startPolling() {
+    if (state.refreshTimer) {
+      clearInterval(state.refreshTimer);
+    }
+
+    state.refreshTimer = setInterval(() => {
+      if (document.hidden || !elements.composer.hidden) {
+        return;
+      }
+      loadThread({ silent: true });
+    }, REFRESH_INTERVAL_MS);
   }
 
   elements.composeButtons.forEach((button) => {
@@ -393,4 +381,6 @@
   });
 
   render();
+  loadThread();
+  startPolling();
 })();
