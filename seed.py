@@ -69,6 +69,7 @@ with app.app_context():
         email='alice@example.com',
         bio='Loves debating technology and philosophy.',
         avatar_id=avatars[0].id,
+        email_verified=True,
     )
     alice.set_password('placeholder')
     bob = User(
@@ -76,6 +77,7 @@ with app.app_context():
         email='bob@example.com',
         bio='Passionate about politics and the environment.',
         avatar_id=avatars[1].id,
+        email_verified=True,
     )
     bob.set_password('placeholder')
     db.session.add_all([alice, bob])
@@ -106,6 +108,7 @@ with app.app_context():
             email=email,
             bio=bio,
             avatar_id=avatars[i % len(avatars)].id,
+            email_verified=True,
         )
         for i, (uname, email, bio) in enumerate(extra_user_data)
     ]
