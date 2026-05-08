@@ -45,6 +45,7 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
+    email_verified = db.Column(db.Boolean, default=False, nullable=False)
     bio = db.Column(db.Text, nullable=True)
     avatar_id = db.Column(db.Integer, db.ForeignKey('avatars.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=_utcnow)
