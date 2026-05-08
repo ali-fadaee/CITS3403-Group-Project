@@ -5,7 +5,7 @@
 {% block body_class %}debate-body{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-13') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/debate.css', v='thread-nav-17') }}">
 {% endblock %}
 
 {% block page_shell %}
@@ -28,7 +28,7 @@
   <main class="debate-main">
     <header class="debate-topbar">
       <div class="topbar-left">
-        <a class="profile-chip home-chip" href="{{ url_for('index') }}" aria-label="Back home">
+        <a class="profile-chip home-chip" href="{{ url_for('main.index') }}" aria-label="Back home">
           <div class="profile-icon">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M15 18 9 12l6-6"></path>
@@ -155,5 +155,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/debate.js', v='thread-nav-13') }}"></script>
+  <script src="{{ url_for('static', filename='js/debate.js', v='thread-nav-14') }}"></script>
 {% endblock %}

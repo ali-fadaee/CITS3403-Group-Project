@@ -87,6 +87,11 @@ function signupValidation(form) {
   function continue_check() {
     return (email.checkValidity() && checkPassword(password.value) && confirmPassword.value === password.value);
   }
+
+  // Final check on form submission to prevent submission if username is invalid
+  form.addEventListener("submit", function(e) {
+  if (!checkUsername(username.value)) e.preventDefault();});
+
   return {continue_check};
 }
 
@@ -128,7 +133,9 @@ function initSignupStepper(form, validated) {
   toStepOneBtn.addEventListener("click", function () {
     setStep(1);
   });
-  setStep(1);
+  const startStep = panels.getAttribute("data-start-step");
+  if (startStep === "2") setStep(2);
+  else setStep(1);
 }
 
 // Counts the number of selected interests and updates the display
