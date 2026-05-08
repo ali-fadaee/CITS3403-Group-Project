@@ -602,7 +602,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 }
 .change-btn:hover { border-color: var(--debate-action); color: var(--debate-action); background: var(--debate-action-bg); }
 
-.save-row { display: flex; justify-content: flex-end; margin-top: 1.1rem; }
+.save-row { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 1.1rem; }
 .save-btn {
   padding: 0.55rem 1.3rem;
   font-size: var(--font-size-base);
@@ -618,8 +618,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 
 /* ── AVATAR MODAL ── */
 .avatar-modal-card { width: min(100%, 440px); }
-.avatar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
-
+.avatar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; max-height: 240px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
 .avatar-option {
   aspect-ratio: 1;
   display: flex;
@@ -873,7 +872,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
   .identity-layout { grid-template-columns: 1fr; }
   .avatar-btn      { width: 72px; height: 72px; font-size: 2.4rem; }
   .field-row       { grid-template-columns: 1fr; }
-  .avatar-grid     { grid-template-columns: repeat(6, 1fr); }
+  .avatar-grid     { grid-template-columns: repeat(6, 1fr); max-height: 200px; overflow-y: auto; overflow-x: hidden; }
   .danger-actions  { flex-direction: column; align-items: flex-start; }
   .delete-btn      { margin-left: 0; }
 }

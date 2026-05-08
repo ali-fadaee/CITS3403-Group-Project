@@ -16,10 +16,34 @@ with app.app_context():
 
     # Avatars
     avatars = [
-        Avatar(name='Fox', image_url='/static/images/avatars/fox.svg'),
-        Avatar(name='Bear', image_url='/static/images/avatars/bear.svg'),
-        Avatar(name='Owl', image_url='/static/images/avatars/owl.svg'),
-        Avatar(name='Wolf', image_url='/static/images/avatars/wolf.svg'),
+        Avatar(name='Robot',        image_url='/static/images/avatars/robot.svg'),
+        Avatar(name='Alien Monster',image_url='/static/images/avatars/alien_monster.svg'),
+        Avatar(name='Cyborg',       image_url='/static/images/avatars/cyborg.svg'),
+        Avatar(name='Brain',        image_url='/static/images/avatars/brain.svg'),
+        Avatar(name='Alien',        image_url='/static/images/avatars/alien.svg'),
+        Avatar(name='Dragon Face',  image_url='/static/images/avatars/dragon_face.svg'),
+        Avatar(name='Lion',         image_url='/static/images/avatars/lion.svg'),
+        Avatar(name='Tiger',        image_url='/static/images/avatars/tiger.svg'),
+        Avatar(name='Eagle',        image_url='/static/images/avatars/eagle.svg'),
+        Avatar(name='Octopus',      image_url='/static/images/avatars/octopus.svg'),
+        Avatar(name='Squid',        image_url='/static/images/avatars/squid.svg'),
+        Avatar(name='Scorpion',     image_url='/static/images/avatars/scorpion.svg'),
+        Avatar(name='Zombie',       image_url='/static/images/avatars/zombie.svg'),
+        Avatar(name='Vampire',      image_url='/static/images/avatars/vampire.svg'),
+        Avatar(name='Mage',         image_url='/static/images/avatars/mage.svg'),
+        Avatar(name='Ninja',        image_url='/static/images/avatars/ninja.svg'),
+        Avatar(name='Ghost',        image_url='/static/images/avatars/ghost.svg'),
+        Avatar(name='Skull',        image_url='/static/images/avatars/skull.svg'),
+        Avatar(name='Joker',        image_url='/static/images/avatars/joker.svg'),
+        Avatar(name='Bat',          image_url='/static/images/avatars/bat.svg'),
+        Avatar(name='Dragon',       image_url='/static/images/avatars/dragon.svg'),
+        Avatar(name='Crystal Ball', image_url='/static/images/avatars/crystal_ball.svg'),
+        Avatar(name='UFO',          image_url='/static/images/avatars/ufo.svg'),
+        Avatar(name='Lightning',    image_url='/static/images/avatars/lightning.svg'),
+        Avatar(name='Dark Moon',    image_url='/static/images/avatars/dark_moon.svg'),
+        Avatar(name='Masks',        image_url='/static/images/avatars/masks.svg'),
+        Avatar(name='Wolf',         image_url='/static/images/avatars/wolf.svg'),
+        Avatar(name='Fox',          image_url='/static/images/avatars/fox.svg'),
     ]
     db.session.add_all(avatars)
 

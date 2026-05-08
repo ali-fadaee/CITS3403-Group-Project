@@ -1,30 +1,54 @@
-/* ══════════════════════════════
-       AVATAR
-    ══════════════════════════════ */
-    const FACES = [
-      '🤖','👾','🦾','🧠','👽','🐲','🦊',
-      '🐺','🦁','🐯','🦅','🐙','🦑','🦂',
-      '🧟','🧛','🧙','🥷','👻','💀','🃏',
-      '🦇','🐉','🔮','🛸','⚡','🌑','🎭'
-    ];
-    let selectedFace = '🤖';
+    /* ══════════════════════════════
+        AVATAR
+      ══════════════════════════════ */
+    let selectedAvatarId = null;
 
     const avatarDisplay = document.getElementById('avatarDisplay');
     const avatarGrid    = document.getElementById('avatarGrid');
 
-    FACES.forEach(f => {
-      const btn = document.createElement('button');
-      btn.className = 'avatar-option' + (f === selectedFace ? ' is-selected' : '');
-      btn.textContent = f;
-      btn.addEventListener('click', () => {
-        avatarGrid.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('is-selected'));
-        btn.classList.add('is-selected');
-        avatarDisplay.textContent = f;
-        selectedFace = f;
-        setTimeout(closeAvatarModal, 180);
+    fetch('/api/avatars')
+      .then(res => res.json())
+      .then(avatars => {
+        avatars.forEach(a => {
+          const btn = document.createElement('button');
+          btn.className = 'avatar-option';
+          btn.dataset.avatarId = a.id;
+
+          const img = document.createElement('img');
+          img.src = a.url;
+          img.alt = a.name;
+          img.width = 48;
+          img.height = 48;
+
+          btn.appendChild(img);
+          if (USER_AVATAR_URL && a.url === USER_AVATAR_URL) {
+            btn.classList.add('is-selected');
+            avatarDisplay.innerHTML = '';
+            const preview = document.createElement('img');
+            preview.src = a.url;
+            preview.alt = a.name;
+            preview.style.width = '100%';
+            preview.style.height = '100%';
+            avatarDisplay.appendChild(preview);
+            selectedAvatarId = a.id;
+          }
+          btn.addEventListener('click', () => {
+            avatarGrid.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+            avatarDisplay.innerHTML = '';
+            const preview = document.createElement('img');
+            preview.src = a.url;
+            preview.alt = a.name;
+            preview.style.width = '100%';
+            preview.style.height = '100%';
+            avatarDisplay.appendChild(preview);
+            selectedAvatarId = a.id;
+            setTimeout(closeAvatarModal, 180);
+          });
+
+          avatarGrid.appendChild(btn);
+        });
       });
-      avatarGrid.appendChild(btn);
-    });
 
     function openAvatarModal() {
       document.getElementById('avatarBackdrop').classList.add('is-open');
@@ -39,15 +63,11 @@
        INTERESTS
     ══════════════════════════════ */
     const ALL_CATEGORIES = [
-      'politics','AI ethics','climate','philosophy','economics',
-      'technology','science','history','law','psychology',
-      'geopolitics','religion','education','healthcare','media',
-      'culture','finance','military','environment','human rights',
-      'energy','space','sport','urbanism','nutrition'
+      'Sports', 'Music', 'Technology', 'Art', 'Science', 'Philosophy',
+      'Environment', 'Economics', 'Education', 'Ethics', 'Health', 'Lifestyle'
     ];
 
-    const activeInterests = new Set(['politics','AI ethics','climate','philosophy','economics','technology']);
-
+    const activeInterests = new Set(typeof USER_INTERESTS !== 'undefined' ? USER_INTERESTS : []);
     const interestsRow = document.getElementById('interestsRow');
     const addBtn       = document.getElementById('addInterestBtn');
     const categoryGrid = document.getElementById('categoryGrid');
@@ -85,6 +105,11 @@
           const chip = categoryGrid.querySelector(`[data-cat="${cat}"]`);
           if (chip) chip.classList.remove('is-selected');
           renderTags();
+          fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ interests: [...activeInterests] })
+          });
         });
         tag.appendChild(label);
         tag.appendChild(rm);
@@ -99,6 +124,12 @@
     function closeInterestsModal() {
       document.getElementById('interestsBackdrop').classList.remove('is-open');
       document.getElementById('interestsModal').classList.remove('is-open');
+
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interests: [...activeInterests] })
+      });
     }
 
     document.addEventListener('keydown', e => {
@@ -109,12 +140,90 @@
        PASSWORD
     ══════════════════════════════ */
     function togglePassword() {
-      const f = document.getElementById('passwordField');
-      if (f.readOnly) {
-        f.readOnly = false; f.type = 'text'; f.value = ''; f.focus();
+      const fields = document.getElementById('pwChangeFields');
+      const btn    = document.getElementById('changePwBtn');
+
+      if (!fields.hidden) {
+        fields.hidden = true;
+        btn.textContent = '$ change';
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
       } else {
-        f.readOnly = true; f.type = 'password'; f.value = 'supersecret';
+        fields.hidden = false;
+        btn.textContent = '$ cancel';
+        document.getElementById('currentPassword').focus();
       }
     }
+        
 
     renderTags();
+
+    function showProfileError(msg) {
+      const el = document.getElementById('profileError');
+      el.textContent = msg;
+      el.style.display = 'inline';
+    }
+    function clearProfileError() {
+      const el = document.getElementById('profileError');
+      el.textContent = '';
+      el.style.display = 'none';
+    }
+
+    /* ══════════════════════════════
+       SAVE PROFILE
+       ══════════════════════════════ */
+    document.getElementById('saveProfileBtn').addEventListener('click', async function () {
+      const btn      = this;
+      const body     = {};
+
+      const currentPw = document.getElementById('currentPassword').value.trim();
+      const newPw     = document.getElementById('newPassword').value.trim();
+      const confirmPw = document.getElementById('confirmPassword').value.trim();
+
+      if (currentPw || newPw || confirmPw) {
+        if (!currentPw) { showProfileError('// enter your current password'); return; }
+        if (!newPw)     { showProfileError('// enter a new password'); return; }
+        if (newPw !== confirmPw) { showProfileError('// passwords do not match'); return; }
+        if (newPw.length < 6)   { showProfileError('// password too short (min 6 chars)'); return; }
+        body.current_password = currentPw;
+        body.password = newPw;
+      }
+      if (selectedAvatarId !== null) {
+        body.avatar_id = selectedAvatarId;
+      }
+
+      if (!Object.keys(body).length) {
+        showProfileError('// nothing to save');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '$ saving...';
+
+      try {
+        const res = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          btn.textContent = '$ saved ✓';
+          document.getElementById('pwChangeFields').hidden = true;
+          document.getElementById('changePwBtn').textContent = '$ change';
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+          setTimeout(() => { btn.textContent = '$ save --apply'; btn.disabled = false; }, 2000);
+        } else {
+          showProfileError(data.error || '// save failed');
+          btn.disabled = false;
+          btn.textContent = '$ save --apply';
+        }
+      } catch (err) {
+        showProfileError('// network failure');
+        btn.disabled = false;
+        btn.textContent = '$ save --apply';
+      }
+    });

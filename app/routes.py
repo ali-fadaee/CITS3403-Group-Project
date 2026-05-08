@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for
+
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from app.extensions import db
@@ -94,6 +95,16 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
+
+@main.route('/api/account/delete', methods=['POST'])
+@login_required
+def api_delete_account():
+    user = User.query.get(current_user.id)
+    logout_user()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'ok': True}), 200
+
 @main.route('/profile')
 def profile():
     return render_template('profile.html')
@@ -104,8 +115,8 @@ def create():
     return render_template('create.html')
 
 
-@main.route('/debate')
-def debate():
+@main.route('/debate/<int:debate_id>')
+def debate(debate_id):
     return render_template('debate.html')
 
 
@@ -134,3 +145,61 @@ def my_activity():
 
     return render_template('my_activity.html', tab=tab, items=pagination.items,
                            page=pagination.page, total_pages=pagination.pages or 1)
+
+
+@main.route('/api/debates', methods=['POST'])
+def api_create_debate():
+    data     = request.get_json()
+    title    = (data.get('title') or '').strip()
+    category = (data.get('category') or 'Technology').strip()
+
+    if not title:
+        return jsonify({'error': 'title is required'}), 400
+
+    user_id = current_user.id
+
+    tag = Tag.query.filter_by(name=category).first()
+    if not tag:
+        tag = Tag(name=category)
+        db.session.add(tag)
+
+    debate = Debate(title=title, creator_id=user_id)
+    debate.tags.append(tag)
+    db.session.add(debate)
+    db.session.commit()
+
+    return jsonify({'id': debate.id}), 201
+
+
+@main.route('/api/profile', methods=['POST'])
+def api_save_profile():
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'not logged in'}), 401
+    user = current_user
+
+    data = request.get_json()
+    if data.get('password'):
+        if not user.check_password(data.get('current_password', '')):
+            return jsonify({'error': 'current password is incorrect'}), 400
+        user.set_password(data['password'])
+    if data.get('avatar_id'):
+        user.avatar_id = data['avatar_id']
+    if 'interests' in data:
+        tags = []
+        for name in data['interests']:
+            tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
+            if not tag:
+                tag = Tag(name=name)
+                db.session.add(tag)
+            tags.append(tag)
+        user.interests = tags
+
+    db.session.commit()
+    return jsonify({'ok': True}), 200
+
+
+@main.route('/api/avatars', methods=['GET'])
+def api_avatars():
+    from app.models import Avatar
+    avatars = Avatar.query.all()
+    return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])

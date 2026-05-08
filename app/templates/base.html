@@ -20,10 +20,7 @@
         {% if current_user.is_authenticated %}
           <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
             <div class="profile-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
-                <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
-              </svg>
+              <img src="{{ current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '/static/images/avatars/robot.svg' }}" alt="avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
             </div>
             <div>
               <div class="profile-name">{{ current_user.username }}</div>
@@ -73,24 +70,30 @@
               <div class="field-row">
                 <div class="field">
                   <label class="field-label">--username</label>
-                  <input class="field-input" type="text" value="h4ck3rm1nd" placeholder="// set username" />
+                  <input class="field-input" type="text" value="{{ current_user.username }}" placeholder="// set username" readonly/>
                 </div>
                 <div class="field">
                   <label class="field-label">--email</label>
-                  <input class="field-input" type="email" value="user@debate.sh" placeholder="// set email" />
+                  <input class="field-input" type="email" value="{{ current_user.email }}" placeholder="// set email" readonly/>
                 </div>
               </div>
               <div class="field">
                 <label class="field-label">--password</label>
                 <div class="pw-row">
-                  <input class="field-input" type="password" value="supersecret" readonly id="passwordField" />
-                  <button class="change-btn" onclick="togglePassword()">$ change</button>
+                  <input class="field-input" type="password" value="••••••••" readonly id="passwordField" />
+                  <button class="change-btn" id="changePwBtn" onclick="togglePassword()">$ change</button>
+                </div>
+                <div id="pwChangeFields" hidden style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
+                  <input class="field-input" type="password" id="currentPassword" placeholder="// current password" />
+                  <input class="field-input" type="password" id="newPassword" placeholder="// new password" />
+                  <input class="field-input" type="password" id="confirmPassword" placeholder="// confirm new password" />
                 </div>
               </div>
             </div>
           </div>
           <div class="save-row">
-            <button class="save-btn">$ save --apply</button>
+            <span id="profileError" style="color: var(--debate-no, #ff4d4d); font-size: 0.8rem; display:none;"></span>
+            <button class="save-btn" id="saveProfileBtn">$ save --apply</button>
           </div>
         </div>
 
@@ -101,10 +104,10 @@
           </div>
         </div>
 
-        <div class="danger-panel">
+        <div class="danger-panel" style="position:relative;">
           <div class="panel-title">// danger zone</div>
           <div class="danger-actions">
-            <button class="logout-btn">
+            <button class="logout-btn" onclick="window.location.href='/logout'">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -112,7 +115,7 @@
               </svg>
               $ exit --session
             </button>
-            <button class="delete-btn">
+            <button class="delete-btn" id="deleteAccountBtn">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -123,6 +126,15 @@
             </button>
           </div>
           <p class="danger-note">// removing your account is permanent and cannot be undone.</p>
+
+          <!-- confirmation overlay -->
+          <div id="deleteConfirmOverlay" hidden style="position:absolute; inset:0; background: var(--debate-panel);; border:1px solid var(--debate-no, #ff4d4d); border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:1rem; padding:1.2rem;">
+            <p style="color:var(--debate-no, #ff4d4d); margin:0; font-size:0.85rem;">// are you sure? this cannot be undone.</p>
+            <div style="display:flex; gap:0.75rem;">
+              <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
+              <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -186,10 +198,10 @@
           <h2 class="panel-heading">// create</h2>
 
           <label class="create-label">--thesis</label>
-          <textarea class="create-input" placeholder="// enter your main question or thesis..."></textarea>
+          <textarea class="create-input" id="thesisInput" placeholder="// enter your main question or thesis..."></textarea>
 
-          <label class="create-label">--category</label>
-          <select class="create-select">
+          <label class="create-label" >--category</label>
+          <select class="create-select" id="categorySelect">
             <option>Technology</option>
             <option>Philosophy</option>
             <option>Politics</option>
@@ -200,25 +212,38 @@
           </select>
         </section>
 
-        <section class="create-table">
-          <div class="create-column yes-col">
-            <h3 class="col-title">[Y] YES</h3>
-            <button class="add-btn yes-add">+ arg --yes</button>
-          </div>
-          <div class="create-column no-col">
-            <h3 class="col-title">[N] NO</h3>
-            <button class="add-btn no-add">+ arg --no</button>
-          </div>
-        </section>
+        <button class="create-final-btn" id="createDebateBtn">$ create --execute</button>
 
-        <button class="create-final-btn">$ create --execute</button>
-
+      </div>
+    </div>
+  </div>
+  <!-- ── DELETE ACCOUNT CONFIRM MODAL ── -->
+  <div class="modal-backdrop active" id="deleteConfirmBackdrop" style="display:none;" onclick="closeDeleteConfirm()"></div>
+  <div class="app-modal active" id="deleteConfirmModal" style="display:none;">
+    <div class="app-modal-card">
+      <div class="app-modal-head">
+        <div class="term-titlebar">
+          <span class="term-cmd"><span class="term-sym">&gt;_</span> rm --account<span class="term-cursor">▋</span></span>
+        </div>
+        <button class="app-modal-close" onclick="closeDeleteConfirm()">✕</button>
+      </div>
+      <div class="app-modal-body">
+        <p style="color:var(--debate-no, #ff4d4d); margin-bottom:1rem;">// this action is permanent and cannot be undone.</p>
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+          <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
+          <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const USER_INTERESTS = {{ current_user.interests | map(attribute='name') | list | tojson if current_user.is_authenticated else '[]' }};
+    const USER_AVATAR_URL = {{ (current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '') | tojson }};
+  </script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/create.js') }}"></script>
   <script>
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
@@ -227,12 +252,35 @@
     function closeModal(id) {
       document.getElementById(id + 'Backdrop').classList.remove('active');
       document.getElementById(id).classList.remove('active');
+      if (id === 'profileFullModal') {
+        clearProfileError();
+        document.getElementById('pwChangeFields').hidden = true;
+        document.getElementById('changePwBtn').textContent = '$ change';
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+      }
     }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeModal('createModal');
         closeModal('profileFullModal');
       }
+    });
+    function openDeleteConfirm() {
+      const el = document.getElementById('deleteConfirmOverlay');
+      el.hidden = false;
+      el.style.display = 'flex';
+    }
+    function closeDeleteConfirm() {
+      const el = document.getElementById('deleteConfirmOverlay');
+      el.hidden = true;
+      el.style.display = 'none';
+    }
+    document.getElementById('deleteAccountBtn').addEventListener('click', openDeleteConfirm);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+      const res = await fetch('/api/account/delete', { method: 'POST' });
+      if (res.ok) window.location.href = '/';
     });
   </script>
 {% block extra_js %}{% endblock %}
