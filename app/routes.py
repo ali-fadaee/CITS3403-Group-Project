@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
@@ -6,6 +5,7 @@ from app.extensions import db
 from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
+from app.email import verify_token, send_verification_email
 
 main = Blueprint('main', __name__)
 MAX_COMMENT_LENGTH = 1000
@@ -89,6 +89,20 @@ def index():
                            page=pagination.page, total_pages=pagination.pages or 1)
 
 
+@main.route('/verify/<token>')
+def verify_email(token):
+    email = verify_token(token)
+    if not email:
+        flash("Verification link is invalid or has expired.")
+        return redirect(url_for('main.signup'))
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.email_verified = True
+        db.session.commit()
+        flash("Email verified successfully. You can now log in.")
+    return redirect(url_for('main.login'))
+
+
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -99,6 +113,9 @@ def login():
 
         if not user or not user.check_password(form.password.data):
             return render_template("login.html", form=form, login_error="Invalid username/email or password.")
+        
+        if not user.email_verified:
+            return render_template("login.html", form=form, login_error="Please verify your email before logging in.")
 
         login_user(user, remember=form.remember.data)
         return redirect(url_for('main.index'))
@@ -129,9 +146,14 @@ def signup():
         user.interests = tags
         db.session.add(user)
         db.session.commit()
-        flash('Account created successfully')
+        try:
+            send_verification_email(user)
+        except Exception as e:
+            print(f"Error sending verification email: {e}")
+        flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)
+
 
 @main.route('/logout')
 @login_required

@@ -11,5 +11,6 @@ class Config:
     MAIL_PORT = int(os.getenv("MAIL_PORT", 2525))
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT")
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
