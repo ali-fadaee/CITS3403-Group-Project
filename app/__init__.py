@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request
-from sqlalchemy.orm import selectinload
+from flask import Flask
 from app.extensions import db, migrate, mail, login_manager
 from app.config import Config
 
