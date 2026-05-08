@@ -16,40 +16,59 @@
     <h1 class="mb-4 auth-heading"><span>~/</span>signup<span class="terminal-cursor"></span></h1>
 
     <div class="auth-card">
-      <form id="signupForm" method="POST" action="/signup">
-        <div class="auth-step-panels" id="signupPanels">
+      <form id="signupForm" method="POST" action="{{ url_for('main.signup') }}" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="auth-step-panels" id="signupPanels" data-start-step = "{{ 2 if form.username.errors else 1 }}">
           <div class="auth-panel" data-step="1">
             <p class="auth-msg">$ signup <span>--verify-email</span></p>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="email">Email</label>
-              <input type="email" placeholder="example@gmail.com" class="form-control auth-input" id="email" name="email" required>
-              <span id="emailFeedback" class="auth-help mt-2"></span>
+              {{ form.email.label(class="auth-label form-label") }}
+              {{ form.email(class="form-control auth-input", placeholder="example@gmail.com") }}
+
+              {% if not form.email.errors %} 
+                <span id="emailFeedback" class="auth-help mt-2"></span>
+              {% endif %}
+              {% if form.email.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.email.errors[0] }}</span>
+              {% endif %}
             </div>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="password">Password</label>
-              <input type="password" class="form-control auth-input" id="password" name="password" autocomplete="new-password" required>
+              {{ form.password.label(class="auth-label form-label") }}
+              {{ form.password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="passwordFeedback" class="auth-help mt-2"></span>
+              {% if form.password.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.password.errors[0] }}</span>
+              {% endif %}
               <p class="auth-help mt-2">Use at least 8 characters and include at least one lowercase letter, one uppercase letter, and one number.</p>
             </div>
 
             <div class="mb-4">
-              <label class="auth-label form-label" for="confirm_password">Confirm Password</label>
-              <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+              {{ form.confirm_password.label(class="auth-label form-label") }}
+              {{ form.confirm_password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="confirmPasswordFeedback" class="auth-help mt-2"></span>
+              {% if form.confirm_password.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.confirm_password.errors[0] }}</span>
+              {% endif %}
             </div>
 
             <button type="button" class="auth-button" id="continueToProfile">continue --next</button>
           </div>
 
-          <div class="auth-panel auth-step-panel" data-step="2">
+          <div class="auth-panel" data-step="2">
             <p class="auth-msg">$ signup <span>--profile-setup</span></p>
 
             <div class="mb-3">
-              <label class="auth-label form-label" for="username">Username</label>
-              <input type="text" class="form-control auth-input" id="username" name="username" required>
-              <span id="usernameFeedback" class="auth-help mt-2"></span>
+              {{ form.username.label(class="auth-label form-label") }}
+              {{ form.username(class="form-control auth-input", autocomplete="username", required=True) }}
+
+              {% if not form.username.errors %}
+                <span id="usernameFeedback" class="auth-help mt-2"></span>
+              {% endif %}
+              {% if form.username.errors %}
+                  <span class="auth-help mt-2" style="color: red">{{ form.username.errors[0] }}</span>
+              {% endif %}
               <p class="auth-help mt-2">Username must be 3–20 characters, using only letters, numbers, and hyphens. It cannot start or end with a hyphen.</p>
             </div>
 
@@ -57,34 +76,24 @@
               <label class="auth-label form-label mb-2">Interests (select all that apply)</label>
 
               <div class="auth-interest-buttons d-flex flex-wrap gap-2">
-                <input type="checkbox" class="btn-check" id="interest1" name="interests[]" value="sports" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest1">Sports</label>
-
-                <input type="checkbox" class="btn-check" id="interest2" name="interests[]" value="music" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest2">Music</label>
-
-                <input type="checkbox" class="btn-check" id="interest3" name="interests[]" value="technology" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest3">Technology</label>
-
-                <input type="checkbox" class="btn-check" id="interest4" name="interests[]" value="art" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest4">Art</label>
-
-                <input type="checkbox" class="btn-check" id="interest5" name="interests[]" value="economics" autocomplete="off">
-                <label class="btn btn-outline-secondary auth-interest-btn" for="interest5">Economics</label>
+                {% for interest in interests %}
+                  <input type="checkbox" class="btn-check" id="interest{{ loop.index }}" name="interests[]" value="{{ interest }}" autocomplete="off">
+                  <label class="btn btn-outline-secondary auth-interest-btn" for="interest{{ loop.index }}">{{ interest }}</label>
+                {% endfor %}
               </div>
               <p class="auth-help mt-2 mb-0">Selected: <span id="interestCount">0</span></p>
             </div>
 
             <div class="auth-actions d-flex gap-2">
               <button type="button" class="auth-button auth-button-second" id="backToVerify">back --edit</button>
-              <button type="submit" class="auth-button">signup --execute</button>
+              {{ form.signupSubmit(class="auth-button") }}
             </div>
           </div>
         </div>
       </form>
 
       <div class="auth-footer mt-3">
-        <p>Already have an account? <a href="/login">Login</a></p>
+        <p>Already have an account? <a href="{{ url_for('main.login') }}">Login</a></p>
       </div>
     </div>
 </div>

@@ -179,11 +179,12 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .index-header-actions { display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0; }
 
 .index-cmd { font-size: var(--font-size-base); color: var(--debate-text-faint); margin: 0; }
-.index-cmd::first-letter { color: var(--debate-yes-muted); }
+.index-cmd .sym { color: var(--debate-yes-muted); }
 .index-cmd span { color: var(--debate-text-dim); }
 
 .index-hint { font-size: var(--font-size-sm); color: var(--debate-text-faint); margin-bottom: 1.25rem; }
 .index-hint::first-letter { color: var(--debate-yes-muted); }
+.index-hint .sym { color: var(--debate-yes-muted); }
 
 .index-card, .auth-card {
   border: 1px solid var(--debate-border-soft);

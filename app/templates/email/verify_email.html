@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify your email – debates-app</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0d1117;font-family:'Courier New',Courier,monospace;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0d1117;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width:520px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom:24px;">
+              <span style="color:#7ee787;font-size:18px;font-weight:700;letter-spacing:0.05em;">~/debates-app</span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background-color:#161b22;border:1px solid #30363d;border-radius:8px;padding:32px;">
+
+              <!-- Terminal titlebar -->
+              <div style="margin-bottom:24px;">
+                <span style="color:#8b949e;font-size:13px;">&gt;_ $ verify --email</span>
+              </div>
+
+              <p style="margin:0 0 8px;color:#e6edf3;font-size:15px;line-height:1.6;">
+                Hey <strong style="color:#7ee787;">{{ username }}</strong>,
+              </p>
+              <p style="margin:0 0 24px;color:#8b949e;font-size:14px;line-height:1.6;">
+                Click the button below to verify your email address and activate your account.
+                The link expires in <span style="color:#e6edf3;">1 hour</span>.
+              </p>
+
+              <!-- CTA button -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background-color:#238636;border-radius:6px;">
+                    <a href="{{ verify_url }}"
+                       style="display:inline-block;padding:12px 28px;color:#ffffff;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.05em;">
+                      $ verify --execute
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback link -->
+              <p style="margin:0 0 4px;color:#8b949e;font-size:12px;">// or copy this link into your browser:</p>
+              <p style="margin:0;word-break:break-all;">
+                <a href="{{ verify_url }}" style="color:#58a6ff;font-size:12px;text-decoration:none;">{{ verify_url }}</a>
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:20px;">
+              <p style="margin:0;color:#484f58;font-size:12px;line-height:1.6;">
+                // if you didn't create an account, you can safely ignore this email.<br>
+                &copy; 2026 debates-app
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
