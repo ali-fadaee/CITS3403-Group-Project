@@ -96,15 +96,20 @@ def verify_email(token):
         flash("Verification link is invalid or has expired.")
         return redirect(url_for('main.signup'))
     user = User.query.filter_by(email=email).first()
-    if user:
+    if user and not user.email_verified:
         user.email_verified = True
         db.session.commit()
         flash("Email verified successfully. You can now log in.")
+    else:
+        flash("Email is already verified")
     return redirect(url_for('main.login'))
 
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter(
@@ -124,6 +129,9 @@ def login():
 
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
     interests_options = [
         'Sports','Music', 'Technology', 'Art', 'Science', 'Philosophy',
         'Environment', 'Economics', 'Education', 'Ethics', 'Health', 'Lifestyle'
