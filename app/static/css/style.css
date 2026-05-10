@@ -150,8 +150,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 /* ── TERMINAL TITLEBAR ── */
 .term-titlebar { display: flex; align-items: center; gap: 0.75rem; }
 .term-cmd { font-size: var(--font-size-sm); font-weight: 600; color: var(--debate-text); letter-spacing: 0.03em; }
-.term-sym { color: var(--debate-yes); margin-right: 0.15rem; }
-#profileFullModal .term-sym { color: var(--debate-text); }
+.term-sym { color: var(--debate-text); margin-right: 0.15rem; }
 .term-cursor { display: inline-block; color: var(--debate-text); animation: termBlink 1s step-end infinite; margin-left: 1px; }
 
 /* ── INDEX PAGE ── */
