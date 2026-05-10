@@ -382,6 +382,107 @@ main.container { flex: 1; padding-bottom: 2rem; }
 #avatarModal, #interestsModal                   { z-index: 1070; }
 
 /* ── PROFILE CHIP ── */
+/* Profile modal follows the Debate Page terminal-panel visual language. */
+#profileFullModal .app-modal-card-wide {
+  width: min(94vw, 760px);
+  max-width: 760px;
+}
+
+#profileFullModal .app-modal-card {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(99, 240, 143, 0.08), transparent 34%),
+    radial-gradient(circle at 100% 100%, rgba(255, 78, 78, 0.07), transparent 32%),
+    var(--scanline),
+    var(--debate-panel);
+  border-color: var(--debate-border-focus);
+  box-shadow: var(--debate-shadow);
+}
+
+#profileFullModal .app-modal-head {
+  padding: 1.05rem 1.25rem;
+  background: rgba(7, 7, 7, 0.92);
+}
+
+#profileFullModal .app-modal-body {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+#profileFullModal .panel,
+#profileFullModal .danger-panel {
+  margin-bottom: 0;
+}
+
+#profileFullModal .panel {
+  background:
+    linear-gradient(90deg, rgba(99, 240, 143, 0.05), transparent 44%),
+    var(--debate-panel);
+}
+
+#profileFullModal .danger-panel {
+  background:
+    linear-gradient(90deg, rgba(255, 78, 78, 0.07), transparent 50%),
+    var(--debate-danger-panel-bg);
+}
+
+#profileFullModal .panel-title {
+  color: var(--debate-text-dim);
+}
+
+#profileFullModal .identity-layout {
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+#profileFullModal .avatar-btn {
+  width: 7rem;
+  height: 7rem;
+  background:
+    radial-gradient(circle, rgba(157, 157, 157, 0.1), transparent 62%),
+    var(--debate-panel-soft);
+  border-color: var(--debate-border-focus);
+  box-shadow: inset 0 0 0 1px rgba(241, 241, 241, 0.03);
+}
+
+#profileFullModal .avatar-btn:hover {
+  border-color: var(--debate-yes);
+  background: var(--debate-yes-bg-dim);
+}
+
+#profileFullModal .field-input {
+  min-height: 2.65rem;
+  background: rgba(7, 7, 7, 0.88);
+  border-color: var(--debate-border-focus);
+}
+
+#profileFullModal .field-input:focus {
+  border-color: var(--debate-yes-border);
+  box-shadow: 0 0 0 2px var(--debate-yes-bg-dim);
+}
+
+#profileFullModal .change-btn,
+#profileFullModal .save-btn,
+#profileFullModal .logout-btn,
+#profileFullModal .delete-btn {
+  min-height: 2.65rem;
+  letter-spacing: 0.03em;
+}
+
+#profileFullModal .save-row {
+  padding-top: 1rem;
+  border-top: 1px solid var(--debate-border-soft);
+}
+
+#profileFullModal .save-btn {
+  min-width: 10rem;
+}
+
+#profileFullModal .interest-tag,
+#profileFullModal .interest-add {
+  min-height: 2rem;
+}
+
 .profile-chip {
   position: relative;
   display: inline-flex;
@@ -871,6 +972,9 @@ main.container { flex: 1; padding-bottom: 2rem; }
 
   .identity-layout { grid-template-columns: 1fr; }
   .avatar-btn      { width: 72px; height: 72px; font-size: 2.4rem; }
+  #profileFullModal .identity-layout { grid-template-columns: 1fr; }
+  #profileFullModal .avatar-btn { width: 72px; height: 72px; }
+  #profileFullModal .app-modal-body { padding: 1rem; }
   .field-row       { grid-template-columns: 1fr; }
   .avatar-grid     { grid-template-columns: repeat(6, 1fr); max-height: 200px; overflow-y: auto; overflow-x: hidden; }
   .danger-actions  { flex-direction: column; align-items: flex-start; }
