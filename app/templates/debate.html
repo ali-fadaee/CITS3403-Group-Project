@@ -9,7 +9,12 @@
 {% endblock %}
 
 {% block page_shell %}
-<div class="debate-page" id="debate-app">
+<div
+  class="debate-page"
+  id="debate-app"
+  data-debate-id="{{ debate.id }}"
+  data-debate-title="{{ debate.title }}"
+>
   <aside class="debate-sidebar">
     <div class="sidebar-panel">
       <div class="terminal-label">
@@ -40,20 +45,10 @@
           </div>
         </a>
 
-        <button class="profile-chip theme-chip" type="button" aria-label="Theme switch placeholder">
-          <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="profile-name">theme_mode</div>
-            <div class="profile-status">light / dark</div>
-          </div>
-        </button>
       </div>
 
       <div class="topbar-right">
+        {#
         <button class="topbar-button" type="button" aria-label="Notifications">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 4a4 4 0 0 0-4 4v1.33c0 .7-.25 1.37-.72 1.87L5.6 13.1A1 1 0 0 0 6.33 14h11.34a1 1 0 0 0 .73-1.7l-1.69-1.9a2.78 2.78 0 0 1-.71-1.87V8a4 4 0 0 0-4-4Z"></path>
@@ -61,19 +56,21 @@
           </svg>
           <span class="notification-badge">3</span>
         </button>
+        #}
 
-        <button class="profile-chip" type="button" aria-label="Open profile">
+        {% if current_user.is_authenticated %}
+        <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
           <div class="profile-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"></path>
-              <path d="M5 20v-1a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v1"></path>
-            </svg>
+            <img src="{{ current_user.avatar.image_url if current_user.avatar else '/static/images/avatars/robot.svg' }}" alt="avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
           </div>
           <div>
-            <div class="profile-name">user_dev</div>
+            <div class="profile-name">{{ current_user.username }}</div>
             <div class="profile-status">online</div>
           </div>
         </button>
+        {% else %}
+        <a href="{{ url_for('main.login') }}" class="profile-chip">Login</a>
+        {% endif %}
       </div>
     </header>
 
@@ -87,7 +84,7 @@
       <div class="question-panel">
         <div class="shell-command">$ query --execute</div>
         <h2 class="question-text" id="current-question">
-          Should AI replace human developers?
+          {{ debate.title }}
           <span class="cursor" aria-hidden="true"></span>
         </h2>
         <p class="shell-hint">&gt; Select a comment to continue</p>
@@ -155,5 +152,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/debate.js', v='thread-nav-14') }}"></script>
+  <script src="{{ url_for('static', filename='js/debate.js', v='backend-thread-1') }}"></script>
 {% endblock %}

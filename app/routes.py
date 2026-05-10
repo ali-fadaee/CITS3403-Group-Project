@@ -3,11 +3,55 @@ from flask import Blueprint, render_template, request, session, flash, redirect,
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from app.extensions import db
-from app.models import Debate, Comment, User, Tag, debate_tags, user_tags
+from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
 
 main = Blueprint('main', __name__)
+MAX_COMMENT_LENGTH = 1000
+
+
+def _json_auth_required():
+    if current_user.is_authenticated:
+        return None
+    return jsonify({'error': 'login required'}), 401
+
+
+def _parse_parent_id(raw_parent_id):
+    if raw_parent_id in (None, '', 'root'):
+        return None, None
+
+    try:
+        return int(raw_parent_id), None
+    except (TypeError, ValueError):
+        return None, 'parent_id must be root or an integer'
+
+
+def _comment_to_dict(comment, liked_comment_ids=None):
+    liked_comment_ids = liked_comment_ids or set()
+    return {
+        'id': comment.id,
+        'debate_id': comment.debate_id,
+        'parent_id': comment.parent_id,
+        'side': comment.side.value,
+        'content': comment.content,
+        'author': comment.user.username if comment.user else 'unknown',
+        'user_id': comment.user_id,
+        'upvote_count': comment.upvote_count,
+        'liked': comment.id in liked_comment_ids,
+        'created_at': comment.created_at.isoformat() if comment.created_at else None,
+    }
+
+
+def _liked_comment_ids(comments):
+    if not current_user.is_authenticated or not comments:
+        return set()
+
+    comment_ids = [comment.id for comment in comments]
+    rows = (db.session.query(Vote.comment_id)
+            .filter(Vote.user_id == current_user.id, Vote.comment_id.in_(comment_ids))
+            .all())
+    return {comment_id for (comment_id,) in rows}
 
 
 @main.route('/')
@@ -115,9 +159,149 @@ def create():
     return render_template('create.html')
 
 
+@main.route('/debate')
+def debate_redirect():
+    debate = Debate.query.order_by(Debate.created_at.desc()).first()
+    if not debate:
+        return redirect(url_for('main.index'))
+    return redirect(url_for('main.debate', debate_id=debate.id))
+
+
 @main.route('/debate/<int:debate_id>')
 def debate(debate_id):
-    return render_template('debate.html')
+    debate = db.get_or_404(Debate, debate_id)
+    return render_template('debate.html', debate=debate)
+
+
+@main.route('/api/debates/<int:debate_id>/thread')
+def api_debate_thread(debate_id):
+    debate = db.get_or_404(Debate, debate_id)
+    parent_id, error = _parse_parent_id(request.args.get('parent_id', 'root'))
+    if error:
+        return jsonify({'error': error}), 400
+
+    parent = None
+    if parent_id is not None:
+        parent = (Comment.query
+                  .options(selectinload(Comment.user))
+                  .filter_by(id=parent_id, debate_id=debate.id)
+                  .first_or_404())
+
+    query = (Comment.query
+             .options(selectinload(Comment.user))
+             .filter_by(debate_id=debate.id))
+
+    if parent is None:
+        query = query.filter(Comment.parent_id.is_(None))
+        topic = {
+            'id': 'root',
+            'text': debate.title,
+            'side': None,
+            'parent_id': None,
+        }
+    else:
+        query = query.filter(Comment.parent_id == parent.id)
+        topic = {
+            'id': parent.id,
+            'text': parent.content,
+            'side': parent.side.value,
+            'parent_id': parent.parent_id,
+            'author': parent.user.username if parent.user else 'unknown',
+        }
+
+    comments = query.order_by(Comment.created_at.asc()).all()
+    liked_ids = _liked_comment_ids(comments)
+    yes_comments = [comment for comment in comments if comment.side == CommentSide.yes]
+    no_comments = [comment for comment in comments if comment.side == CommentSide.no]
+
+    return jsonify({
+        'debate': {
+            'id': debate.id,
+            'title': debate.title,
+            'yes_count': debate.yes_count,
+            'no_count': debate.no_count,
+            'comment_count': debate.comment_count,
+        },
+        'topic': topic,
+        'comments': {
+            'yes': [_comment_to_dict(comment, liked_ids) for comment in yes_comments],
+            'no': [_comment_to_dict(comment, liked_ids) for comment in no_comments],
+        },
+    })
+
+
+@main.route('/api/debates/<int:debate_id>/comments', methods=['POST'])
+def api_create_comment(debate_id):
+    auth_error = _json_auth_required()
+    if auth_error:
+        return auth_error
+
+    debate = db.get_or_404(Debate, debate_id)
+    data = request.get_json(silent=True) or {}
+    content = (data.get('content') or '').strip()
+    side_value = (data.get('side') or '').strip().lower()
+    parent_id, error = _parse_parent_id(data.get('parent_id'))
+
+    if error:
+        return jsonify({'error': error}), 400
+
+    if not content:
+        return jsonify({'error': 'content is required'}), 400
+
+    if len(content) > MAX_COMMENT_LENGTH:
+        return jsonify({'error': f'content must be {MAX_COMMENT_LENGTH} characters or fewer'}), 400
+
+    try:
+        side = CommentSide(side_value)
+    except ValueError:
+        return jsonify({'error': 'side must be yes or no'}), 400
+
+    if parent_id is not None:
+        parent_exists = Comment.query.filter_by(id=parent_id, debate_id=debate.id).first()
+        if not parent_exists:
+            return jsonify({'error': 'parent comment not found'}), 404
+
+    comment = Comment(
+        debate_id=debate.id,
+        parent_id=parent_id,
+        user_id=current_user.id,
+        content=content,
+        side=side,
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    comment = (Comment.query
+               .options(selectinload(Comment.user))
+               .filter_by(id=comment.id)
+               .one())
+    return jsonify({'comment': _comment_to_dict(comment)}), 201
+
+
+@main.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
+def api_toggle_comment_vote(comment_id):
+    auth_error = _json_auth_required()
+    if auth_error:
+        return auth_error
+
+    comment = db.get_or_404(Comment, comment_id)
+    existing_vote = Vote.query.filter_by(comment_id=comment.id, user_id=current_user.id).first()
+
+    if existing_vote:
+        db.session.delete(existing_vote)
+        liked = False
+    else:
+        db.session.add(Vote(comment_id=comment.id, user_id=current_user.id))
+        liked = True
+
+    db.session.commit()
+    db.session.refresh(comment)
+
+    return jsonify({
+        'comment_id': comment.id,
+        'liked': liked,
+        'upvote_count': comment.upvote_count,
+    })
 
 
 @main.route('/debates/mine')
