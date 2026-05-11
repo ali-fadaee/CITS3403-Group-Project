@@ -90,11 +90,11 @@ body {
 /* ── NAVBAR ── */
 .navbar {
   box-shadow: none !important;
-  min-height: 5.5rem;
-  padding-top: 0.85rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--debate-border-soft) !important;
-  background: var(--scanline-dark), var(--debate-navbar-bg) !important;
+  min-height: auto;
+  padding-top: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 0 !important;
+  background: transparent !important;
 }
 
 .navbar > .container {
@@ -109,9 +109,9 @@ body {
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--debate-text) !important;
-  text-shadow: 0 0 14px var(--debate-yes-bg);
+  text-shadow: 0 0 14px rgba(241, 241, 241, 0.08);
 }
-.navbar-brand span { color: var(--debate-yes-muted); }
+.navbar-brand span { color: #cfcfcf; }
 
 .navbar-brand-wrap {
   display: flex;
@@ -137,7 +137,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
   width: 4px;
   height: 1em;
   margin-left: 4px;
-  background: var(--debate-yes);
+  background: var(--debate-text);
   vertical-align: text-bottom;
   animation: termBlink 1s step-end infinite;
 }
@@ -158,33 +158,47 @@ main.container { flex: 1; padding-bottom: 2rem; }
   width: min(100%, 76rem);
   max-width: 76rem;
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4.2rem) 1rem 3rem;
+  padding: clamp(1.85rem, 4.5vw, 3.8rem) 1rem 3rem;
 }
 
-.index-heading, .auth-heading {
+.index-heading {
+  font-size: clamp(2.05rem, 4.2vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  margin-bottom: 0.55rem;
+  text-shadow: 0 0 12px rgba(241, 241, 241, 0.08);
+}
+
+.auth-heading {
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 600;
   letter-spacing: 0.025em;
   margin-bottom: 0.55rem;
 }
-.index-heading span, .auth-heading span { color: var(--debate-yes-muted); }
+
+.index-heading span { color: #cfcfcf; }
+.auth-heading span { color: var(--debate-yes-muted); }
 
 .index-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.25rem;
 }
-.index-header-actions { display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0; }
+.index-header-actions { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
 
 .index-cmd { font-size: var(--font-size-base); color: var(--debate-text-faint); margin: 0; }
-.index-cmd .sym { color: var(--debate-yes-muted); }
+.index-cmd .sym { color: var(--debate-text-dim); }
 .index-cmd span { color: var(--debate-text-dim); }
 
-.index-hint { font-size: var(--font-size-sm); color: var(--debate-text-faint); margin-bottom: 1.25rem; }
-.index-hint::first-letter { color: var(--debate-yes-muted); }
-.index-hint .sym { color: var(--debate-yes-muted); }
+.index-hint {
+  font-size: var(--font-size-sm);
+  color: var(--debate-text-faint);
+  margin: 0 0 1.25rem;
+}
+.index-hint::first-letter { color: var(--debate-text-dim); }
+.index-hint .sym { color: var(--debate-text-dim); }
 
 .index-card, .auth-card {
   border: 1px solid var(--debate-border-soft);
@@ -194,48 +208,64 @@ main.container { flex: 1; padding-bottom: 2rem; }
   box-shadow: var(--debate-shadow);
   transition: border-color 140ms ease;
 }
+
+.index-card {
+  background:
+    var(--scanline),
+    var(--debate-panel);
+}
 .index-card:focus-within, .auth-card:focus-within { border-color: var(--debate-border-focus); }
 
-.index-toolbar { border-bottom: 1px solid var(--debate-border-soft); }
+.index-toolbar {
+  border-bottom: 1px solid var(--debate-border-soft);
+  background: rgba(19, 19, 19, 0.55);
+}
+
+.new-debate-btn,
+.my-debates-btn {
+  min-height: 2.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  border-radius: 0;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
 
 .new-debate-btn {
-  font-size: var(--font-size-sm);
-  color: var(--debate-yes);
-  border: 1px solid var(--debate-yes-border);
-  border-radius: 0;
-  padding: 0.5rem 0.9rem;
-  text-decoration: none;
-  transition: background 140ms ease;
+  color: var(--debate-text);
+  border: 1px solid var(--debate-border-focus);
 }
-.new-debate-btn:hover { background: var(--debate-yes-bg-dim); }
+.new-debate-btn:hover { border-color: var(--debate-border); background: var(--debate-hover-bg); transform: translateY(-1px); }
 
 .my-debates-btn {
-  font-size: var(--font-size-sm);
   color: var(--debate-text-dim);
   border: 1px solid var(--debate-border-soft);
-  border-radius: 0;
-  padding: 0.5rem 0.9rem;
-  text-decoration: none;
-  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
 }
-.my-debates-btn:hover { color: var(--debate-text); border-color: var(--debate-border); background: var(--debate-hover-bg); }
+.my-debates-btn:hover { color: var(--debate-text); border-color: var(--debate-border); background: var(--debate-hover-bg); transform: translateY(-1px); }
 
 /* ── FILTER TABS ── */
-.filter-tabs { display: flex; flex: 1; }
+.filter-tabs { display: flex; flex: 1; min-height: 3.1rem; }
 
 .filter-tab {
   flex: 1;
-  text-align: center;
-  padding: 0.75rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 0.9rem;
   font-size: var(--font-size-sm);
   color: var(--debate-text-faint);
   text-decoration: none;
   border-right: 1px solid var(--debate-border-soft);
+  letter-spacing: 0.025em;
   transition: color 140ms ease, background 140ms ease;
 }
 .filter-tab:last-child { border-right: none; }
 .filter-tab:hover { color: var(--debate-text-dim); background: var(--debate-hover-bg); }
-.filter-tab.is-active { color: var(--debate-yes); background: var(--debate-yes-bg-dim); border-bottom: 1px solid var(--debate-yes); }
+.filter-tab.is-active { color: var(--debate-text); background: var(--debate-hover-bg); border-bottom: 1px solid var(--debate-border); }
 
 /* ── DEBATE LIST ── */
 .debate-list { display: grid; gap: 0; }
@@ -247,7 +277,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
   background: var(--debate-panel);
   text-decoration: none;
   color: var(--debate-text);
-  transition: background 150ms ease;
+  transition: background 150ms ease, box-shadow 150ms ease;
   overflow: hidden;
 }
 .debate-card:hover { background: var(--debate-panel-soft); box-shadow: inset 3px 0 0 var(--debate-yes); color: var(--debate-text); }
@@ -256,8 +286,8 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .vote-bar-yes { background: var(--debate-yes); }
 .vote-bar-no  { background: var(--debate-danger); }
 
-.debate-card-body  { flex: 1; padding: 1.35rem 1.45rem; }
-.debate-card-title { font-size: var(--font-size-lg); margin-bottom: 0.85rem; line-height: 1.45; }
+.debate-card-body  { flex: 1; padding: 1.4rem 1.5rem; }
+.debate-card-title { font-size: clamp(1.02rem, 1.6vw, 1.18rem); margin-bottom: 0.85rem; line-height: 1.45; font-weight: 600; }
 
 .debate-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .debate-card-tags   { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -266,7 +296,8 @@ main.container { flex: 1; padding-bottom: 2rem; }
   font-size: var(--font-size-xs);
   color: var(--debate-text-faint);
   border: 1px solid var(--debate-border-soft);
-  padding: 0.15rem 0.45rem;
+  padding: 0.18rem 0.5rem;
+  background: rgba(19, 19, 19, 0.68);
 }
 
 .debate-card-counts { display: flex; gap: 0.75rem; font-size: var(--font-size-xs); white-space: nowrap; }
@@ -276,7 +307,14 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .debate-card-meta { display: flex; gap: 1.25rem; margin-top: 0.6rem; font-size: var(--font-size-xs); color: var(--debate-text-faint); }
 
 /* ── PAGINATION ── */
-.pagination { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-top: 1px solid var(--debate-border-soft); }
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid var(--debate-border-soft);
+  background: rgba(19, 19, 19, 0.62);
+}
 
 .page-btn {
   font-size: var(--font-size-xs);
@@ -291,7 +329,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 
 .page-info { font-size: var(--font-size-xs); color: var(--debate-text-faint); }
 
-.no-debates   { font-size: var(--font-size-base); color: var(--debate-text-faint); }
+.no-debates   { font-size: var(--font-size-base); color: var(--debate-text-faint); margin: 0; padding: 1.35rem 1.45rem; }
 .no-debates a { color: var(--debate-yes); }
 
 /* ── MODAL SYSTEM ── */
