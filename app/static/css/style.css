@@ -279,10 +279,30 @@ main.container { flex: 1; padding-bottom: 2rem; }
   color: var(--debate-text);
   transition: background 150ms ease, box-shadow 150ms ease;
   overflow: hidden;
+  position: relative;
 }
-.debate-card:hover { background: var(--debate-panel-soft); box-shadow: inset 3px 0 0 var(--debate-yes); color: var(--debate-text); }
 
-.vote-bar { display: flex; flex-direction: column; width: 5px; flex-shrink: 0; }
+.debate-card::before {
+  content: "";
+  width: 2px;
+  align-self: stretch;
+  background: var(--debate-border-soft);
+  flex-shrink: 0;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+
+.debate-card:hover {
+  background: var(--debate-panel-soft);
+  box-shadow: inset 0 0 0 1px rgba(157, 157, 157, 0.08);
+  color: var(--debate-text);
+}
+
+.debate-card:hover::before {
+  background: var(--debate-border);
+  box-shadow: 0 0 10px rgba(241, 241, 241, 0.18);
+}
+
+.vote-bar { display: none; }
 .vote-bar-yes { background: var(--debate-yes); }
 .vote-bar-no  { background: var(--debate-danger); }
 
@@ -300,7 +320,33 @@ main.container { flex: 1; padding-bottom: 2rem; }
   background: rgba(19, 19, 19, 0.68);
 }
 
-.debate-card-counts { display: flex; gap: 0.75rem; font-size: var(--font-size-xs); white-space: nowrap; }
+.debate-card-counts {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--debate-border-soft);
+  background: rgba(8, 8, 8, 0.58);
+}
+
+.vote-label {
+  color: var(--debate-text-faint);
+  margin-right: 0.15rem;
+}
+
+.count-yes,
+.count-no {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0.14rem 0.5rem;
+  border: 1px solid currentColor;
+  background: rgba(13, 13, 13, 0.72);
+  letter-spacing: 0.03em;
+}
+
 .count-yes { color: var(--debate-yes); }
 .count-no  { color: var(--debate-danger); }
 
