@@ -112,6 +112,12 @@ body {
   text-shadow: 0 0 14px rgba(241, 241, 241, 0.08);
 }
 .navbar-brand span { color: #cfcfcf; }
+.navbar-brand .navbar-cursor {
+  width: 3px;
+  height: 0.9em;
+  margin-left: 0.3rem;
+  vertical-align: -0.08em;
+}
 
 .navbar-brand-wrap {
   display: flex;
