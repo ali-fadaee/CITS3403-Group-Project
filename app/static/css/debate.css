@@ -821,10 +821,6 @@ body.debate-body [hidden] {
     flex-wrap: nowrap;
   }
 
-  .topbar-left {
-    flex: 1 1 auto;
-  }
-
   .topbar-right {
     flex: 0 1 auto;
     justify-content: flex-end;
@@ -836,12 +832,8 @@ body.debate-body [hidden] {
   }
 
   .debate-topbar .home-chip {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .topbar-right .profile-chip {
     flex: 0 1 auto;
+    min-width: 0;
   }
 
   .hero-copy {
@@ -928,14 +920,6 @@ body.debate-body [hidden] {
     gap: 0.6rem;
   }
 
-  .topbar-left {
-    flex: 1 1 0;
-  }
-
-  .topbar-right {
-    flex: 0 1 auto;
-  }
-
   .debate-topbar .profile-chip {
     width: auto;
     min-height: 3.35rem;
@@ -943,18 +927,23 @@ body.debate-body [hidden] {
   }
 
   .debate-topbar .home-chip {
-    width: 100%;
+    width: auto;
   }
 
   .topbar-right .profile-chip {
     min-width: 7.4rem;
-    max-width: 9rem;
+    max-width: none;
   }
 
   .debate-topbar .profile-icon {
     width: 2.05rem;
     height: 2.05rem;
     flex: 0 0 2.05rem;
+  }
+
+  .debate-topbar .profile-chip > div:not(.profile-icon) {
+    min-width: 0;
+    overflow: hidden;
   }
 
   .debate-topbar .profile-name,
@@ -999,7 +988,6 @@ body.debate-body [hidden] {
 
   .topbar-right .profile-chip {
     min-width: 6.6rem;
-    max-width: 7.4rem;
   }
 
   .debate-topbar .profile-icon {
