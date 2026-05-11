@@ -809,22 +809,31 @@ body.debate-body [hidden] {
   }
 
   .debate-topbar {
-    flex-wrap: wrap;
-    align-items: stretch;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .topbar-left,
   .topbar-right {
-    width: 100%;
-    flex-wrap: wrap;
+    width: auto;
+    min-width: 0;
+    flex-wrap: nowrap;
   }
 
   .topbar-right {
+    flex: 0 1 auto;
     justify-content: flex-end;
   }
 
   .debate-topbar .profile-chip {
-    min-width: min(100%, 10.5rem);
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .debate-topbar .home-chip {
+    flex: 0 1 auto;
+    min-width: 0;
   }
 
   .hero-copy {
@@ -901,24 +910,47 @@ body.debate-body [hidden] {
   }
 
   .debate-topbar {
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
-  .topbar-left {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
+  .topbar-left,
   .topbar-right {
-    display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr);
-    gap: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
   }
 
-  .debate-topbar .profile-chip,
-  .debate-topbar .theme-chip {
-    width: 100%;
+  .debate-topbar .profile-chip {
+    width: auto;
+    min-height: 3.35rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .debate-topbar .home-chip {
+    width: auto;
+  }
+
+  .topbar-right .profile-chip {
+    min-width: 7.4rem;
+    max-width: none;
+  }
+
+  .debate-topbar .profile-icon {
+    width: 2.05rem;
+    height: 2.05rem;
+    flex: 0 0 2.05rem;
+  }
+
+  .debate-topbar .profile-chip > div:not(.profile-icon) {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .debate-topbar .profile-name,
+  .debate-topbar .profile-status {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .debate-shell {
@@ -942,5 +974,29 @@ body.debate-body [hidden] {
   .comment-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 389.98px) {
+  .debate-topbar {
+    gap: 0.45rem;
+  }
+
+  .debate-topbar .profile-chip {
+    padding: 0.45rem 0.55rem;
+  }
+
+  .topbar-right .profile-chip {
+    min-width: 6.6rem;
+  }
+
+  .debate-topbar .profile-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    flex-basis: 1.85rem;
+  }
+
+  .debate-topbar .profile-status {
+    font-size: 0.72rem;
   }
 }
