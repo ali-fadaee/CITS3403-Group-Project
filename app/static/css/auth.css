@@ -21,23 +21,25 @@
   position: relative;
   height: 8px;
   border: 1px solid var(--debate-border-soft);
-  background: var(--debate-panel-soft);
+  background: rgba(157, 157, 157, 0.08);
   overflow: visible;
   margin-inline: 1.2rem;
   margin-bottom: 2.5rem;
   border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
-/* animated green fill layer */
+/* animated fill layer */
 .auth-step-progress::before {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
   height: 100%;
   width: 50%;
-  background: var(--debate-yes-muted);
+  background: linear-gradient(90deg, var(--debate-text-dim), var(--debate-text));
   border-radius: 999px;
   transition: width 220ms ease;
+  box-shadow: 0 0 12px rgba(241, 241, 241, 0.08);
 }
 
 .auth-step-progress.is-step-two::before {
@@ -80,16 +82,16 @@
 /* ── terminal command line ── */
 .auth-msg {
   font-size: 0.85rem;
-  color: var(--debate-text-faint);
+  color: var(--debate-text-dim);
   margin-bottom: 1.25rem;
 }
 
 .auth-msg::first-letter {
-  color: var(--debate-yes-muted);
+  color: var(--debate-text-dim);
 }
 
 .auth-msg span {
-  color: var(--debate-text-dim);
+  color: var(--debate-text);
 }
 
 /* ── field labels ── */
@@ -112,8 +114,8 @@
 
 /* ── inputs — override Bootstrap's form-control ── */
 .auth-input.form-control {
-  background: var(--debate-panel-soft);
-  border: 1px solid var(--debate-border-soft);
+  background: rgba(19, 19, 19, 0.82);
+  border: 1px solid var(--debate-border-focus);
   border-radius: 0;
   color: var(--debate-text);
   padding: 0.5rem 0.75rem;
@@ -125,7 +127,7 @@
 }
 
 .auth-input.form-control:focus {
-  background: var(--debate-panel-soft);
+  background: rgba(19, 19, 19, 0.96);
   border-color: var(--debate-border);
   box-shadow: 0 0 0 2px rgba(157, 157, 157, 0.07);
   color: var(--debate-text);
@@ -170,9 +172,11 @@
 .auth-button {
   display: block;
   padding: 0.48rem 1rem;
-  border: 1px solid var(--debate-yes);
-  background: var(--debate-yes-bg-dim);
-  color: var(--debate-yes);
+  border: 1px solid var(--debate-border-focus);
+  background:
+    linear-gradient(90deg, rgba(99, 240, 143, 0.1), rgba(157, 157, 157, 0.04)),
+    var(--debate-panel);
+  color: var(--debate-text);
   cursor: pointer;
   border-radius: 0;
   letter-spacing: 0.02em;
@@ -183,7 +187,11 @@
 }
 
 .auth-button:hover {
-  background: var(--debate-yes-bg);
+  border-color: var(--debate-yes-border);
+  color: var(--debate-yes);
+  background:
+    linear-gradient(90deg, rgba(99, 240, 143, 0.16), rgba(157, 157, 157, 0.05)),
+    var(--debate-panel);
 }
 
 .auth-button:active {
@@ -193,33 +201,36 @@
 .auth-button-second {
   border-color: var(--debate-border-soft);
   color: var(--debate-text-dim);
-  background: rgba(157, 157, 157, 0.08);
+  background: rgba(157, 157, 157, 0.06);
 }
 
 .auth-button-second:hover {
   background: rgba(157, 157, 157, 0.14);
+  border-color: var(--debate-border-focus);
+  color: var(--debate-text);
 }
 
 .auth-interest-btn {
   border-radius: 0;
-  border-color: var(--debate-border-soft);
-  color: var(--debate-text-dim);
-  background: rgba(157, 157, 157, 0.08);
+  border-color: var(--debate-border-soft) !important;
+  color: var(--debate-text-dim) !important;
+  background: rgba(157, 157, 157, 0.06) !important;
   font-size: 0.76rem;
   line-height: 1;
   padding: 0.35rem 0.7rem;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
 .auth-interest-buttons .btn-outline-secondary:hover {
-  border-color: var(--debate-yes-border);
-  color: var(--debate-text);
-  background: rgba(157, 157, 157, 0.14);
+  border-color: var(--debate-border-focus) !important;
+  color: var(--debate-text) !important;
+  background: rgba(157, 157, 157, 0.12) !important;
 }
 
 .auth-interest-buttons .btn-check:checked + .auth-interest-btn {
-  border-color: var(--debate-yes);
-  color: var(--debate-yes);
-  background: var(--debate-yes-bg);
+  border-color: var(--debate-yes-border) !important;
+  color: var(--debate-yes) !important;
+  background: var(--debate-yes-bg-dim) !important;
 }
 
 /* ── footer links ── */
@@ -229,7 +240,7 @@
   gap: 0.6rem;
   padding: 0.75rem 1.6rem;
   border-top: 1px solid var(--debate-border-soft);
-  background: var(--debate-panel);
+  background: rgba(19, 19, 19, 0.55);
   height: fit-content;
   text-align: center;
 }
@@ -243,7 +254,7 @@
 .auth-footer a {
   color: var(--debate-text);
   text-decoration: underline;
-  text-decoration-color: rgba(99, 240, 143, 0.35);
+  text-decoration-color: var(--debate-border-focus);
   text-underline-offset: 2px;
   transition: color 140ms ease, text-decoration-color 140ms ease;
 }

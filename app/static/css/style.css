@@ -174,10 +174,11 @@ main.container { flex: 1; padding-bottom: 2rem; }
   font-weight: 600;
   letter-spacing: 0.025em;
   margin-bottom: 0.55rem;
+  text-shadow: 0 0 12px rgba(241, 241, 241, 0.08);
 }
 
 .index-heading span { color: #cfcfcf; }
-.auth-heading span { color: var(--debate-yes-muted); }
+.auth-heading span { color: #cfcfcf; }
 
 .index-header {
   display: flex;
@@ -210,6 +211,12 @@ main.container { flex: 1; padding-bottom: 2rem; }
 }
 
 .index-card {
+  background:
+    var(--scanline),
+    var(--debate-panel);
+}
+
+.auth-card {
   background:
     var(--scanline),
     var(--debate-panel);
