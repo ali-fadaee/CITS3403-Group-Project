@@ -18,7 +18,7 @@
     <div class="auth-card">
       <form id="signupForm" method="POST" action="{{ url_for('main.signup') }}" novalidate>
         {{ form.hidden_tag() }}
-        <div class="auth-step-panels" id="signupPanels" data-start-step = "{{ 2 if form.username.errors and not form.email.errors and not form.password.errors and not form.confirm_password.errors else 1 }}">
+        <div class="auth-step-panels" id="signupPanels" data-start-step = "{{ 2 if signup_error or (form.username.errors and not form.email.errors and not form.password.errors and not form.confirm_password.errors) else 1 }}">
           <div class="auth-panel" data-step="1">
             <p class="auth-msg">$ signup <span>--verify-email</span></p>
 

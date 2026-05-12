@@ -96,12 +96,14 @@ def verify_email(token):
         flash("Verification link is invalid or has expired.")
         return redirect(url_for('main.signup'))
     user = User.query.filter_by(email=email).first()
-    if user and not user.email_verified:
+    if not user:
+        flash("No account found for this verification link.")
+    elif user.email_verified:
+        flash("Email is already verified.")
+    else:
         user.email_verified = True
         db.session.commit()
         flash("Email verified successfully. You can now log in.")
-    else:
-        flash("Email is already verified")
     return redirect(url_for('main.login'))
 
 
@@ -176,10 +178,10 @@ def logout():
 @main.route('/api/account/delete', methods=['POST'])
 @login_required
 def api_delete_account():
-    user = User.query.get(current_user.id)
-    logout_user()
+    user = db.session.get(User, current_user.id)
     db.session.delete(user)
     db.session.commit()
+    logout_user()
     return jsonify({'ok': True}), 200
 
 @main.route('/profile')
