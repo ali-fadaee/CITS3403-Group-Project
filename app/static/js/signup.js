@@ -88,9 +88,10 @@ function signupValidation(form) {
     return (email.checkValidity() && checkPassword(password.value) && confirmPassword.value === password.value);
   }
 
-  // Final check on form submission to prevent submission if username is invalid
+  // Final check on form submission to prevent submission if any field is invalid
   form.addEventListener("submit", function(e) {
-  if (!checkUsername(username.value)) e.preventDefault();});
+    if (!continue_check() || !checkUsername(username.value)) e.preventDefault();
+  });
 
   return {continue_check};
 }
