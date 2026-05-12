@@ -114,7 +114,7 @@ def login():
     if form.validate_on_submit():
         identifier = form.usernameEmail.data
         user = User.query.filter(
-            (User.email == identifier.lower()) | (User.username == identifier)
+            (User.email == identifier.lower()) | (func.lower(User.username) == identifier.lower())
         ).first()
 
         if not user or not user.check_password(form.password.data):
