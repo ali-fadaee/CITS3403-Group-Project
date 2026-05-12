@@ -153,12 +153,14 @@ def signup():
                 db.session.add(tag)
             tags.append(tag)
         user.interests = tags
-        db.session.add(user)
-        db.session.commit()
         try:
             send_verification_email(user)
         except Exception as e:
-            print(f"Error sending verification email: {e}")
+            db.session.rollback()
+            return render_template('signup.html', form=form, interests=interests_options,
+                                   signup_error='Could not send verification email. Please try again.')
+        db.session.add(user)
+        db.session.commit()
         flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)

@@ -84,6 +84,9 @@
               <p class="auth-help mt-2 mb-0">Selected: <span id="interestCount">0</span></p>
             </div>
 
+            {% if signup_error %}
+              <p class="auth-help mt-2" style="color: red">{{ signup_error }}</p>
+            {% endif %}
             <div class="auth-actions d-flex gap-2">
               <button type="button" class="auth-button auth-button-second" id="backToVerify">back --edit</button>
               {{ form.signupSubmit(class="auth-button") }}
