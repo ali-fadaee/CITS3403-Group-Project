@@ -112,8 +112,9 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
+        identifier = form.usernameEmail.data
         user = User.query.filter(
-            (User.email == form.usernameEmail.data) | (User.username == form.usernameEmail.data)
+            (User.email == identifier.lower()) | (User.username == identifier)
         ).first()
 
         if not user or not user.check_password(form.password.data):
@@ -138,8 +139,8 @@ def signup():
     ]
     form = SignupForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, 
-                    email=form.email.data,
+        user = User(username=form.username.data,
+                    email=form.email.data.lower(),
         )
 
         user.set_password(form.password.data)

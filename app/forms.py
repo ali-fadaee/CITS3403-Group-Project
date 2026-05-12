@@ -49,7 +49,7 @@ class SignupForm(FlaskForm):
     signupSubmit = SubmitField('signup --execute')
     
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if User.query.filter_by(email=field.data.lower()).first():
             raise ValidationError('An account already exists with this email.')
 
     def validate_username(self, field):
