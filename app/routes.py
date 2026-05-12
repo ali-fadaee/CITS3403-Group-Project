@@ -164,7 +164,7 @@ def signup():
     return render_template('signup.html', form=form, interests=interests_options)
 
 
-@main.route('/logout')
+@main.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
