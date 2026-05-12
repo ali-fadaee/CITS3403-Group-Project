@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
@@ -166,6 +166,16 @@ def signup():
         flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)
+
+
+@main.route('/api/check-email')
+@limiter.limit("10 per minute")
+def api_check_email():
+    email = request.args.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'available': False})
+    taken = User.query.filter_by(email=email).first() is not None
+    return jsonify({'available': not taken})
 
 
 @main.route('/logout', methods=['POST'])

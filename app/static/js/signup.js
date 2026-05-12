@@ -53,11 +53,11 @@ function signupValidation(form) {
   const usernameFeedback = document.getElementById("usernameFeedback");
 
   if (!email || !password || !confirmPassword) return;
-  
+
   const updateEmailFeedback = createFeedbackUpdate(email, emailFeedback, () => email.checkValidity(), {
     valid: "Email looks good!",
     invalid: "Please enter a valid email address."
-  } ,false);
+  }, false);
 
   const updatePasswordFeedback = createFeedbackUpdate(password, passwordFeedback, () => checkPassword(password.value), {
     valid: "Password looks good!",
@@ -74,7 +74,7 @@ function signupValidation(form) {
     invalid: "Username does not meet requirements."
   });
 
-  // Attach event listeners for real-time feedback 
+  // Attach event listeners for real-time feedback
   email.addEventListener("blur", updateEmailFeedback);
   password.addEventListener("input", function () {
     updatePasswordFeedback();
@@ -83,9 +83,30 @@ function signupValidation(form) {
   confirmPassword.addEventListener("input", updateConfirmFeedback);
   username.addEventListener("input", updateUsernameFeedback);
 
-  // Used for the Signup "Continue" button on the first step to validate before proceeding 
   function continue_check() {
     return (email.checkValidity() && checkPassword(password.value) && confirmPassword.value === password.value);
+  }
+
+  // Checks format then fetches email availability — used by the Continue button
+  async function asyncContinueCheck() {
+    if (!continue_check()) {
+      form.reportValidity();
+      return false;
+    }
+    try {
+      const r = await fetch(`/api/check-email?email=${encodeURIComponent(email.value)}`);
+      const data = await r.json();
+      if (!data.available) {
+        if (emailFeedback) {
+          emailFeedback.textContent = "An account already exists with this email.";
+          emailFeedback.style.color = "red";
+        }
+        return false;
+      }
+    } catch (e) {
+      // Network error — let server validate
+    }
+    return true;
   }
 
   // Final check on form submission to prevent submission if any field is invalid
@@ -93,11 +114,11 @@ function signupValidation(form) {
     if (!continue_check() || !checkUsername(username.value)) e.preventDefault();
   });
 
-  return {continue_check};
+  return { continue_check, asyncContinueCheck };
 }
 
 // Handles the multi-step form navigation for the signup process
-function initSignupStepper(form, validated) {
+function initSignupStepper(form, asyncValidated) {
   const panels = document.getElementById("signupPanels");
   const toStepTwoBtn = document.getElementById("continueToProfile");
   const toStepOneBtn = document.getElementById("backToVerify");
@@ -122,12 +143,9 @@ function initSignupStepper(form, validated) {
     }
   }
 
-  toStepTwoBtn.addEventListener("click", function () {
-    if (validated()) {
+  toStepTwoBtn.addEventListener("click", async function () {
+    if (await asyncValidated()) {
       setStep(2);
-    } 
-    else{
-      form.reportValidity(); //triggers browser's validation UI when no input provided
     }
   });
 
@@ -172,7 +190,7 @@ function setupSignupForm() {
   const client_validation = signupValidation(form);
 
   if (!client_validation) return;
-  initSignupStepper(form, client_validation.continue_check);
+  initSignupStepper(form, client_validation.asyncContinueCheck);
   interestCounter(form);
 }
 setupSignupForm();  
