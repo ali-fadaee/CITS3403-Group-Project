@@ -144,7 +144,7 @@ def signup():
         )
 
         user.set_password(form.password.data)
-        interests = request.form.getlist('interests[]')
+        interests = [i for i in request.form.getlist('interests[]') if i in interests_options]
         tags = []
         for interest in interests:
             tag = Tag.query.filter_by(name=interest).first()
