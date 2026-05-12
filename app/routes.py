@@ -179,6 +179,7 @@ def api_check_email():
     return jsonify({'available': not taken})
 
 
+
 @main.route('/logout', methods=['POST'])
 @login_required
 def logout():
