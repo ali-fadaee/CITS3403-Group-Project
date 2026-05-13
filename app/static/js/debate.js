@@ -43,9 +43,15 @@
     return `/api/debates/${encodeURIComponent(debateId)}/thread?parent_id=${encodeURIComponent(parentId || "root")}`;
   }
 
-  async function requestJson(url, options) {
+  async function requestJson(url, options = {}) {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const method = (options.method || 'GET').toUpperCase();
+    const headers = { "Content-Type": "application/json" };
+    if (method !== 'GET' && method !== 'HEAD' && csrfMeta) {
+      headers['X-CSRFToken'] = csrfMeta.content;
+    }
     const response = await fetch(url, {
-      headers: { "Content-Type": "application/json" },
+      headers,
       ...options,
     });
 

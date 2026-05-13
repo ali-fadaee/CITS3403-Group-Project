@@ -1,9 +1,10 @@
 import enum
+import secrets
 from datetime import datetime, timezone
 from sqlalchemy import event, update
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin   
+from flask_login import UserMixin
 from app.extensions import login_manager
 
 
@@ -46,9 +47,16 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
     
     email_verified = db.Column(db.Boolean, default=False, nullable=False)
+    session_token = db.Column(db.String(32), nullable=False, default=lambda: secrets.token_hex(16))
     bio = db.Column(db.Text, nullable=True)
     avatar_id = db.Column(db.Integer, db.ForeignKey('avatars.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=_utcnow)
+
+    def get_id(self):
+        return f"{self.id}.{self.session_token}"
+
+    def rotate_session_token(self):
+        self.session_token = secrets.token_hex(16)
 
     avatar = db.relationship('Avatar', back_populates='users')
     debates = db.relationship('Debate', back_populates='creator', cascade='all, delete-orphan')
@@ -173,4 +181,11 @@ def _vote_after_delete(mapper, connection, target):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    try:
+        uid, token = user_id.split('.', 1)
+        user = db.session.get(User, int(uid))
+        if user and user.session_token == token:
+            return user
+        return None
+    except (ValueError, AttributeError):
+        return None

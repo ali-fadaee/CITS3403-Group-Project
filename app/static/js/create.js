@@ -15,9 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
     createBtn.textContent = '$ creating...';
 
     try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
       const res = await fetch('/api/debates', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         body: JSON.stringify({ title: thesis, category: category })
       });
       const data = await res.json();

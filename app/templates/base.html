@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}~/debates-app{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -13,7 +14,7 @@
   <nav class="navbar navbar-expand-lg">
     <div class="container">
       <div class="navbar-brand-wrap">
-        <a class="navbar-brand" href="/"><span>~/</span>debates-app</a>
+        <a class="navbar-brand" href="/"><span>~/</span>debates-app<span class="term-cursor"></span></a>
         <span class="nav-version">v1.0.0</span>
       </div>
       <div class="navbar-nav ms-auto flex-row gap-3">
@@ -53,14 +54,14 @@
     <div class="app-modal-card app-modal-card-wide">
       <div class="app-modal-head">
         <div class="term-titlebar">
-          <span class="term-cmd"><span class="term-sym">&gt;_</span> user --profile<span class="term-cursor">▋</span></span>
+          <span class="term-cmd"><span class="term-sym">&gt;_</span> user --profile<span class="term-cursor"></span></span>
         </div>
         <button class="app-modal-close" onclick="closeModal('profileFullModal')">✕</button>
       </div>
       <div class="app-modal-body">
 
         <div class="panel">
-          <div class="panel-title">// identity &amp; account</div>
+          <div class="panel-title">// account</div>
           <div class="identity-layout">
             <button class="avatar-btn" id="avatarBtn" onclick="openAvatarModal()" title="Change avatar">
               <span id="avatarDisplay">🤖</span>
@@ -70,19 +71,15 @@
               <div class="field-row">
                 <div class="field">
                   <label class="field-label">--username</label>
-                  <input class="field-input" type="text" value="{{ current_user.username }}" placeholder="// set username" readonly/>
+                  <span class="field-static">{{ current_user.username }}</span>
                 </div>
                 <div class="field">
                   <label class="field-label">--email</label>
-                  <input class="field-input" type="email" value="{{ current_user.email }}" placeholder="// set email" readonly/>
+                  <span class="field-static">{{ current_user.email }}</span>
                 </div>
               </div>
-              <div class="field">
-                <label class="field-label">--password</label>
-                <div class="pw-row">
-                  <input class="field-input" type="password" value="••••••••" readonly id="passwordField" />
-                  <button class="change-btn" id="changePwBtn" onclick="togglePassword()">$ change</button>
-                </div>
+              <div>
+                <button class="change-btn" id="changePwBtn" onclick="togglePassword()">$ change --password</button>
                 <div id="pwChangeFields" hidden style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
                   <input class="field-input" type="password" id="currentPassword" placeholder="// current password" />
                   <input class="field-input" type="password" id="newPassword" placeholder="// new password" />
@@ -91,30 +88,38 @@
               </div>
             </div>
           </div>
-          <div class="save-row">
+          <div class="field" style="margin-top:1rem;">
+            <label class="field-label">--bio</label>
+            <textarea class="field-input" id="bioField" placeholder="// about you..." rows="3" maxlength="1000" style="resize:vertical;">{{ current_user.bio or '' }}</textarea>
+            <span class="bio-counter"><span id="bioCount">{{ (current_user.bio or '') | length }}</span> / 1000</span>
+          </div>
+          <div style="margin-top:1.2rem;">
+            <div class="panel-title" style="margin-bottom:0.75rem;">// interests</div>
+            <div class="interests-row" id="interestsRow">
+              <button class="interest-add" id="addInterestBtn" onclick="openInterestsModal()">= add</button>
+            </div>
+          </div>
+          <div class="profile-save-row">
             <span id="profileError" style="color: var(--debate-no, #ff4d4d); font-size: 0.8rem; display:none;"></span>
             <button class="save-btn" id="saveProfileBtn">$ save --apply</button>
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panel-title">// interests</div>
-          <div class="interests-row" id="interestsRow">
-            <button class="interest-add" id="addInterestBtn" onclick="openInterestsModal()">= add</button>
-          </div>
-        </div>
-
-        <div class="danger-panel" style="position:relative;">
-          <div class="panel-title">// danger zone</div>
-          <div class="danger-actions">
-            <button class="logout-btn" onclick="window.location.href='/logout'">
+        <div class="bottom-panels">
+          <div class="session-panel">
+            <div class="panel-title">// session</div>
+            <a href="/logout" class="logout-btn">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
                 <line x1="21" y1="12" x2="9" y2="12"/>
               </svg>
               $ exit --session
-            </button>
+            </a>
+          </div>
+
+          <div class="danger-panel" style="position:relative;">
+            <div class="panel-title">// danger zone</div>
             <button class="delete-btn" id="deleteAccountBtn">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"/>
@@ -124,15 +129,14 @@
               </svg>
               $ rm --account
             </button>
-          </div>
-          <p class="danger-note">// removing your account is permanent and cannot be undone.</p>
 
-          <!-- confirmation overlay -->
-          <div id="deleteConfirmOverlay" hidden style="position:absolute; inset:0; background: var(--debate-panel);; border:1px solid var(--debate-no, #ff4d4d); border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:1rem; padding:1.2rem;">
-            <p style="color:var(--debate-no, #ff4d4d); margin:0; font-size:0.85rem;">// are you sure? this cannot be undone.</p>
-            <div style="display:flex; gap:0.75rem;">
-              <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
-              <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
+            <!-- confirmation overlay -->
+            <div id="deleteConfirmOverlay" hidden style="position:absolute; inset:0; background: var(--debate-panel); border:1px solid var(--debate-no, #ff4d4d); border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:1rem; padding:1.2rem;">
+              <p style="color:var(--debate-no, #ff4d4d); margin:0; font-size:0.85rem;">// are you sure? this cannot be undone.</p>
+              <div style="display:flex; gap:0.75rem;">
+                <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
+                <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +184,7 @@
     <div class="app-modal-card app-modal-card-wide">
       <div class="app-modal-head">
         <div class="term-titlebar">
-          <span class="term-cmd"><span class="term-sym">&gt;_</span> debate --new<span class="term-cursor">▋</span></span>
+          <span class="term-cmd"><span class="term-sym">&gt;_</span> debate --new<span class="term-cursor"></span></span>
         </div>
         <button class="app-modal-close" onclick="closeModal('createModal')">✕</button>
       </div>
@@ -223,7 +227,7 @@
     <div class="app-modal-card">
       <div class="app-modal-head">
         <div class="term-titlebar">
-          <span class="term-cmd"><span class="term-sym">&gt;_</span> rm --account<span class="term-cursor">▋</span></span>
+          <span class="term-cmd"><span class="term-sym">&gt;_</span> rm --account<span class="term-cursor"></span></span>
         </div>
         <button class="app-modal-close" onclick="closeDeleteConfirm()">✕</button>
       </div>
@@ -241,6 +245,7 @@
   <script>
     const USER_INTERESTS = {{ current_user.interests | map(attribute='name') | list | tojson if current_user.is_authenticated else '[]' }};
     const USER_AVATAR_URL = {{ (current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '') | tojson }};
+    const USER_BIO = {{ (current_user.bio or '') | tojson if current_user.is_authenticated else '""' }};
   </script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/create.js') }}"></script>
@@ -279,7 +284,11 @@
     }
     document.getElementById('deleteAccountBtn').addEventListener('click', openDeleteConfirm);
     document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
-      const res = await fetch('/api/account/delete', { method: 'POST' });
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+      const res = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+      });
       if (res.ok) window.location.href = '/';
     });
   </script>

@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
+import re
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
-from app.extensions import db
-from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
+from app.extensions import db, limiter
+from app.models import Avatar, Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
 from app.email import verify_token, send_verification_email
@@ -67,8 +68,8 @@ def index():
     elif filter == 'top':
         query = query.order_by((Debate.yes_count + Debate.no_count).desc(), Debate.created_at.desc())
     elif filter == 'for-you':
-        user_id = session.get('user_id')
-        if user_id:
+        if current_user.is_authenticated:
+            user_id = current_user.id
             match_count = (
                 db.session.query(func.count())
                 .select_from(debate_tags)
@@ -340,9 +341,10 @@ def my_activity():
     page = max(1, request.args.get('page', 1, type=int))
     per_page = 10
 
-    user_id = session.get('user_id')
-    if not user_id:
+    if not current_user.is_authenticated:
         return render_template('my_activity.html', tab=tab, items=[], total_pages=1, page=1)
+
+    user_id = current_user.id
 
     if tab == 'arguments':
         pagination = (Comment.query
@@ -363,7 +365,11 @@ def my_activity():
 
 @main.route('/api/debates', methods=['POST'])
 def api_create_debate():
-    data     = request.get_json()
+    auth_error = _json_auth_required()
+    if auth_error:
+        return auth_error
+
+    data     = request.get_json() or {}
     title    = (data.get('title') or '').strip()
     category = (data.get('category') or 'Technology').strip()
 
@@ -386,34 +392,60 @@ def api_create_debate():
 
 
 @main.route('/api/profile', methods=['POST'])
+@limiter.limit("10 per minute")
 def api_save_profile():
-    if not current_user.is_authenticated:
-        return jsonify({'error': 'not logged in'}), 401
+    guard = _json_auth_required()
+    if guard:
+        return guard
     user = current_user
 
-    data = request.get_json()
+    data = request.get_json() or {}
+    password_changed = False
+
     if data.get('password'):
         if not user.check_password(data.get('current_password', '')):
-            return jsonify({'error': 'current password is incorrect'}), 400
-        user.set_password(data['password'])
+            return jsonify({'error': '// current password is incorrect'}), 400
+        new_pw = data['password']
+        if len(new_pw) < 8 or not re.search(r'[a-z]', new_pw) or not re.search(r'[A-Z]', new_pw) or not re.search(r'\d', new_pw):
+            return jsonify({'error': '// password must be 8+ chars with uppercase, lowercase, and a number'}), 400
+        user.set_password(new_pw)
+        user.rotate_session_token()
+        password_changed = True
+
     if data.get('avatar_id'):
-        user.avatar_id = data['avatar_id']
+        avatar = db.session.get(Avatar, data['avatar_id'])
+        if not avatar:
+            return jsonify({'error': '// invalid avatar'}), 400
+        user.avatar_id = avatar.id
+
+    if 'bio' in data:
+        if len(data['bio']) > 1000:
+            return jsonify({'error': 'bio must be 1000 characters or less'}), 400
+        user.bio = data['bio']
+
     if 'interests' in data:
         tags = []
         for name in data['interests']:
             tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
-            if not tag:
-                tag = Tag(name=name)
-                db.session.add(tag)
-            tags.append(tag)
+            if tag:
+                tags.append(tag)
         user.interests = tags
 
     db.session.commit()
+
+    if password_changed:
+        login_user(user)
+
     return jsonify({'ok': True}), 200
 
 
 @main.route('/api/avatars', methods=['GET'])
 def api_avatars():
-    from app.models import Avatar
-    avatars = Avatar.query.all()
+    avatars = Avatar.query.order_by(Avatar.name).all()
     return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])
+
+
+@main.route('/api/tags', methods=['GET'])
+def api_tags():
+    tags = Tag.query.order_by(Tag.name).all()
+    return jsonify([t.name for t in tags])
