@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
@@ -96,12 +96,14 @@ def verify_email(token):
         flash("Verification link is invalid or has expired.")
         return redirect(url_for('main.signup'))
     user = User.query.filter_by(email=email).first()
-    if user and not user.email_verified:
+    if not user:
+        flash("No account found for this verification link.")
+    elif user.email_verified:
+        flash("Email is already verified.")
+    else:
         user.email_verified = True
         db.session.commit()
         flash("Email verified successfully. You can now log in.")
-    else:
-        flash("Email is already verified")
     return redirect(url_for('main.login'))
 
 
@@ -112,8 +114,9 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
+        identifier = form.usernameEmail.data
         user = User.query.filter(
-            (User.email == form.usernameEmail.data) | (User.username == form.usernameEmail.data)
+            (User.email == identifier.lower()) | (func.lower(User.username) == identifier.lower())
         ).first()
 
         if not user or not user.check_password(form.password.data):
@@ -138,12 +141,12 @@ def signup():
     ]
     form = SignupForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, 
-                    email=form.email.data,
+        user = User(username=form.username.data,
+                    email=form.email.data.lower(),
         )
 
         user.set_password(form.password.data)
-        interests = request.form.getlist('interests[]')
+        interests = [i for i in request.form.getlist('interests[]') if i in interests_options]
         tags = []
         for interest in interests:
             tag = Tag.query.filter_by(name=interest).first()
@@ -152,18 +155,30 @@ def signup():
                 db.session.add(tag)
             tags.append(tag)
         user.interests = tags
-        db.session.add(user)
-        db.session.commit()
         try:
             send_verification_email(user)
         except Exception as e:
-            print(f"Error sending verification email: {e}")
+            db.session.rollback()
+            return render_template('signup.html', form=form, interests=interests_options,
+                                   signup_error='Could not send verification email. Please try again.')
+        db.session.add(user)
+        db.session.commit()
         flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)
 
 
-@main.route('/logout')
+@main.route('/api/check-email')
+@limiter.limit("10 per minute")
+def api_check_email():
+    email = request.args.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'available': False})
+    taken = User.query.filter_by(email=email).first() is not None
+    return jsonify({'available': not taken})
+
+
+@main.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
@@ -173,10 +188,10 @@ def logout():
 @main.route('/api/account/delete', methods=['POST'])
 @login_required
 def api_delete_account():
-    user = User.query.get(current_user.id)
-    logout_user()
+    user = db.session.get(User, current_user.id)
     db.session.delete(user)
     db.session.commit()
+    logout_user()
     return jsonify({'ok': True}), 200
 
 @main.route('/profile')
