@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const thesis   = document.getElementById('thesisInput').value.trim();
     const selectedCategories = [...document.querySelectorAll('#createCategoryGrid .category-chip.is-selected')]
       .map(btn => btn.dataset.cat);
-    
+
     if (!thesis) {
       alert('// error: --thesis cannot be empty');
       return;
@@ -36,9 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
     createBtn.textContent = '$ creating...';
 
     try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
       const res = await fetch('/api/debates', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         body: JSON.stringify({ title: thesis, categories: selectedCategories })
       });
       const data = await res.json();

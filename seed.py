@@ -59,6 +59,9 @@ with app.app_context():
         Tag(name='Ethics'),
         Tag(name='Health'),
         Tag(name='Lifestyle'),
+        Tag(name='Art'),
+        Tag(name='Music'),
+        Tag(name='Sports'),
     ]
     db.session.add_all(tags)
     db.session.commit()
