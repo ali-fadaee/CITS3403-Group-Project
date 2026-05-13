@@ -200,17 +200,8 @@
           <label class="create-label">--thesis</label>
           <textarea class="create-input" id="thesisInput" placeholder="// enter your main question or thesis..."></textarea>
 
-          <label class="create-label" >--category</label>
-          <select class="create-select" id="categorySelect">
-            <option>Technology</option>
-            <option>Philosophy</option>
-            <option>Politics</option>
-            <option>Ethics</option>
-            <option>Science</option>
-            <option>Education</option>
-            <option>Economics</option>
-          </select>
-        </section>
+          <label class="create-label">--categories</label>
+          <div class="category-grid" id="createCategoryGrid"></div>
 
         <button class="create-final-btn" id="createDebateBtn">$ create --execute</button>
 
@@ -248,6 +239,11 @@
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
       document.getElementById(id).classList.add('active');
+      if (id === 'createModal') {
+        document.getElementById('thesisInput').value = '';
+        document.getElementById('createCategoryGrid').querySelectorAll('.category-chip')
+          .forEach(c => c.classList.remove('is-selected'));
+      }
     }
     function closeModal(id) {
       document.getElementById(id + 'Backdrop').classList.remove('active');
