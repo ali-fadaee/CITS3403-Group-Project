@@ -433,3 +433,9 @@ def api_avatars():
     from app.models import Avatar
     avatars = Avatar.query.all()
     return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])
+
+
+@main.route('/api/tags', methods=['GET'])
+def api_tags():
+    tags = Tag.query.order_by(Tag.name).all()
+    return jsonify([t.name for t in tags])

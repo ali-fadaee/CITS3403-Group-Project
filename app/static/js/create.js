@@ -1,18 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const CREATE_CATEGORIES = [
-  'Sports', 'Music', 'Technology', 'Art', 'Science', 'Philosophy',
-  'Environment', 'Economics', 'Education', 'Ethics', 'Health', 'Lifestyle'
-];
-    const createGrid = document.getElementById('createCategoryGrid');
-    CREATE_CATEGORIES.forEach(cat => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'category-chip';
-      chip.textContent = cat;
-      chip.dataset.cat = cat;
-      chip.addEventListener('click', () => chip.classList.toggle('is-selected'));
-      createGrid.appendChild(chip);
-    });
+  const createGrid = document.getElementById('createCategoryGrid');
+  if (createGrid) {
+    fetch('/api/tags')
+      .then(res => res.ok ? res.json() : [])
+      .then(categories => {
+        categories.forEach(cat => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'category-chip';
+          chip.textContent = cat;
+          chip.dataset.cat = cat;
+          chip.addEventListener('click', () => chip.classList.toggle('is-selected'));
+          createGrid.appendChild(chip);
+        });
+      });
+  }
   const createBtn = document.getElementById('createDebateBtn');
   if (!createBtn) return;
 
