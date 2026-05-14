@@ -11,6 +11,8 @@ def create_app():
 
     if not app.config.get('SECRET_KEY'):
         raise RuntimeError('SECRET_KEY environment variable is not set.')
+    if not app.config.get('SECURITY_PASSWORD_SALT'):
+        raise RuntimeError('SECURITY_PASSWORD_SALT environment variable is not set.')
 
     db.init_app(app)
     migrate.init_app(app, db)

@@ -100,7 +100,7 @@
             </div>
           </div>
           <div class="profile-save-row">
-            <span id="profileError" style="color: var(--debate-no, #ff4d4d); font-size: 0.8rem; display:none;"></span>
+            <span id="profileError" style="color: var(--debate-danger); font-size: 0.8rem; display:none;"></span>
             <button class="save-btn" id="saveProfileBtn">$ save --apply</button>
           </div>
         </div>
@@ -134,8 +134,8 @@
             </button>
 
             <!-- confirmation overlay -->
-            <div id="deleteConfirmOverlay" hidden style="position:absolute; inset:0; background: var(--debate-panel); border:1px solid var(--debate-no, #ff4d4d); border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:1rem; padding:1.2rem;">
-              <p style="color:var(--debate-no, #ff4d4d); margin:0; font-size:0.85rem;">// are you sure? this cannot be undone.</p>
+            <div id="deleteConfirmOverlay" hidden style="position:absolute; inset:0; background: var(--debate-panel); border:1px solid var(--debate-danger); border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:1rem; padding:1.2rem;">
+              <p style="color:var(--debate-danger); margin:0; font-size:0.85rem;">// are you sure? this cannot be undone.</p>
               <div style="display:flex; gap:0.75rem;">
                 <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
                 <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
@@ -226,7 +226,7 @@
         <button class="app-modal-close" onclick="closeDeleteConfirm()">✕</button>
       </div>
       <div class="app-modal-body">
-        <p style="color:var(--debate-no, #ff4d4d); margin-bottom:1rem;">// this action is permanent and cannot be undone.</p>
+        <p style="color:var(--debate-danger); margin-bottom:1rem;">// this action is permanent and cannot be undone.</p>
         <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
           <button class="change-btn" onclick="closeDeleteConfirm()">$ cancel</button>
           <button class="delete-btn" id="confirmDeleteBtn">$ rm --confirm</button>
@@ -265,8 +265,10 @@
     const USER_AVATAR_URL = {{ (current_user.avatar.image_url if current_user.is_authenticated and current_user.avatar else '') | tojson }};
     const USER_BIO = {{ (current_user.bio or '') | tojson if current_user.is_authenticated else '""' }};
   </script>
+  {% if current_user.is_authenticated %}
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/create.js') }}"></script>
+  {% endif %}
   <script src="{{ url_for('static', filename='js/user-panel.js') }}"></script>
   <script>
     function openModal(id) {
@@ -284,7 +286,7 @@
       if (id === 'profileFullModal') {
         clearProfileError();
         document.getElementById('pwChangeFields').hidden = true;
-        document.getElementById('changePwBtn').textContent = '$ change';
+        document.getElementById('changePwBtn').textContent = '$ change --password';
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
         document.getElementById('confirmPassword').value = '';

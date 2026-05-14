@@ -61,5 +61,6 @@ function toggleSave(btn) {
     .then(data => {
       btn.classList.toggle('is-saved', data.saved);
       btn.textContent = data.saved ? '// saved' : '// save';
-    });
+    })
+    .catch(() => {});
 }

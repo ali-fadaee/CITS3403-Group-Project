@@ -96,7 +96,8 @@
         allCategories = tags;
         tags.forEach(buildCategoryChip);
         renderTags();
-      });
+      })
+      .catch(() => {});
 
     function renderTags() {
       [...interestsRow.children].forEach(el => { if (el !== addBtn) el.remove(); });

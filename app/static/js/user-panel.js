@@ -19,12 +19,21 @@ function openUserPanel(username) {
       const interestsEl = document.getElementById('userPanelInterests');
       const interestsSection = document.getElementById('userPanelInterestsSection');
       if (data.interests.length) {
-        interestsEl.innerHTML = data.interests.map(i => `<span class="debate-tag">${i}</span>`).join('');
+        interestsEl.innerHTML = '';
+        data.interests.forEach(i => {
+          const span = document.createElement('span');
+          span.className = 'debate-tag';
+          span.textContent = i;
+          interestsEl.appendChild(span);
+        });
         interestsSection.hidden = false;
       } else {
         interestsSection.hidden = true;
       }
       panel.classList.add('active');
+    })
+    .catch(() => {
+      backdrop.classList.remove('active');
     });
 }
 

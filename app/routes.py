@@ -2,6 +2,7 @@ import re
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from sqlalchemy import func, cast, Float
 from sqlalchemy.orm import selectinload
+from urllib.parse import urlparse
 from app.extensions import db, limiter
 from app.models import Avatar, Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, saved_debates as saved_debates_table, user_tags
 from app.forms import LoginForm, SignupForm
@@ -135,6 +136,7 @@ def verify_email(token):
 
 
 @main.route('/login', methods=['GET', 'POST'])
+@limiter.limit("20 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -154,11 +156,14 @@ def login():
 
         login_user(user, remember=form.remember.data)
         next_page = request.args.get('next')
-        return redirect(next_page if next_page and next_page.startswith('/') else url_for('main.index'))
+        if next_page and urlparse(next_page).netloc == '':
+            return redirect(next_page)
+        return redirect(url_for('main.index'))
     return render_template('login.html', form=form)
 
 
 @main.route('/signup', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -183,14 +188,17 @@ def signup():
                 db.session.add(tag)
             tags.append(tag)
         user.interests = tags
+        db.session.add(user)
         try:
-            send_verification_email(user)
-        except Exception as e:
+            db.session.commit()
+        except Exception:
             db.session.rollback()
             return render_template('signup.html', form=form, interests=interests_options,
-                                   signup_error='Could not send verification email. Please try again.')
-        db.session.add(user)
-        db.session.commit()
+                                   signup_error='Could not create account. Please try again.')
+        try:
+            send_verification_email(user)
+        except Exception:
+            pass
         flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)
@@ -223,14 +231,15 @@ def api_delete_account():
     return jsonify({'ok': True}), 200
 
 @main.route('/profile')
+@login_required
 def profile():
-    return render_template('profile.html')
+    return redirect(url_for('main.index'))
 
 
 @main.route('/create')
 @login_required
 def create():
-    return render_template('create.html')
+    return redirect(url_for('main.index'))
 
 
 @main.route('/debate')
@@ -305,6 +314,7 @@ def api_debate_thread(debate_id):
 
 
 @main.route('/api/debates/<int:debate_id>/comments', methods=['POST'])
+@limiter.limit("30 per minute")
 def api_create_comment(debate_id):
     auth_error = _json_auth_required()
     if auth_error:
@@ -353,6 +363,7 @@ def api_create_comment(debate_id):
 
 
 @main.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
+@limiter.limit("60 per minute")
 def api_toggle_comment_vote(comment_id):
     auth_error = _json_auth_required()
     if auth_error:
@@ -413,6 +424,7 @@ def my_activity():
 
 
 @main.route('/api/debates', methods=['POST'])
+@limiter.limit("10 per minute")
 def api_create_debate():
     auth_error = _json_auth_required()
     if auth_error:
@@ -420,23 +432,27 @@ def api_create_debate():
 
     data     = request.get_json() or {}
     title    = (data.get('title') or '').strip()
-    categories = data.get('categories') or ['Technology']
+    category = (data.get('category') or '').strip()
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
+    if len(title) > 256:
+        return jsonify({'error': 'title must be 256 characters or fewer'}), 400
+    if not category:
+        return jsonify({'error': 'category is required'}), 400
 
-    user_id = current_user.id
+    tag = Tag.query.filter_by(name=category).first()
+    if not tag:
+        return jsonify({'error': 'invalid category'}), 400
 
-    debate = Debate(title=title, creator_id=user_id)
-    for category in categories:
-        category = category.strip()
-        tag = Tag.query.filter_by(name=category).first()
-        if not tag:
-            tag = Tag(name=category)
-            db.session.add(tag)
-        debate.tags.append(tag)
+    debate = Debate(title=title, creator_id=current_user.id)
+    debate.tags.append(tag)
     db.session.add(debate)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'could not create debate'}), 500
 
     return jsonify({'id': debate.id}), 201
 
@@ -474,8 +490,12 @@ def api_save_profile():
         user.bio = data['bio']
 
     if 'interests' in data:
+        if not isinstance(data['interests'], list):
+            return jsonify({'error': 'interests must be a list'}), 400
         tags = []
         for name in data['interests']:
+            if not isinstance(name, str):
+                continue
             tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
             if tag:
                 tags.append(tag)
@@ -514,6 +534,7 @@ def api_user_profile(username):
 
 
 @main.route('/api/debates/<int:debate_id>/save', methods=['POST'])
+@limiter.limit("30 per minute")
 def api_save_debate(debate_id):
     guard = _json_auth_required()
     if guard:
@@ -528,6 +549,7 @@ def api_save_debate(debate_id):
 
 
 @main.route('/api/debates/<int:debate_id>/unsave', methods=['POST'])
+@limiter.limit("30 per minute")
 def api_unsave_debate(debate_id):
     guard = _json_auth_required()
     if guard:

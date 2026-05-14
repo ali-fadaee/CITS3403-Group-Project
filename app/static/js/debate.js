@@ -377,7 +377,11 @@
       return;
     }
 
-    addComment(text);
+    const submitBtn = elements.commentForm.querySelector('[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    addComment(text).finally(() => {
+      if (submitBtn) submitBtn.disabled = false;
+    });
   });
 
   document.addEventListener("keydown", (event) => {
