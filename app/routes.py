@@ -1,6 +1,6 @@
 import re
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
-from sqlalchemy import func
+from sqlalchemy import func, cast, Float
 from sqlalchemy.orm import selectinload
 from app.extensions import db, limiter
 from app.models import Avatar, Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, saved_debates as saved_debates_table, user_tags
@@ -65,9 +65,13 @@ def index():
     query = Debate.query.options(selectinload(Debate.tags))
 
     if filter == 'popular':
-        query = query.order_by(Debate.comment_count.desc(), Debate.created_at.desc())
+        age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
+        activity = Debate.comment_count + Debate.yes_count + Debate.no_count
+        popularity_score = cast(activity, Float) / (age_hours + 2)
+        query = query.order_by(popularity_score.desc())
     elif filter == 'top':
-        query = query.order_by((Debate.yes_count + Debate.no_count).desc(), Debate.created_at.desc())
+        top_score = (3 * Debate.comment_count) + (Debate.yes_count + Debate.no_count)
+        query = query.order_by(top_score.desc(), Debate.created_at.desc())
     elif filter == 'for-you':
         if current_user.is_authenticated:
             user_id = current_user.id
