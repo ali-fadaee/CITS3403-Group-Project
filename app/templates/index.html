@@ -55,6 +55,9 @@
           </div>
           <div class="debate-card-meta">
             <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+            {% if current_user.is_authenticated %}
+            <button class="card-save-btn{% if debate.id in saved_ids %} is-saved{% endif %}" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">{% if debate.id in saved_ids %}// saved{% else %}// save{% endif %}</button>
+            {% endif %}
           </div>
         </div>
         <div class="vote-bar">

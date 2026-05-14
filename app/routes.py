@@ -96,8 +96,19 @@ def index():
         query = query.order_by(Debate.created_at.desc())
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    saved_ids = set()
+    if current_user.is_authenticated:
+        page_ids = [d.id for d in pagination.items]
+        if page_ids:
+            rows = db.session.execute(
+                db.select(saved_debates_table.c.debate_id)
+                .where(saved_debates_table.c.user_id == current_user.id)
+                .where(saved_debates_table.c.debate_id.in_(page_ids))
+            ).all()
+            saved_ids = {row[0] for row in rows}
     return render_template('index.html', debates=pagination.items, filter=filter,
-                           page=pagination.page, total_pages=pagination.pages or 1, per_page=per_page)
+                           page=pagination.page, total_pages=pagination.pages or 1,
+                           per_page=per_page, saved_ids=saved_ids)
 
 
 @main.route('/verify/<token>')
@@ -379,6 +390,12 @@ def my_activity():
                       .filter_by(user_id=user_id)
                       .order_by(Comment.created_at.desc())
                       .paginate(page=page, per_page=per_page, error_out=False))
+    elif tab == 'saved':
+        pagination = (Debate.query
+                      .options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
+                      .filter(Debate.saved_by.any(User.id == user_id))
+                      .order_by(Debate.updated_at.desc())
+                      .paginate(page=page, per_page=per_page, error_out=False))
     else:
         pagination = (Debate.query
                       .options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
@@ -489,3 +506,31 @@ def api_user_profile(username):
         'interests': [t.name for t in user.interests],
         'joined': user.created_at.strftime('%b %Y'),
     })
+
+
+@main.route('/api/debates/<int:debate_id>/save', methods=['POST'])
+def api_save_debate(debate_id):
+    guard = _json_auth_required()
+    if guard:
+        return guard
+    debate = db.session.get(Debate, debate_id)
+    if not debate:
+        return jsonify({'error': 'not found'}), 404
+    if debate not in current_user.saved:
+        current_user.saved.append(debate)
+        db.session.commit()
+    return jsonify({'saved': True})
+
+
+@main.route('/api/debates/<int:debate_id>/unsave', methods=['POST'])
+def api_unsave_debate(debate_id):
+    guard = _json_auth_required()
+    if guard:
+        return guard
+    debate = db.session.get(Debate, debate_id)
+    if not debate:
+        return jsonify({'error': 'not found'}), 404
+    if debate in current_user.saved:
+        current_user.saved.remove(debate)
+        db.session.commit()
+    return jsonify({'saved': False})

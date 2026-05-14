@@ -5,7 +5,7 @@ load_dotenv()
 
 from app import create_app
 from app.extensions import db
-from app.models import Avatar, User, Tag, Debate, Comment, DebateStatus, CommentSide, Vote
+from app.models import Avatar, User, Tag, Debate, Comment, DebateStatus, CommentSide, Vote, saved_debates as saved_debates_table
 
 # Deterministic random data so the seeded set is identical across runs.
 random.seed(42)
@@ -383,8 +383,19 @@ with app.app_context():
     db.session.add_all(bulk_votes)
     db.session.commit()
 
+    # Saved debates: each user saves 2-5 random debates they didn't create.
+    all_debates = Debate.query.all()
+    for u in all_users:
+        candidates = [d for d in all_debates if d.creator_id != u.id]
+        to_save = random.sample(candidates, k=min(len(candidates), random.randint(2, 5)))
+        u.saved = to_save
+    db.session.commit()
+
+    saved_count = db.session.execute(
+        db.select(db.func.count()).select_from(saved_debates_table)
+    ).scalar()
     print(
         f'Seeded: {User.query.count()} users, {Tag.query.count()} tags, '
         f'{Debate.query.count()} debates, {Comment.query.count()} comments, '
-        f'{Vote.query.count()} votes.'
+        f'{Vote.query.count()} votes, {saved_count} saved debates.'
     )

@@ -63,7 +63,14 @@ class User(db.Model, UserMixin):
     comments = db.relationship('Comment', back_populates='user', cascade='all, delete-orphan')
     interests = db.relationship('Tag', secondary='user_tags', back_populates='interested_users')
     votes = db.relationship('Vote', back_populates='user', cascade='all, delete-orphan')
+    saved = db.relationship('Debate', secondary='saved_debates', back_populates='saved_by')
 
+
+saved_debates = db.Table(
+    'saved_debates',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('debate_id', db.Integer, db.ForeignKey('debates.id', ondelete='CASCADE'), primary_key=True)
+)
 
 user_tags = db.Table(
     'user_tags',
@@ -107,6 +114,7 @@ class Debate(db.Model):
     creator = db.relationship('User', back_populates='debates')
     tags = db.relationship('Tag', secondary=debate_tags, back_populates='debates')
     comments = db.relationship('Comment', back_populates='debate', cascade='all, delete-orphan')
+    saved_by = db.relationship('User', secondary='saved_debates', back_populates='saved')
 
 
 class Comment(db.Model):

@@ -305,7 +305,9 @@ main.container { flex: 1; padding-bottom: 2rem; }
   border: 1px solid var(--debate-border-soft);
   padding: 0.2rem 0.55rem 0.2rem 0.25rem;
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease;
+  color: var(--debate-text-dim);
+  font-size: var(--font-size-xs);
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
 }
 .debate-card-creator:hover { border-color: var(--debate-border); background: var(--debate-hover-bg); }
 .debate-card-creator-avatar { width: 24px; height: 24px; object-fit: cover; }
@@ -701,6 +703,21 @@ main.container { flex: 1; padding-bottom: 2rem; }
   transition: background 140ms ease;
 }
 .save-btn:hover { background: var(--debate-yes-bg); }
+
+.card-save-btn {
+  margin-left: auto;
+  padding: 0.1rem 0.4rem;
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid var(--debate-border-soft);
+  color: var(--debate-text-dim);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+.card-save-btn:hover { border-color: var(--debate-border); background: var(--debate-hover-bg); }
+.card-save-btn.is-saved { border-color: var(--debate-yes); color: var(--debate-yes); background: var(--debate-yes-bg); }
+.card-save-btn.is-saved:hover { background: transparent; }
 
 /* ── AVATAR MODAL ── */
 .avatar-modal-card { width: min(100%, 520px); }

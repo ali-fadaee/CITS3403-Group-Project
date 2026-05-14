@@ -19,10 +19,58 @@
       <div class="filter-tabs">
         <a href="?tab=debates" class="filter-tab {% if tab == 'debates' or not tab %}is-active{% endif %}">debates</a>
         <a href="?tab=arguments" class="filter-tab {% if tab == 'arguments' %}is-active{% endif %}">arguments</a>
+        <a href="?tab=saved" class="filter-tab {% if tab == 'saved' %}is-active{% endif %}">saved</a>
       </div>
     </div>
 
-    {% if tab == 'arguments' %}
+    {% if tab == 'saved' %}
+    <div class="debate-list">
+      {% for debate in items %}
+      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
+      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
+      {% set no_pct = 100 - yes_pct %}
+      <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
+        <div class="debate-card-body">
+          <div class="debate-card-header">
+            <div class="debate-card-title">{{ debate.title }}</div>
+            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+              <span>{{ debate.creator.username }}</span>
+            </div>
+          </div>
+          <div class="debate-card-footer">
+            <div class="debate-card-tags">
+              {% for tag in debate.tags %}
+              <span class="debate-tag">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+            <div class="debate-card-counts">
+              <span class="debate-card-counts-label">// arguments</span>
+              <span class="count-yes">{{ debate.yes_count }} for</span>
+              <span class="count-no">{{ debate.no_count }} against</span>
+            </div>
+          </div>
+          <div class="debate-card-meta">
+            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+            <button class="card-save-btn is-saved" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">// saved</button>
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
+          <div class="vote-bar-hover">
+            <span class="debate-card-counts-label">// votes</span>
+            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
+            <span class="count-no">{{ debate.no_upvotes }} against</span>
+          </div>
+        </div>
+      </a>
+      {% else %}
+      <p class="no-debates">// no saved debates yet.</p>
+      {% endfor %}
+    </div>
+
+    {% elif tab == 'arguments' %}
     <div class="debate-list">
       {% for comment in items %}
       <a href="{{ url_for('main.debate', debate_id=comment.debate.id) }}" class="debate-card">

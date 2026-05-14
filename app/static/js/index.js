@@ -17,3 +17,20 @@
     });
   });
 })();
+
+function toggleSave(btn) {
+  const debateId = btn.dataset.debateId;
+  const isSaved = btn.classList.contains('is-saved');
+  const endpoint = isSaved ? 'unsave' : 'save';
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  fetch(`/api/debates/${debateId}/${endpoint}`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+  })
+    .then(r => r.json())
+    .then(data => {
+      btn.classList.toggle('is-saved', data.saved);
+      btn.textContent = data.saved ? '// saved' : '// save';
+    });
+}
