@@ -473,3 +473,15 @@ def api_avatars():
 def api_tags():
     tags = Tag.query.order_by(Tag.name).all()
     return jsonify([t.name for t in tags])
+
+
+@main.route('/api/users/<username>', methods=['GET'])
+def api_user_profile(username):
+    user = User.query.filter(func.lower(User.username) == username.lower()).first_or_404()
+    return jsonify({
+        'username': user.username,
+        'avatar': user.avatar.image_url if user.avatar else '/static/images/avatars/robot.svg',
+        'bio': user.bio or '',
+        'interests': [t.name for t in user.interests],
+        'joined': user.created_at.strftime('%b %Y'),
+    })

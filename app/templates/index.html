@@ -36,7 +36,7 @@
         <div class="debate-card-body">
           <div class="debate-card-header">
             <div class="debate-card-title">{{ debate.title }}</div>
-            <div class="debate-card-creator">
+            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
               <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
               <span>{{ debate.creator.username }}</span>
             </div>

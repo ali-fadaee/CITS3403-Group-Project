@@ -105,13 +105,6 @@
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panel-title">// interests</div>
-          <div class="interests-row" id="interestsRow">
-            <button class="interest-add" id="addInterestBtn" onclick="openInterestsModal()">= add</button>
-          </div>
-        </div>
-
         <div class="bottom-panels">
           <div class="session-panel">
             <div class="panel-title">// session</div>
@@ -242,6 +235,30 @@
     </div>
   </div>
 
+  <!-- ── USER PROFILE PANEL ── -->
+  <div class="user-panel-backdrop" id="userPanelBackdrop" onclick="closeUserPanel()"></div>
+  <aside class="user-panel" id="userPanel">
+    <div class="user-panel-head">
+      <span class="user-panel-cmd"><span class="sym">//</span> user --info</span>
+      <button class="user-panel-close" onclick="closeUserPanel()">✕</button>
+    </div>
+    <div class="user-panel-body">
+      <div class="user-panel-identity">
+        <img class="user-panel-avatar" id="userPanelAvatar" src="" alt="">
+        <span class="user-panel-username" id="userPanelUsername"></span>
+        <span class="user-panel-joined" id="userPanelJoined"></span>
+      </div>
+      <div class="user-panel-section" id="userPanelBioSection">
+        <span class="user-panel-label">// bio</span>
+        <p class="user-panel-bio" id="userPanelBio"></p>
+      </div>
+      <div class="user-panel-section" id="userPanelInterestsSection">
+        <span class="user-panel-label">// interests</span>
+        <div class="user-panel-interests" id="userPanelInterests"></div>
+      </div>
+    </div>
+  </aside>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const USER_INTERESTS = {{ current_user.interests | map(attribute='name') | list | tojson if current_user.is_authenticated else '[]' }};
@@ -250,6 +267,7 @@
   </script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/create.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/user-panel.js') }}"></script>
   <script>
     function openModal(id) {
       document.getElementById(id + 'Backdrop').classList.add('active');
@@ -276,8 +294,10 @@
       if (e.key === 'Escape') {
         closeModal('createModal');
         closeModal('profileFullModal');
+        closeUserPanel();
       }
     });
+
     function openDeleteConfirm() {
       const el = document.getElementById('deleteConfirmOverlay');
       el.hidden = false;

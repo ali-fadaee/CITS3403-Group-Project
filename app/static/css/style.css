@@ -329,6 +329,51 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); z-index: 1040; }
 .modal-backdrop.active, .modal-backdrop.is-open { display: block; }
 
+/* ── USER PROFILE PANEL ── */
+.user-panel-backdrop { display: none; position: fixed; inset: 0; z-index: 1040; }
+.user-panel-backdrop.active { display: block; }
+.user-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 300px;
+  background: var(--debate-panel);
+  border-left: 1px solid var(--debate-border-soft);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 220ms ease;
+}
+.user-panel.active { transform: translateX(0); }
+.user-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--debate-border-soft);
+  font-size: var(--font-size-xs);
+  color: var(--debate-text-faint);
+  flex-shrink: 0;
+}
+.user-panel-close {
+  background: none;
+  border: none;
+  color: var(--debate-text-faint);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+.user-panel-close:hover { color: var(--debate-text); }
+.user-panel-body { padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+.user-panel-identity { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+.user-panel-avatar { width: 48px; height: 48px; object-fit: cover; margin-bottom: 0.25rem; }
+.user-panel-username { font-size: var(--font-size-lg); color: var(--debate-text); }
+.user-panel-joined { font-size: var(--font-size-xs); color: var(--debate-text-faint); }
+.user-panel-section { display: flex; flex-direction: column; gap: 0.5rem; }
+.user-panel-label { font-size: var(--font-size-xs); color: var(--debate-text-faint); }
+.user-panel-bio { font-size: var(--font-size-sm); color: var(--debate-text-dim); margin: 0; line-height: 1.6; }
+.user-panel-interests { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
 .app-modal { display: none; position: fixed; inset: 0; z-index: 1050; align-items: center; justify-content: center; pointer-events: none; }
 .app-modal.active { display: flex; }
 
