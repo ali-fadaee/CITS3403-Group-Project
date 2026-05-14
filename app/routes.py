@@ -380,20 +380,21 @@ def my_activity():
 def api_create_debate():
     data     = request.get_json()
     title    = (data.get('title') or '').strip()
-    category = (data.get('category') or 'Technology').strip()
+    categories = data.get('categories') or ['Technology']
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
 
     user_id = current_user.id
 
-    tag = Tag.query.filter_by(name=category).first()
-    if not tag:
-        tag = Tag(name=category)
-        db.session.add(tag)
-
     debate = Debate(title=title, creator_id=user_id)
-    debate.tags.append(tag)
+    for category in categories:
+        category = category.strip()
+        tag = Tag.query.filter_by(name=category).first()
+        if not tag:
+            tag = Tag(name=category)
+            db.session.add(tag)
+        debate.tags.append(tag)
     db.session.add(debate)
     db.session.commit()
 
@@ -432,3 +433,9 @@ def api_avatars():
     from app.models import Avatar
     avatars = Avatar.query.all()
     return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])
+
+
+@main.route('/api/tags', methods=['GET'])
+def api_tags():
+    tags = Tag.query.order_by(Tag.name).all()
+    return jsonify([t.name for t in tags])
