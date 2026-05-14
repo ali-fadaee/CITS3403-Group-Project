@@ -386,20 +386,21 @@ def api_create_debate():
 
     data     = request.get_json() or {}
     title    = (data.get('title') or '').strip()
-    category = (data.get('category') or 'Technology').strip()
+    categories = data.get('categories') or ['Technology']
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
 
     user_id = current_user.id
 
-    tag = Tag.query.filter_by(name=category).first()
-    if not tag:
-        tag = Tag(name=category)
-        db.session.add(tag)
-
     debate = Debate(title=title, creator_id=user_id)
-    debate.tags.append(tag)
+    for category in categories:
+        category = category.strip()
+        tag = Tag.query.filter_by(name=category).first()
+        if not tag:
+            tag = Tag(name=category)
+            db.session.add(tag)
+        debate.tags.append(tag)
     db.session.add(debate)
     db.session.commit()
 
