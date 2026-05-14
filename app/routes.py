@@ -367,7 +367,9 @@ def api_toggle_comment_vote(comment_id):
 def my_activity():
     tab = request.args.get('tab', 'debates')
     page = max(1, request.args.get('page', 1, type=int))
-    per_page = 10
+    per_page = request.args.get('per_page', 10, type=int)
+    if per_page not in (10, 25, 50, 100):
+        per_page = 10
 
     user_id = current_user.id
 
@@ -385,7 +387,7 @@ def my_activity():
                       .paginate(page=page, per_page=per_page, error_out=False))
 
     return render_template('my_activity.html', tab=tab, items=pagination.items,
-                           page=pagination.page, total_pages=pagination.pages or 1)
+                           page=pagination.page, total_pages=pagination.pages or 1, per_page=per_page)
 
 
 @main.route('/api/debates', methods=['POST'])

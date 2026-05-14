@@ -1,4 +1,4 @@
-(function () {
+/*  */(function () {
   const KEY = 'debatePerPage';
   const params = new URLSearchParams(location.search);
   if (params.has('per_page')) {
@@ -10,7 +10,7 @@
       location.replace('?' + params.toString());
     }
   }
-  document.querySelectorAll('.per-page-tabs a').forEach(a => {
+  document.querySelectorAll('.per-page-btn').forEach(a => {
     a.addEventListener('click', function () {
       const u = new URL(this.href, location.origin);
       localStorage.setItem(KEY, u.searchParams.get('per_page'));
