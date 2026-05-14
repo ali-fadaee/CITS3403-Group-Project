@@ -73,7 +73,10 @@ def index():
         top_score = (3 * Debate.comment_count) + (Debate.yes_count + Debate.no_count)
         query = query.order_by(top_score.desc(), Debate.created_at.desc())
     elif filter == 'for-you':
-        if current_user.is_authenticated:
+        age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
+        activity = Debate.comment_count + Debate.yes_count + Debate.no_count
+        popularity_score = cast(activity, Float) / (age_hours + 2)
+        if current_user.is_authenticated and current_user.interests:
             user_id = current_user.id
             match_count = (
                 db.session.query(func.count())
@@ -84,9 +87,9 @@ def index():
                 .correlate(Debate)
                 .scalar_subquery()
             )
-            query = query.order_by(match_count.desc(), Debate.created_at.desc())
+            query = query.filter(match_count > 0).order_by(popularity_score.desc())
         else:
-            query = query.order_by(Debate.created_at.desc())
+            query = query.order_by(popularity_score.desc())
     else:
         query = query.order_by(Debate.created_at.desc())
 
