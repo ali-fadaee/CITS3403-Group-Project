@@ -57,7 +57,8 @@ def _liked_comment_ids(comments):
 
 @main.route('/')
 def index():
-    filter = request.args.get('filter', 'new')
+    default_filter = 'for-you' if current_user.is_authenticated else 'popular'
+    filter = request.args.get('filter', default_filter)
     page = max(1, request.args.get('page', 1, type=int))
     per_page = 10
 
