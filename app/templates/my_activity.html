@@ -25,12 +25,7 @@
       </div>
     </div>
 
-    {% if not session.get('user_id') %}
-    <div class="debate-list">
-      <p class="no-debates">// you must be logged in to view your activity. <a href="/login">Login</a></p>
-    </div>
-
-    {% elif tab == 'arguments' %}
+    {% if tab == 'arguments' %}
     <div class="debate-list">
       {% for comment in items %}
       <a href="{{ url_for('main.debate', debate_id=comment.debate.id) }}" class="debate-card">

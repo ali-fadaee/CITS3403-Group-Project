@@ -127,7 +127,8 @@ def login():
             return render_template("login.html", form=form, login_error="Please verify your email before logging in.")
 
         login_user(user, remember=form.remember.data)
-        return redirect(url_for('main.index'))
+        next_page = request.args.get('next')
+        return redirect(next_page if next_page and next_page.startswith('/') else url_for('main.index'))
     return render_template('login.html', form=form)
 
 
@@ -201,6 +202,7 @@ def profile():
 
 
 @main.route('/create')
+@login_required
 def create():
     return render_template('create.html')
 
@@ -351,13 +353,11 @@ def api_toggle_comment_vote(comment_id):
 
 
 @main.route('/debates/mine')
+@login_required
 def my_activity():
     tab = request.args.get('tab', 'debates')
     page = max(1, request.args.get('page', 1, type=int))
     per_page = 10
-
-    if not current_user.is_authenticated:
-        return render_template('my_activity.html', tab=tab, items=[], total_pages=1, page=1)
 
     user_id = current_user.id
 

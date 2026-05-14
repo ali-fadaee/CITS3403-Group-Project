@@ -6,7 +6,11 @@
   <div class="index-header">
     <p class="index-cmd"><span class="sym">$</span> debates <span>--list --filter {{ filter }}</span></p>
     <div class="index-header-actions">
+      {% if current_user.is_authenticated %}
       <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">&gt; new --debate</a>
+      {% else %}
+      <a href="{{ url_for('main.create') }}" class="new-debate-btn">&gt; new --debate</a>
+      {% endif %}
       <a href="/debates/mine" class="my-debates-btn">&gt; ls --mine</a>
     </div>
   </div>
@@ -53,7 +57,7 @@
         </div>
       </a>
       {% else %}
-      <p class="no-debates">No debates yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
+      <p class="no-debates">No debates yet. {% if current_user.is_authenticated %}<a href="#" onclick="openModal('createModal'); return false;">Start one.</a>{% else %}<a href="{{ url_for('main.create') }}">Start one.</a>{% endif %}</p>
       {% endfor %}
     </div>
 
