@@ -4,7 +4,7 @@
 <div class="index-page">
 
   <div class="index-header">
-    <p class="index-cmd"><span class="sym">$</span> debates <span>--list --filter {{ filter }}</span></p>
+    <p class="index-cmd"><span class="sym">$</span> debates <span>--list --filter {{ filter }}{% if tag_filter %} --tag {{ tag_filter }}{% endif %}</span></p>
     <div class="index-header-actions">
       {% if current_user.is_authenticated %}
       <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">&gt; new --debate</a>
@@ -20,10 +20,22 @@
 
     <div class="index-toolbar">
       <div class="filter-tabs">
-        <a href="?filter=for-you&per_page={{ per_page }}" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
-        <a href="?filter=new&per_page={{ per_page }}" class="filter-tab {% if filter == 'new' %}is-active{% endif %}">new</a>
-        <a href="?filter=popular&per_page={{ per_page }}" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
-        <a href="?filter=top&per_page={{ per_page }}" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
+        <a href="?filter=for-you&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
+        <a href="?filter=new&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'new' %}is-active{% endif %}">new</a>
+        <a href="?filter=popular&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
+        <a href="?filter=top&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
+      </div>
+      <div class="tag-filter-row">
+        {% if tag_filter %}
+        <span class="tag-filter-row-label">// tag</span>
+        <span class="debate-tag is-active">{{ tag_filter }}</span>
+        <a href="?filter={{ filter }}&per_page={{ per_page }}" class="tag-filter-clear">&times;</a>
+        {% else %}
+        <div class="tag-search" id="tagSearch">
+          <input class="tag-search-input" id="tagSearchInput" type="text" placeholder="// filter by tag..." autocomplete="off">
+          <div class="tag-search-dropdown" id="tagSearchDropdown"></div>
+        </div>
+        {% endif %}
       </div>
     </div>
 
@@ -44,7 +56,7 @@
           <div class="debate-card-footer">
             <div class="debate-card-tags">
               {% for tag in debate.tags %}
-              <span class="debate-tag">{{ tag.name }}</span>
+              <span class="debate-tag{% if tag_filter and tag_filter|lower == tag.name|lower %} is-active{% endif %}" onclick="event.preventDefault(); window.location='?filter={{ filter }}&per_page={{ per_page }}&tag={{ tag.name }}'">{{ tag.name }}</span>
               {% endfor %}
             </div>
             <div class="debate-card-counts">
@@ -71,7 +83,9 @@
         </div>
       </a>
       {% else %}
-      {% if filter == 'for-you' %}
+      {% if tag_filter %}
+      <p class="no-debates">// no debates tagged "{{ tag_filter }}".</p>
+      {% elif filter == 'for-you' %}
       <p class="no-debates">// no debates match your interests yet. <a href="{{ url_for('main.profile') }}">Update your interests.</a></p>
       {% else %}
       <p class="no-debates">// no debates yet. {% if current_user.is_authenticated %}<a href="#" onclick="openModal('createModal'); return false;">Start one.</a>{% else %}<a href="{{ url_for('main.create') }}">Start one.</a>{% endif %}</p>
@@ -81,7 +95,7 @@
 
     <div class="pagination">
       {% if page > 1 %}
-      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}&page={{ page - 1 }}">&lt; prev</a>
+      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}&page={{ page - 1 }}">&lt; prev</a>
       {% else %}
       <span class="page-btn page-btn-disabled">&lt; prev</span>
       {% endif %}
@@ -89,7 +103,7 @@
       <span class="page-info">// page {{ page }} of {{ total_pages }}</span>
 
       {% if page < total_pages %}
-      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}&page={{ page + 1 }}">next &gt;</a>
+      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}&page={{ page + 1 }}">next &gt;</a>
       {% else %}
       <span class="page-btn page-btn-disabled">next &gt;</span>
       {% endif %}
@@ -99,13 +113,19 @@
   <div class="per-page-row">
     <span class="per-page-label">// show</span>
     {% for n in [10, 25, 50, 100] %}
-    <a href="?filter={{ filter }}&per_page={{ n }}" class="per-page-btn {% if per_page == n %}is-active{% endif %}">{{ n }}</a>
+    <a href="?filter={{ filter }}&per_page={{ n }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="per-page-btn {% if per_page == n %}is-active{% endif %}">{{ n }}</a>
     {% endfor %}
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+  window.INDEX_TAG_DATA = {
+    allTags: {{ all_tags | map(attribute='name') | list | tojson }},
+    filter: {{ filter | tojson }},
+    perPage: {{ per_page }},
+  };
+</script>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}
-

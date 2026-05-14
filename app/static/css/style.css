@@ -290,7 +290,62 @@ main.container { flex: 1; padding-bottom: 2rem; }
   color: var(--debate-text-faint);
   border: 1px solid var(--debate-border-soft);
   padding: 0.15rem 0.45rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
 }
+.debate-tag:hover { color: var(--debate-text-dim); border-color: var(--debate-border); }
+.debate-tag.is-active { color: var(--debate-text); border-color: var(--debate-border); }
+
+.tag-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.75rem;
+  border-left: 1px solid var(--debate-border-soft);
+}
+.tag-filter-row-label { color: var(--debate-text-faint); font-size: var(--font-size-xs); white-space: nowrap; }
+.tag-filter-clear {
+  color: var(--debate-text-faint);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+  border: 1px solid var(--debate-border-soft);
+  padding: 0.1rem 0.35rem;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.tag-filter-clear:hover { color: var(--debate-text); border-color: var(--debate-border); }
+
+.tag-search { position: relative; }
+.tag-search-input {
+  background: transparent;
+  border: none;
+  color: var(--debate-text);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  padding: 0;
+  width: 130px;
+  outline: none;
+}
+.tag-search-input:focus { border-color: var(--debate-border); }
+.tag-search-input::placeholder { color: var(--debate-text-faint); }
+.tag-search-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: var(--debate-panel);
+  border: 1px solid var(--debate-border);
+  z-index: 100;
+}
+.tag-search-dropdown.is-open { display: block; }
+.tag-search-item {
+  padding: 0.3rem 0.6rem;
+  font-size: var(--font-size-xs);
+  color: var(--debate-text-dim);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.tag-search-item:hover { background: var(--debate-hover-bg); color: var(--debate-text); }
 
 .debate-card-counts { display: flex; align-items: center; gap: 0.75rem; font-size: var(--font-size-xs); white-space: nowrap; }
 .debate-card-counts-label { color: var(--debate-text-faint); margin-right: 0.1rem; }

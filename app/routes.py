@@ -59,12 +59,15 @@ def _liked_comment_ids(comments):
 def index():
     default_filter = 'for-you' if current_user.is_authenticated else 'popular'
     filter = request.args.get('filter', default_filter)
+    tag_filter = request.args.get('tag', '').strip() or None
     page = max(1, request.args.get('page', 1, type=int))
     per_page = request.args.get('per_page', 10, type=int)
     if per_page not in (10, 25, 50, 100):
         per_page = 10
 
     query = Debate.query.options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
+    if tag_filter:
+        query = query.filter(Debate.tags.any(func.lower(Tag.name) == tag_filter.lower()))
 
     if filter == 'popular':
         age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
@@ -106,7 +109,9 @@ def index():
                 .where(saved_debates_table.c.debate_id.in_(page_ids))
             ).all()
             saved_ids = {row[0] for row in rows}
+    all_tags = Tag.query.order_by(Tag.name).all()
     return render_template('index.html', debates=pagination.items, filter=filter,
+                           tag_filter=tag_filter, all_tags=all_tags,
                            page=pagination.page, total_pages=pagination.pages or 1,
                            per_page=per_page, saved_ids=saved_ids)
 

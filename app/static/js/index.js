@@ -18,6 +18,35 @@
   });
 })();
 
+(function () {
+  const data = window.INDEX_TAG_DATA;
+  if (!data) return;
+  const input = document.getElementById('tagSearchInput');
+  const dropdown = document.getElementById('tagSearchDropdown');
+  if (!input) return;
+
+  function render(query) {
+    const q = query.toLowerCase();
+    const matches = q ? data.allTags.filter(t => t.toLowerCase().includes(q)) : [];
+    dropdown.innerHTML = '';
+    matches.forEach(tag => {
+      const item = document.createElement('div');
+      item.className = 'tag-search-item';
+      item.textContent = tag;
+      item.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        window.location = '?filter=' + data.filter + '&per_page=' + data.perPage + '&tag=' + encodeURIComponent(tag);
+      });
+      dropdown.appendChild(item);
+    });
+    dropdown.classList.toggle('is-open', matches.length > 0);
+  }
+
+  input.addEventListener('input', () => render(input.value));
+  input.addEventListener('focus', () => render(input.value));
+  input.addEventListener('blur', () => dropdown.classList.remove('is-open'));
+})();
+
 function toggleSave(btn) {
   const debateId = btn.dataset.debateId;
   const isSaved = btn.classList.contains('is-saved');
