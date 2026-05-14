@@ -29,16 +29,18 @@
 
     <div class="debate-list">
       {% for debate in debates %}
-      {% set total = debate.yes_count + debate.no_count %}
-      {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
+      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
       {% set no_pct = 100 - yes_pct %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
-        </div>
         <div class="debate-card-body">
-          <div class="debate-card-title">{{ debate.title }}</div>
+          <div class="debate-card-header">
+            <div class="debate-card-title">{{ debate.title }}</div>
+            <div class="debate-card-creator">
+              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+              <span>{{ debate.creator.username }}</span>
+            </div>
+          </div>
           <div class="debate-card-footer">
             <div class="debate-card-tags">
               {% for tag in debate.tags %}
@@ -46,18 +48,31 @@
               {% endfor %}
             </div>
             <div class="debate-card-counts">
-              <span class="count-yes">yes {{ debate.yes_count }}</span>
-              <span class="count-no">no {{ debate.no_count }}</span>
+              <span class="debate-card-counts-label">// arguments</span>
+              <span class="count-yes">{{ debate.yes_count }} for</span>
+              <span class="count-no">{{ debate.no_count }} against</span>
             </div>
           </div>
           <div class="debate-card-meta">
-            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
             <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
+          <div class="vote-bar-hover">
+            <span class="debate-card-counts-label">// votes</span>
+            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
+            <span class="count-no">{{ debate.no_upvotes }} against</span>
           </div>
         </div>
       </a>
       {% else %}
-      <p class="no-debates">No debates yet. {% if current_user.is_authenticated %}<a href="#" onclick="openModal('createModal'); return false;">Start one.</a>{% else %}<a href="{{ url_for('main.create') }}">Start one.</a>{% endif %}</p>
+      {% if filter == 'for-you' %}
+      <p class="no-debates">// no debates match your interests yet. <a href="{{ url_for('main.profile') }}">Update your interests.</a></p>
+      {% else %}
+      <p class="no-debates">// no debates yet. {% if current_user.is_authenticated %}<a href="#" onclick="openModal('createModal'); return false;">Start one.</a>{% else %}<a href="{{ url_for('main.create') }}">Start one.</a>{% endif %}</p>
+      {% endif %}
       {% endfor %}
     </div>
 

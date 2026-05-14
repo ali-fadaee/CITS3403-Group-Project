@@ -1,7 +1,7 @@
 import enum
 import secrets
 from datetime import datetime, timezone
-from sqlalchemy import event, update
+from sqlalchemy import event, update, select
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -99,6 +99,8 @@ class Debate(db.Model):
     yes_count = db.Column(db.Integer, default=0, nullable=False)
     no_count = db.Column(db.Integer, default=0, nullable=False)
     comment_count = db.Column(db.Integer, default=0, nullable=False)
+    yes_upvotes = db.Column(db.Integer, default=0, nullable=False)
+    no_upvotes = db.Column(db.Integer, default=0, nullable=False)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -162,6 +164,20 @@ def _comment_after_delete(mapper, connection, target):
     )
 
 
+def _update_debate_upvotes(connection, comment_id, delta):
+    row = connection.execute(
+        select(Comment.debate_id, Comment.side).where(Comment.id == comment_id)
+    ).first()
+    if row:
+        side_val = row.side.value if isinstance(row.side, CommentSide) else row.side
+        field = 'yes_upvotes' if side_val == 'yes' else 'no_upvotes'
+        connection.execute(
+            update(Debate).where(Debate.id == row.debate_id).values(
+                {field: getattr(Debate, field) + delta}
+            )
+        )
+
+
 @event.listens_for(Vote, 'after_insert')
 def _vote_after_insert(mapper, connection, target):
     connection.execute(
@@ -169,6 +185,7 @@ def _vote_after_insert(mapper, connection, target):
             upvote_count=Comment.upvote_count + 1
         )
     )
+    _update_debate_upvotes(connection, target.comment_id, 1)
 
 
 @event.listens_for(Vote, 'after_delete')
@@ -178,6 +195,7 @@ def _vote_after_delete(mapper, connection, target):
             upvote_count=Comment.upvote_count - 1
         )
     )
+    _update_debate_upvotes(connection, target.comment_id, -1)
 
 @login_manager.user_loader
 def load_user(user_id):

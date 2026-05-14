@@ -62,7 +62,7 @@ def index():
     page = max(1, request.args.get('page', 1, type=int))
     per_page = 10
 
-    query = Debate.query.options(selectinload(Debate.tags))
+    query = Debate.query.options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
 
     if filter == 'popular':
         age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
