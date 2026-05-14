@@ -835,11 +835,22 @@ main.container { flex: 1; padding-bottom: 2rem; }
   }
 
   .filter-tabs {
-    overflow-x: auto;
+    flex-wrap: wrap;
   }
 
   .filter-tab {
-    min-width: 8.5rem;
+    flex: 1 1 50%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--debate-border-soft);
+  }
+
+  .filter-tab:nth-child(odd) {
+    border-right: 1px solid var(--debate-border-soft);
+  }
+
+  .filter-tab:nth-last-child(-n+2) {
+    border-bottom: none;
   }
 
   .debate-card-body {
