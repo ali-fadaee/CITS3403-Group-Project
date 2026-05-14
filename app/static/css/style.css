@@ -158,7 +158,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
   width: min(100%, 76rem);
   max-width: 76rem;
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4.2rem) 1rem 3rem;
+  padding: clamp(0.75rem, 2vw, 1.5rem) 1rem 3rem;
 }
 
 .index-heading, .auth-heading {
@@ -196,7 +196,12 @@ main.container { flex: 1; padding-bottom: 2rem; }
 }
 .index-card:focus-within, .auth-card:focus-within { border-color: var(--debate-border-focus); }
 
-.index-toolbar { border-bottom: 1px solid var(--debate-border-soft); }
+.index-toolbar { border-bottom: 1px solid var(--debate-border-soft); display: flex; align-items: stretch; justify-content: space-between; }
+.per-page-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; font-size: var(--font-size-xs); }
+.per-page-label { color: var(--debate-text-faint); margin-right: 0.25rem; }
+.per-page-btn { color: var(--debate-text-dim); text-decoration: none; padding: 0.15rem 0.4rem; border: 1px solid transparent; transition: color 140ms ease, border-color 140ms ease; }
+.per-page-btn:hover { color: var(--debate-text); border-color: var(--debate-border-soft); }
+.per-page-btn.is-active { color: var(--debate-text); border-color: var(--debate-border); }
 
 .new-debate-btn {
   font-size: var(--font-size-sm);
@@ -274,7 +279,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .debate-card:hover .vote-bar-hover { opacity: 1; }
 
 .debate-card-body  { flex: 1; padding: 1.35rem 1.45rem; }
-.debate-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; }
+.debate-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
 .debate-card-title { font-size: var(--font-size-lg); line-height: 1.45; flex: 1; }
 
 .debate-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -292,7 +297,7 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .count-yes { color: var(--debate-yes); }
 .count-no  { color: var(--debate-danger); }
 
-.debate-card-meta { display: flex; align-items: center; gap: 1.25rem; margin-top: 0.6rem; font-size: var(--font-size-xs); color: var(--debate-text-faint); }
+.debate-card-meta { display: flex; align-items: center; gap: 1.25rem; margin-top: 0.75rem; font-size: var(--font-size-xs); color: var(--debate-text-faint); }
 .debate-card-creator {
   display: inline-flex;
   align-items: center;

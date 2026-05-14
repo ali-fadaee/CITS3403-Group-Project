@@ -60,7 +60,9 @@ def index():
     default_filter = 'for-you' if current_user.is_authenticated else 'popular'
     filter = request.args.get('filter', default_filter)
     page = max(1, request.args.get('page', 1, type=int))
-    per_page = 10
+    per_page = request.args.get('per_page', 10, type=int)
+    if per_page not in (10, 25, 50, 100):
+        per_page = 10
 
     query = Debate.query.options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
 
@@ -95,7 +97,7 @@ def index():
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     return render_template('index.html', debates=pagination.items, filter=filter,
-                           page=pagination.page, total_pages=pagination.pages or 1)
+                           page=pagination.page, total_pages=pagination.pages or 1, per_page=per_page)
 
 
 @main.route('/verify/<token>')
@@ -371,13 +373,13 @@ def my_activity():
 
     if tab == 'arguments':
         pagination = (Comment.query
-                      .options(selectinload(Comment.debate))
+                      .options(selectinload(Comment.debate).selectinload(Debate.tags))
                       .filter_by(user_id=user_id)
                       .order_by(Comment.created_at.desc())
                       .paginate(page=page, per_page=per_page, error_out=False))
     else:
         pagination = (Debate.query
-                      .options(selectinload(Debate.tags))
+                      .options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
                       .filter_by(creator_id=user_id)
                       .order_by(Debate.created_at.desc())
                       .paginate(page=page, per_page=per_page, error_out=False))
