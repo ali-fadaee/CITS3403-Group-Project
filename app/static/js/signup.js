@@ -95,13 +95,14 @@ function signupValidation(form) {
     }
     try {
       const r = await fetch(`/api/check-email?email=${encodeURIComponent(email.value)}`);
-      // Handle rate limiting response, indicates the user is making too many requests
       if (r.status === 429) {
         if (emailFeedback) {
           emailFeedback.textContent = "Too many requests. Please wait and try again.";
-          emailFeedback.style.color = "red";}
+          emailFeedback.style.color = "red";
+        }
         return false;
       }
+
       const data = await r.json();
       if (!data.available) {
         if (emailFeedback) {
