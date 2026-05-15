@@ -18,7 +18,7 @@
     <h1 class="mb-4 auth-heading"><span>~/</span>login<span class="terminal-cursor"></span></h1>
 
     <div class="auth-card">
-      <form id="loginForm" method="POST" action="{{ url_for('main.login') }}" novalidate>
+      <form id="loginForm" method="POST" action="{{ url_for('main.login', next = request.args.get('next')) }}" novalidate>
         {{ form.hidden_tag() }}
         <div class ="auth-panel">
           <p class="auth-msg">$ login <span>--authenticate</span></p>
