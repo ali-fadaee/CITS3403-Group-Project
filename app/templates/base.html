@@ -205,11 +205,12 @@
           <h2 class="panel-heading">// create</h2>
 
           <label class="create-label">--thesis</label>
-          <textarea class="create-input" id="thesisInput" placeholder="// enter your main question or thesis..."></textarea>
+          <textarea class="create-input" id="thesisInput" maxlength="400" placeholder="// enter your main question or thesis..."></textarea>
 
           <label class="create-label">--categories</label>
           <div class="category-grid" id="createCategoryGrid" style="padding: 0.3rem 0.7rem;"></div>
 
+        <span id="createError" style="color: var(--debate-danger); font-size: 0.8rem; display:none;"></span>
         <button class="create-final-btn" id="createDebateBtn">$ create --execute</button>
 
       </div>
@@ -278,6 +279,8 @@
         document.getElementById('thesisInput').value = '';
         document.getElementById('createCategoryGrid').querySelectorAll('.category-chip')
           .forEach(c => c.classList.remove('is-selected'));
+        const err = document.getElementById('createError');
+        if (err) { err.textContent = ''; err.style.display = 'none'; }
       }
     }
     function closeModal(id) {

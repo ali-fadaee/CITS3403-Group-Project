@@ -430,23 +430,29 @@ def api_create_debate():
     if auth_error:
         return auth_error
 
-    data     = request.get_json() or {}
-    title    = (data.get('title') or '').strip()
-    category = (data.get('category') or '').strip()
+    data       = request.get_json() or {}
+    title      = (data.get('title') or '').strip()
+    categories = data.get('categories') or []
+    if isinstance(categories, str):
+        categories = [categories]
+    categories = [c.strip() for c in categories if isinstance(c, str) and c.strip()]
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
-    if len(title) > 256:
-        return jsonify({'error': 'title must be 256 characters or fewer'}), 400
-    if not category:
-        return jsonify({'error': 'category is required'}), 400
+    if len(title) > 400:
+        return jsonify({'error': 'title must be 400 characters or fewer'}), 400
+    if not categories:
+        return jsonify({'error': 'at least one category is required'}), 400
+    if len(categories) > 10:
+        return jsonify({'error': 'no more than 10 categories allowed'}), 400
 
-    tag = Tag.query.filter_by(name=category).first()
-    if not tag:
-        return jsonify({'error': 'invalid category'}), 400
+    tags = Tag.query.filter(Tag.name.in_(categories)).all()
+    missing = set(categories) - {t.name for t in tags}
+    if missing:
+        return jsonify({'error': f'invalid category: {", ".join(sorted(missing))}'}), 400
 
     debate = Debate(title=title, creator_id=current_user.id)
-    debate.tags.append(tag)
+    debate.tags = tags
     db.session.add(debate)
     try:
         db.session.commit()

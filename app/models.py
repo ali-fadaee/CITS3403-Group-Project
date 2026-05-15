@@ -99,7 +99,7 @@ class Debate(db.Model):
     __tablename__ = 'debates'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(256), nullable=False)
+    title = db.Column(db.String(400), nullable=False)
     description = db.Column(db.Text, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     status = db.Column(db.Enum(DebateStatus), default=DebateStatus.open, nullable=False)

@@ -18,20 +18,32 @@ document.addEventListener('DOMContentLoaded', function () {
   const createBtn = document.getElementById('createDebateBtn');
   if (!createBtn) return;
 
+  function showCreateError(msg) {
+    const el = document.getElementById('createError');
+    el.textContent = msg;
+    el.style.display = 'inline';
+  }
+  function clearCreateError() {
+    const el = document.getElementById('createError');
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+
   createBtn.addEventListener('click', async function () {
     const thesis   = document.getElementById('thesisInput').value.trim();
     const selectedCategories = [...document.querySelectorAll('#createCategoryGrid .category-chip.is-selected')]
       .map(btn => btn.dataset.cat);
 
     if (!thesis) {
-      alert('// error: --thesis cannot be empty');
+      showCreateError('// debate cannot be empty');
       return;
     }
 
     if (!selectedCategories.length) {
-      alert('// error: select at least one category');
+      showCreateError('// select at least one category');
       return;
     }
+    clearCreateError();
     createBtn.disabled = true;
     createBtn.textContent = '$ creating...';
 
@@ -44,15 +56,16 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       const data = await res.json();
       if (res.ok) {
+        clearCreateError();
         closeModal('createModal');
         window.location.replace('/debate/' + data.id);
       } else {
-        alert('// error: ' + (data.error || 'failed to create debate'));
+        showCreateError('// ' + (data.error || 'failed to create debate'));
         createBtn.disabled = false;
         createBtn.textContent = '$ create --execute';
       }
     } catch (err) {
-      alert('// error: network failure');
+      showCreateError('// network failure');
       createBtn.disabled = false;
       createBtn.textContent = '$ create --execute';
     }

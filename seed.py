@@ -13,6 +13,7 @@ random.seed(42)
 app = create_app()
 
 with app.app_context():
+    db.create_all()
 
     # Avatars — one entry per SVG in app/static/images/avatars/
     avatars = [
