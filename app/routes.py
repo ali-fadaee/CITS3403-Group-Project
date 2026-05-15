@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
-from sqlalchemy import func
+import re
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from sqlalchemy import func, cast, Float
 from sqlalchemy.orm import selectinload
-from app.extensions import db
-from app.models import Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, user_tags
+from urllib.parse import urlparse
+from app.extensions import db, limiter
+from app.models import Avatar, Comment, CommentSide, Debate, Tag, User, Vote, debate_tags, saved_debates as saved_debates_table, user_tags
 from app.forms import LoginForm, SignupForm
 from flask_login import login_user, logout_user, login_required, current_user
 from app.email import verify_token, send_verification_email
@@ -56,19 +58,32 @@ def _liked_comment_ids(comments):
 
 @main.route('/')
 def index():
-    filter = request.args.get('filter', 'new')
+    default_filter = 'for-you' if current_user.is_authenticated else 'popular'
+    filter = request.args.get('filter', default_filter)
+    tag_filter = request.args.get('tag', '').strip() or None
     page = max(1, request.args.get('page', 1, type=int))
-    per_page = 10
+    per_page = request.args.get('per_page', 10, type=int)
+    if per_page not in (10, 25, 50, 100):
+        per_page = 10
 
-    query = Debate.query.options(selectinload(Debate.tags))
+    query = Debate.query.options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
+    if tag_filter:
+        query = query.filter(Debate.tags.any(func.lower(Tag.name) == tag_filter.lower()))
 
     if filter == 'popular':
-        query = query.order_by(Debate.comment_count.desc(), Debate.created_at.desc())
+        age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
+        activity = Debate.comment_count + Debate.yes_count + Debate.no_count
+        popularity_score = cast(activity, Float) / (age_hours + 2)
+        query = query.order_by(popularity_score.desc())
     elif filter == 'top':
-        query = query.order_by((Debate.yes_count + Debate.no_count).desc(), Debate.created_at.desc())
+        top_score = (3 * Debate.comment_count) + (Debate.yes_count + Debate.no_count)
+        query = query.order_by(top_score.desc(), Debate.created_at.desc())
     elif filter == 'for-you':
-        user_id = session.get('user_id')
-        if user_id:
+        age_hours = (func.julianday('now') - func.julianday(Debate.updated_at)) * 24.0
+        activity = Debate.comment_count + Debate.yes_count + Debate.no_count
+        popularity_score = cast(activity, Float) / (age_hours + 2)
+        if current_user.is_authenticated and current_user.interests:
+            user_id = current_user.id
             match_count = (
                 db.session.query(func.count())
                 .select_from(debate_tags)
@@ -78,15 +93,28 @@ def index():
                 .correlate(Debate)
                 .scalar_subquery()
             )
-            query = query.order_by(match_count.desc(), Debate.created_at.desc())
+            query = query.filter(match_count > 0).order_by(popularity_score.desc())
         else:
-            query = query.order_by(Debate.created_at.desc())
+            query = query.order_by(popularity_score.desc())
     else:
         query = query.order_by(Debate.created_at.desc())
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    saved_ids = set()
+    if current_user.is_authenticated:
+        page_ids = [d.id for d in pagination.items]
+        if page_ids:
+            rows = db.session.execute(
+                db.select(saved_debates_table.c.debate_id)
+                .where(saved_debates_table.c.user_id == current_user.id)
+                .where(saved_debates_table.c.debate_id.in_(page_ids))
+            ).all()
+            saved_ids = {row[0] for row in rows}
+    all_tags = Tag.query.order_by(Tag.name).all()
     return render_template('index.html', debates=pagination.items, filter=filter,
-                           page=pagination.page, total_pages=pagination.pages or 1)
+                           tag_filter=tag_filter, all_tags=all_tags,
+                           page=pagination.page, total_pages=pagination.pages or 1,
+                           per_page=per_page, saved_ids=saved_ids)
 
 
 @main.route('/verify/<token>')
@@ -96,24 +124,28 @@ def verify_email(token):
         flash("Verification link is invalid or has expired.")
         return redirect(url_for('main.signup'))
     user = User.query.filter_by(email=email).first()
-    if user and not user.email_verified:
+    if not user:
+        flash("No account found for this verification link.")
+    elif user.email_verified:
+        flash("Email is already verified.")
+    else:
         user.email_verified = True
         db.session.commit()
         flash("Email verified successfully. You can now log in.")
-    else:
-        flash("Email is already verified")
     return redirect(url_for('main.login'))
 
 
 @main.route('/login', methods=['GET', 'POST'])
+@limiter.limit("20 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
     form = LoginForm()
     if form.validate_on_submit():
+        identifier = form.usernameEmail.data
         user = User.query.filter(
-            (User.email == form.usernameEmail.data) | (User.username == form.usernameEmail.data)
+            (User.email == identifier.lower()) | (func.lower(User.username) == identifier.lower())
         ).first()
 
         if not user or not user.check_password(form.password.data):
@@ -123,11 +155,15 @@ def login():
             return render_template("login.html", form=form, login_error="Please verify your email before logging in.")
 
         login_user(user, remember=form.remember.data)
+        next_page = request.args.get('next')
+        if next_page and urlparse(next_page).netloc == '':
+            return redirect(next_page)
         return redirect(url_for('main.index'))
     return render_template('login.html', form=form)
 
 
 @main.route('/signup', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -138,12 +174,12 @@ def signup():
     ]
     form = SignupForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, 
-                    email=form.email.data,
+        user = User(username=form.username.data,
+                    email=form.email.data.lower(),
         )
 
         user.set_password(form.password.data)
-        interests = request.form.getlist('interests[]')
+        interests = [i for i in request.form.getlist('interests[]') if i in interests_options]
         tags = []
         for interest in interests:
             tag = Tag.query.filter_by(name=interest).first()
@@ -153,17 +189,32 @@ def signup():
             tags.append(tag)
         user.interests = tags
         db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return render_template('signup.html', form=form, interests=interests_options,
+                                   signup_error='Could not create account. Please try again.')
         try:
             send_verification_email(user)
-        except Exception as e:
-            print(f"Error sending verification email: {e}")
+        except Exception:
+            pass
         flash('Account created. Please check your email to verify your account before logging in.')
         return redirect(url_for('main.login'))
     return render_template('signup.html', form=form, interests=interests_options)
 
 
-@main.route('/logout')
+@main.route('/api/check-email')
+@limiter.limit("10 per minute")
+def api_check_email():
+    email = request.args.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'available': False})
+    taken = User.query.filter_by(email=email).first() is not None
+    return jsonify({'available': not taken})
+
+
+@main.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
@@ -173,20 +224,22 @@ def logout():
 @main.route('/api/account/delete', methods=['POST'])
 @login_required
 def api_delete_account():
-    user = User.query.get(current_user.id)
-    logout_user()
+    user = db.session.get(User, current_user.id)
     db.session.delete(user)
     db.session.commit()
+    logout_user()
     return jsonify({'ok': True}), 200
 
 @main.route('/profile')
+@login_required
 def profile():
-    return render_template('profile.html')
+    return redirect(url_for('main.index'))
 
 
 @main.route('/create')
+@login_required
 def create():
-    return render_template('create.html')
+    return redirect(url_for('main.index'))
 
 
 @main.route('/debate')
@@ -261,6 +314,7 @@ def api_debate_thread(debate_id):
 
 
 @main.route('/api/debates/<int:debate_id>/comments', methods=['POST'])
+@limiter.limit("30 per minute")
 def api_create_comment(debate_id):
     auth_error = _json_auth_required()
     if auth_error:
@@ -309,6 +363,7 @@ def api_create_comment(debate_id):
 
 
 @main.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
+@limiter.limit("60 per minute")
 def api_toggle_comment_vote(comment_id):
     auth_error = _json_auth_required()
     if auth_error:
@@ -335,85 +390,180 @@ def api_toggle_comment_vote(comment_id):
 
 
 @main.route('/debates/mine')
+@login_required
 def my_activity():
     tab = request.args.get('tab', 'debates')
     page = max(1, request.args.get('page', 1, type=int))
-    per_page = 10
+    per_page = request.args.get('per_page', 10, type=int)
+    if per_page not in (10, 25, 50, 100):
+        per_page = 10
 
-    user_id = session.get('user_id')
-    if not user_id:
-        return render_template('my_activity.html', tab=tab, items=[], total_pages=1, page=1)
+    user_id = current_user.id
 
     if tab == 'arguments':
         pagination = (Comment.query
-                      .options(selectinload(Comment.debate))
+                      .options(selectinload(Comment.debate).selectinload(Debate.tags))
                       .filter_by(user_id=user_id)
                       .order_by(Comment.created_at.desc())
                       .paginate(page=page, per_page=per_page, error_out=False))
+    elif tab == 'saved':
+        pagination = (Debate.query
+                      .options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
+                      .filter(Debate.saved_by.any(User.id == user_id))
+                      .order_by(Debate.updated_at.desc())
+                      .paginate(page=page, per_page=per_page, error_out=False))
     else:
         pagination = (Debate.query
-                      .options(selectinload(Debate.tags))
+                      .options(selectinload(Debate.tags), selectinload(Debate.creator).selectinload(User.avatar))
                       .filter_by(creator_id=user_id)
                       .order_by(Debate.created_at.desc())
                       .paginate(page=page, per_page=per_page, error_out=False))
 
     return render_template('my_activity.html', tab=tab, items=pagination.items,
-                           page=pagination.page, total_pages=pagination.pages or 1)
+                           page=pagination.page, total_pages=pagination.pages or 1, per_page=per_page)
 
 
 @main.route('/api/debates', methods=['POST'])
+@limiter.limit("10 per minute")
 def api_create_debate():
-    data     = request.get_json()
-    title    = (data.get('title') or '').strip()
-    category = (data.get('category') or 'Technology').strip()
+    auth_error = _json_auth_required()
+    if auth_error:
+        return auth_error
+
+    data       = request.get_json() or {}
+    title      = (data.get('title') or '').strip()
+    categories = data.get('categories') or []
+    if isinstance(categories, str):
+        categories = [categories]
+    categories = [c.strip() for c in categories if isinstance(c, str) and c.strip()]
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
+    if len(title) > 400:
+        return jsonify({'error': 'title must be 400 characters or fewer'}), 400
+    if not categories:
+        return jsonify({'error': 'at least one category is required'}), 400
+    if len(categories) > 10:
+        return jsonify({'error': 'no more than 10 categories allowed'}), 400
 
-    user_id = current_user.id
+    tags = Tag.query.filter(Tag.name.in_(categories)).all()
+    missing = set(categories) - {t.name for t in tags}
+    if missing:
+        return jsonify({'error': f'invalid category: {", ".join(sorted(missing))}'}), 400
 
-    tag = Tag.query.filter_by(name=category).first()
-    if not tag:
-        tag = Tag(name=category)
-        db.session.add(tag)
-
-    debate = Debate(title=title, creator_id=user_id)
-    debate.tags.append(tag)
+    debate = Debate(title=title, creator_id=current_user.id)
+    debate.tags = tags
     db.session.add(debate)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'could not create debate'}), 500
 
     return jsonify({'id': debate.id}), 201
 
 
 @main.route('/api/profile', methods=['POST'])
+@limiter.limit("10 per minute")
 def api_save_profile():
-    if not current_user.is_authenticated:
-        return jsonify({'error': 'not logged in'}), 401
+    guard = _json_auth_required()
+    if guard:
+        return guard
     user = current_user
 
-    data = request.get_json()
+    data = request.get_json() or {}
+    password_changed = False
+
     if data.get('password'):
         if not user.check_password(data.get('current_password', '')):
-            return jsonify({'error': 'current password is incorrect'}), 400
-        user.set_password(data['password'])
+            return jsonify({'error': '// current password is incorrect'}), 400
+        new_pw = data['password']
+        if len(new_pw) < 8 or not re.search(r'[a-z]', new_pw) or not re.search(r'[A-Z]', new_pw) or not re.search(r'\d', new_pw):
+            return jsonify({'error': '// password must be 8+ chars with uppercase, lowercase, and a number'}), 400
+        user.set_password(new_pw)
+        user.rotate_session_token()
+        password_changed = True
+
     if data.get('avatar_id'):
-        user.avatar_id = data['avatar_id']
+        avatar = db.session.get(Avatar, data['avatar_id'])
+        if not avatar:
+            return jsonify({'error': '// invalid avatar'}), 400
+        user.avatar_id = avatar.id
+
+    if 'bio' in data:
+        if len(data['bio']) > 1000:
+            return jsonify({'error': 'bio must be 1000 characters or less'}), 400
+        user.bio = data['bio']
+
     if 'interests' in data:
+        if not isinstance(data['interests'], list):
+            return jsonify({'error': 'interests must be a list'}), 400
         tags = []
         for name in data['interests']:
+            if not isinstance(name, str):
+                continue
             tag = Tag.query.filter(db.func.lower(Tag.name) == name.lower()).first()
-            if not tag:
-                tag = Tag(name=name)
-                db.session.add(tag)
-            tags.append(tag)
+            if tag:
+                tags.append(tag)
         user.interests = tags
 
     db.session.commit()
+
+    if password_changed:
+        login_user(user)
+
     return jsonify({'ok': True}), 200
 
 
 @main.route('/api/avatars', methods=['GET'])
 def api_avatars():
-    from app.models import Avatar
-    avatars = Avatar.query.all()
+    avatars = Avatar.query.order_by(Avatar.name).all()
     return jsonify([{'id': a.id, 'name': a.name, 'url': a.image_url} for a in avatars])
+
+
+@main.route('/api/tags', methods=['GET'])
+def api_tags():
+    tags = Tag.query.order_by(Tag.name).all()
+    return jsonify([t.name for t in tags])
+
+
+@main.route('/api/users/<username>', methods=['GET'])
+def api_user_profile(username):
+    user = User.query.filter(func.lower(User.username) == username.lower()).first_or_404()
+    return jsonify({
+        'username': user.username,
+        'avatar': user.avatar.image_url if user.avatar else '/static/images/avatars/robot.svg',
+        'bio': user.bio or '',
+        'interests': [t.name for t in user.interests],
+        'joined': user.created_at.strftime('%b %Y'),
+    })
+
+
+@main.route('/api/debates/<int:debate_id>/save', methods=['POST'])
+@limiter.limit("30 per minute")
+def api_save_debate(debate_id):
+    guard = _json_auth_required()
+    if guard:
+        return guard
+    debate = db.session.get(Debate, debate_id)
+    if not debate:
+        return jsonify({'error': 'not found'}), 404
+    if debate not in current_user.saved:
+        current_user.saved.append(debate)
+        db.session.commit()
+    return jsonify({'saved': True})
+
+
+@main.route('/api/debates/<int:debate_id>/unsave', methods=['POST'])
+@limiter.limit("30 per minute")
+def api_unsave_debate(debate_id):
+    guard = _json_auth_required()
+    if guard:
+        return guard
+    debate = db.session.get(Debate, debate_id)
+    if not debate:
+        return jsonify({'error': 'not found'}), 404
+    if debate in current_user.saved:
+        current_user.saved.remove(debate)
+        db.session.commit()
+    return jsonify({'saved': False})

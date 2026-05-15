@@ -4,9 +4,13 @@
 <div class="index-page">
 
   <div class="index-header">
-    <p class="index-cmd"><span class="sym">$</span> debates <span>--list --filter {{ filter }}</span></p>
+    <p class="index-cmd"><span class="sym">$</span> debates <span>--list --filter {{ filter }}{% if tag_filter %} --tag {{ tag_filter }}{% endif %}</span></p>
     <div class="index-header-actions">
+      {% if current_user.is_authenticated %}
       <a href="#" class="new-debate-btn" onclick="openModal('createModal'); return false;">&gt; new --debate</a>
+      {% else %}
+      <a href="{{ url_for('main.create') }}" class="new-debate-btn">&gt; new --debate</a>
+      {% endif %}
       <a href="/debates/mine" class="my-debates-btn">&gt; ls --mine</a>
     </div>
   </div>
@@ -16,52 +20,82 @@
 
     <div class="index-toolbar">
       <div class="filter-tabs">
-        <a href="?filter=new" class="filter-tab {% if filter == 'new' or not filter %}is-active{% endif %}">new</a>
-        <a href="?filter=for-you" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
-        <a href="?filter=popular" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
-        <a href="?filter=top" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
+        <a href="?filter=for-you&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'for-you' %}is-active{% endif %}">for you</a>
+        <a href="?filter=new&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'new' %}is-active{% endif %}">new</a>
+        <a href="?filter=popular&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'popular' %}is-active{% endif %}">popular</a>
+        <a href="?filter=top&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="filter-tab {% if filter == 'top' %}is-active{% endif %}">top all time</a>
+      </div>
+      <div class="tag-filter-row">
+        {% if tag_filter %}
+        <span class="tag-filter-row-label">// tag</span>
+        <span class="debate-tag is-active">{{ tag_filter }}</span>
+        <a href="?filter={{ filter }}&per_page={{ per_page }}" class="tag-filter-clear">&times;</a>
+        {% else %}
+        <div class="tag-search" id="tagSearch">
+          <input class="tag-search-input" id="tagSearchInput" type="text" placeholder="// filter by tag..." autocomplete="off">
+          <div class="tag-search-dropdown" id="tagSearchDropdown"></div>
+        </div>
+        {% endif %}
       </div>
     </div>
 
     <div class="debate-list">
       {% for debate in debates %}
-      {% set total = debate.yes_count + debate.no_count %}
-      {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
+      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
       {% set no_pct = 100 - yes_pct %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
-        </div>
         <div class="debate-card-body">
-          <div class="debate-card-title">{{ debate.title }}</div>
+          <div class="debate-card-header">
+            <div class="debate-card-title">{{ debate.title }}</div>
+            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+              <span>{{ debate.creator.username }}</span>
+            </div>
+          </div>
           <div class="debate-card-footer">
             <div class="debate-card-tags">
               {% for tag in debate.tags %}
-              <span class="debate-tag">{{ tag.name }}</span>
+              <span class="debate-tag{% if tag_filter and tag_filter|lower == tag.name|lower %} is-active{% endif %}" onclick="event.preventDefault(); window.location='?filter={{ filter }}&per_page={{ per_page }}&tag={{ tag.name }}'">{{ tag.name }}</span>
               {% endfor %}
             </div>
             <div class="debate-card-counts">
-              <span class="vote-label">votes</span>
-              <span class="count-yes">[Y] {{ debate.yes_count }}</span>
-              <span class="count-no">[N] {{ debate.no_count }}</span>
+              <span class="debate-card-counts-label">// arguments</span>
+              <span class="count-yes">{{ debate.yes_count }} for</span>
+              <span class="count-no">{{ debate.no_count }} against</span>
             </div>
           </div>
           <div class="debate-card-meta">
-            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
             <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+            {% if current_user.is_authenticated %}
+            <button class="card-save-btn{% if debate.id in saved_ids %} is-saved{% endif %}" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">{% if debate.id in saved_ids %}// saved{% else %}// save{% endif %}</button>
+            {% endif %}
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
+          <div class="vote-bar-hover">
+            <span class="debate-card-counts-label">// votes</span>
+            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
+            <span class="count-no">{{ debate.no_upvotes }} against</span>
           </div>
         </div>
       </a>
       {% else %}
-      <p class="no-debates">No debates yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>
+      {% if tag_filter %}
+      <p class="no-debates">// no debates tagged "{{ tag_filter }}".</p>
+      {% elif filter == 'for-you' %}
+      <p class="no-debates">// no debates match your interests yet. <a href="{{ url_for('main.profile') }}">Update your interests.</a></p>
+      {% else %}
+      <p class="no-debates">// no debates yet. {% if current_user.is_authenticated %}<a href="#" onclick="openModal('createModal'); return false;">Start one.</a>{% else %}<a href="{{ url_for('main.create') }}">Start one.</a>{% endif %}</p>
+      {% endif %}
       {% endfor %}
     </div>
 
-    {% if total_pages > 1 %}
     <div class="pagination">
       {% if page > 1 %}
-      <a class="page-btn" href="?filter={{ filter }}&page={{ page - 1 }}">&lt; prev</a>
+      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}&page={{ page - 1 }}">&lt; prev</a>
       {% else %}
       <span class="page-btn page-btn-disabled">&lt; prev</span>
       {% endif %}
@@ -69,13 +103,29 @@
       <span class="page-info">// page {{ page }} of {{ total_pages }}</span>
 
       {% if page < total_pages %}
-      <a class="page-btn" href="?filter={{ filter }}&page={{ page + 1 }}">next &gt;</a>
+      <a class="page-btn" href="?filter={{ filter }}&per_page={{ per_page }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}&page={{ page + 1 }}">next &gt;</a>
       {% else %}
       <span class="page-btn page-btn-disabled">next &gt;</span>
       {% endif %}
     </div>
-    {% endif %}
 
   </div>
+  <div class="per-page-row">
+    <span class="per-page-label">// show</span>
+    {% for n in [10, 25, 50, 100] %}
+    <a href="?filter={{ filter }}&per_page={{ n }}{% if tag_filter %}&tag={{ tag_filter }}{% endif %}" class="per-page-btn {% if per_page == n %}is-active{% endif %}">{{ n }}</a>
+    {% endfor %}
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.INDEX_TAG_DATA = {
+    allTags: {{ all_tags | map(attribute='name') | list | tojson }},
+    filter: {{ filter | tojson }},
+    perPage: {{ per_page }},
+  };
+</script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

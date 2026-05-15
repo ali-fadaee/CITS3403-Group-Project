@@ -5,8 +5,6 @@
 {% block content %}
 <div class="index-page">
 
-  <h1 class="index-heading"><span>~/</span>my-activity</h1>
-
   <div class="index-header">
     <p class="index-cmd"><span class="sym">$</span> ls <span>--mine --{{ tab }}</span></p>
     <div class="index-header-actions">
@@ -14,7 +12,6 @@
       <a href="/" class="my-debates-btn">&gt; cd --home</a>
     </div>
   </div>
-  <p class="index-hint"><span class="sym">//</span> your created debates and arguments</p>
 
   <div class="index-card">
 
@@ -22,29 +19,77 @@
       <div class="filter-tabs">
         <a href="?tab=debates" class="filter-tab {% if tab == 'debates' or not tab %}is-active{% endif %}">debates</a>
         <a href="?tab=arguments" class="filter-tab {% if tab == 'arguments' %}is-active{% endif %}">arguments</a>
+        <a href="?tab=saved" class="filter-tab {% if tab == 'saved' %}is-active{% endif %}">saved</a>
       </div>
     </div>
 
-    {% if not session.get('user_id') %}
+    {% if tab == 'saved' %}
     <div class="debate-list">
-      <p class="no-debates">// you must be logged in to view your activity. <a href="/login">Login</a></p>
+      {% for debate in items %}
+      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
+      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
+      {% set no_pct = 100 - yes_pct %}
+      <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
+        <div class="debate-card-body">
+          <div class="debate-card-header">
+            <div class="debate-card-title">{{ debate.title }}</div>
+            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+              <span>{{ debate.creator.username }}</span>
+            </div>
+          </div>
+          <div class="debate-card-footer">
+            <div class="debate-card-tags">
+              {% for tag in debate.tags %}
+              <span class="debate-tag">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+            <div class="debate-card-counts">
+              <span class="debate-card-counts-label">// arguments</span>
+              <span class="count-yes">{{ debate.yes_count }} for</span>
+              <span class="count-no">{{ debate.no_count }} against</span>
+            </div>
+          </div>
+          <div class="debate-card-meta">
+            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+            <button class="card-save-btn is-saved" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">// saved</button>
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
+          <div class="vote-bar-hover">
+            <span class="debate-card-counts-label">// votes</span>
+            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
+            <span class="count-no">{{ debate.no_upvotes }} against</span>
+          </div>
+        </div>
+      </a>
+      {% else %}
+      <p class="no-debates">// no saved debates yet.</p>
+      {% endfor %}
     </div>
 
     {% elif tab == 'arguments' %}
     <div class="debate-list">
       {% for comment in items %}
       <a href="{{ url_for('main.debate', debate_id=comment.debate.id) }}" class="debate-card">
-        <div class="vote-bar">
-          <div class="vote-bar-{{ comment.side.value }}" style="height: 100%"></div>
-        </div>
         <div class="debate-card-body">
           <div class="debate-card-title">{{ comment.debate.title }}</div>
           <div class="debate-card-footer">
             <div class="debate-card-tags">
-              <span class="debate-tag">{{ comment.side.value }}</span>
+              {% for tag in comment.debate.tags %}
+              <span class="debate-tag">{{ tag.name }}</span>
+              {% endfor %}
             </div>
             <div class="debate-card-counts">
-              <span class="count-yes">+{{ comment.upvote_count }}</span>
+              <span class="debate-card-counts-label">// your argument</span>
+              {% if comment.side.value == 'yes' %}
+              <span class="count-yes">for</span>
+              {% else %}
+              <span class="count-no">against</span>
+              {% endif %}
+              <span style="color: var(--debate-text-faint)">+{{ comment.upvote_count }} upvotes</span>
             </div>
           </div>
           <div class="debate-card-meta">
@@ -61,16 +106,18 @@
     {% else %}
     <div class="debate-list">
       {% for debate in items %}
-      {% set total = debate.yes_count + debate.no_count %}
-      {% set yes_pct = (debate.yes_count / total * 100) | round | int if total > 0 else 50 %}
+      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
+      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
       {% set no_pct = 100 - yes_pct %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="height: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="height: {{ no_pct }}%"></div>
-        </div>
         <div class="debate-card-body">
-          <div class="debate-card-title">{{ debate.title }}</div>
+          <div class="debate-card-header">
+            <div class="debate-card-title">{{ debate.title }}</div>
+            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+              <span>{{ debate.creator.username }}</span>
+            </div>
+          </div>
           <div class="debate-card-footer">
             <div class="debate-card-tags">
               {% for tag in debate.tags %}
@@ -78,13 +125,22 @@
               {% endfor %}
             </div>
             <div class="debate-card-counts">
-              <span class="count-yes">yes {{ debate.yes_count }}</span>
-              <span class="count-no">no {{ debate.no_count }}</span>
+              <span class="debate-card-counts-label">// arguments</span>
+              <span class="count-yes">{{ debate.yes_count }} for</span>
+              <span class="count-no">{{ debate.no_count }} against</span>
             </div>
           </div>
           <div class="debate-card-meta">
-            <span>created {{ debate.created_at.strftime('%d %b %Y') }}</span>
             <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
+          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
+          <div class="vote-bar-hover">
+            <span class="debate-card-counts-label">// votes</span>
+            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
+            <span class="count-no">{{ debate.no_upvotes }} against</span>
           </div>
         </div>
       </a>
@@ -94,10 +150,9 @@
     </div>
     {% endif %}
 
-    {% if total_pages > 1 %}
     <div class="pagination">
       {% if page > 1 %}
-      <a class="page-btn" href="?tab={{ tab }}&page={{ page - 1 }}">&lt; prev</a>
+      <a class="page-btn" href="?tab={{ tab }}&per_page={{ per_page }}&page={{ page - 1 }}">&lt; prev</a>
       {% else %}
       <span class="page-btn page-btn-disabled">&lt; prev</span>
       {% endif %}
@@ -105,13 +160,22 @@
       <span class="page-info">// page {{ page }} of {{ total_pages }}</span>
 
       {% if page < total_pages %}
-      <a class="page-btn" href="?tab={{ tab }}&page={{ page + 1 }}">next &gt;</a>
+      <a class="page-btn" href="?tab={{ tab }}&per_page={{ per_page }}&page={{ page + 1 }}">next &gt;</a>
       {% else %}
       <span class="page-btn page-btn-disabled">next &gt;</span>
       {% endif %}
     </div>
-    {% endif %}
 
   </div>
+  <div class="per-page-row">
+    <span class="per-page-label">// show</span>
+    {% for n in [10, 25, 50, 100] %}
+    <a href="?tab={{ tab }}&per_page={{ n }}" class="per-page-btn {% if per_page == n %}is-active{% endif %}">{{ n }}</a>
+    {% endfor %}
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}
