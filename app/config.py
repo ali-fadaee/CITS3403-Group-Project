@@ -24,3 +24,5 @@ class TestConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     MAIL_SUPPRESS_SEND = True
+    SECRET_KEY = "test-secret-key"
+    SECURITY_PASSWORD_SALT = "test-password-salt"
