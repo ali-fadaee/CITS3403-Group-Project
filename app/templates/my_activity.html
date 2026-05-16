@@ -2,6 +2,44 @@
 
 {% block title %}My Activity{% endblock %}
 
+{% macro argument_chart(debate) %}
+{% set total_arguments = debate.yes_count + debate.no_count %}
+{% set argument_chart_columns = 8 %}
+{% set argument_chart_rows = 4 %}
+{% set max_argument_people = argument_chart_columns * argument_chart_rows %}
+{% set yes_people = (debate.yes_count / total_arguments * max_argument_people) | round | int if total_arguments > 0 else 0 %}
+{% if total_arguments > 0 and debate.yes_count > 0 and yes_people < 1 %}
+  {% set yes_people = 1 %}
+{% endif %}
+{% set no_people = max_argument_people - yes_people if total_arguments > 0 else 0 %}
+{% if total_arguments > 0 and debate.no_count > 0 and no_people < 1 %}
+  {% set no_people = 1 %}
+  {% set yes_people = max_argument_people - no_people %}
+{% endif %}
+<span class="debate-argument-summary">
+  <span class="count-yes">{{ debate.yes_count }} for</span>
+  <span class="count-no">{{ debate.no_count }} against</span>
+</span>
+<div class="debate-card-counts" aria-label="{{ debate.yes_count }} for arguments and {{ debate.no_count }} against arguments">
+  <div class="argument-people-chart">
+    <div class="argument-people-grid">
+    {% for row in range(argument_chart_rows) %}
+      {% for column in range(argument_chart_columns) %}
+        {% set person_index = column * argument_chart_rows + row %}
+        {% if person_index < yes_people %}
+          <span class="argument-person is-yes"></span>
+        {% elif person_index < yes_people + no_people %}
+          <span class="argument-person is-no"></span>
+        {% else %}
+          <span class="argument-person is-empty"></span>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
 {% block content %}
 <div class="index-page">
 
@@ -26,44 +64,22 @@
     {% if tab == 'saved' %}
     <div class="debate-list">
       {% for debate in items %}
-      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
-      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
-      {% set no_pct = 100 - yes_pct %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="debate-card-body">
-          <div class="debate-card-header">
-            <div class="debate-card-title">{{ debate.title }}</div>
-            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
-              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
-              <span>{{ debate.creator.username }}</span>
-            </div>
-          </div>
-          <div class="debate-card-footer">
-            <div class="debate-card-tags">
-              {% for tag in debate.tags %}
-              <span class="debate-tag">{{ tag.name }}</span>
-              {% endfor %}
-            </div>
-            <div class="debate-card-counts">
-              <span class="debate-card-counts-label">// arguments</span>
-              <span class="count-yes">{{ debate.yes_count }} for</span>
-              <span class="count-no">{{ debate.no_count }} against</span>
-            </div>
-          </div>
-          <div class="debate-card-meta">
-            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
-            <button class="card-save-btn is-saved" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">// saved</button>
-          </div>
+        <div class="debate-card-title">{{ debate.title }}</div>
+        <button class="card-save-btn is-saved" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">// saved</button>
+        <div class="debate-card-tags">
+          {% for tag in debate.tags %}
+          <span class="debate-tag">{{ tag.name }}</span>
+          {% endfor %}
         </div>
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
-          <div class="vote-bar-hover">
-            <span class="debate-card-counts-label">// votes</span>
-            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
-            <span class="count-no">{{ debate.no_upvotes }} against</span>
+        <div class="debate-card-meta">
+          <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+            <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+            <span>{{ debate.creator.username }}</span>
           </div>
+          <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
         </div>
+        {{ argument_chart(debate) }}
       </a>
       {% else %}
       <p class="no-debates">// no saved debates yet.</p>
@@ -73,30 +89,25 @@
     {% elif tab == 'arguments' %}
     <div class="debate-list">
       {% for comment in items %}
-      <a href="{{ url_for('main.debate', debate_id=comment.debate.id) }}" class="debate-card">
-        <div class="debate-card-body">
-          <div class="debate-card-title">{{ comment.debate.title }}</div>
-          <div class="debate-card-footer">
-            <div class="debate-card-tags">
-              {% for tag in comment.debate.tags %}
-              <span class="debate-tag">{{ tag.name }}</span>
-              {% endfor %}
-            </div>
-            <div class="debate-card-counts">
-              <span class="debate-card-counts-label">// your argument</span>
-              {% if comment.side.value == 'yes' %}
-              <span class="count-yes">for</span>
-              {% else %}
-              <span class="count-no">against</span>
-              {% endif %}
-              <span style="color: var(--debate-text-faint)">+{{ comment.upvote_count }} upvotes</span>
-            </div>
-          </div>
-          <div class="debate-card-meta">
-            <span>{{ comment.content }}</span>
-            <span>{{ comment.created_at.strftime('%d %b %Y') }}</span>
-          </div>
+      <a href="{{ url_for('main.debate', debate_id=comment.debate.id) }}" class="debate-card debate-card--activity-note">
+        <div class="debate-card-title">{{ comment.debate.title }}</div>
+        <div class="debate-card-tags">
+          {% for tag in comment.debate.tags %}
+          <span class="debate-tag">{{ tag.name }}</span>
+          {% endfor %}
         </div>
+        <div class="debate-card-meta">
+          <span>{{ comment.content }}</span>
+          <span>{{ comment.created_at.strftime('%d %b %Y') }}</span>
+        </div>
+        <span class="debate-argument-summary">
+          {% if comment.side.value == 'yes' %}
+          <span class="count-yes">for</span>
+          {% else %}
+          <span class="count-no">against</span>
+          {% endif %}
+          <span style="color: var(--debate-text-faint)">+{{ comment.upvote_count }} upvotes</span>
+        </span>
       </a>
       {% else %}
       <p class="no-debates">// no arguments made yet.</p>
@@ -106,43 +117,21 @@
     {% else %}
     <div class="debate-list">
       {% for debate in items %}
-      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
-      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
-      {% set no_pct = 100 - yes_pct %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="debate-card-body">
-          <div class="debate-card-header">
-            <div class="debate-card-title">{{ debate.title }}</div>
-            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
-              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
-              <span>{{ debate.creator.username }}</span>
-            </div>
-          </div>
-          <div class="debate-card-footer">
-            <div class="debate-card-tags">
-              {% for tag in debate.tags %}
-              <span class="debate-tag">{{ tag.name }}</span>
-              {% endfor %}
-            </div>
-            <div class="debate-card-counts">
-              <span class="debate-card-counts-label">// arguments</span>
-              <span class="count-yes">{{ debate.yes_count }} for</span>
-              <span class="count-no">{{ debate.no_count }} against</span>
-            </div>
-          </div>
-          <div class="debate-card-meta">
-            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
-          </div>
+        <div class="debate-card-title">{{ debate.title }}</div>
+        <div class="debate-card-tags">
+          {% for tag in debate.tags %}
+          <span class="debate-tag">{{ tag.name }}</span>
+          {% endfor %}
         </div>
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
-          <div class="vote-bar-hover">
-            <span class="debate-card-counts-label">// votes</span>
-            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
-            <span class="count-no">{{ debate.no_upvotes }} against</span>
+        <div class="debate-card-meta">
+          <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+            <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+            <span>{{ debate.creator.username }}</span>
           </div>
+          <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
         </div>
+        {{ argument_chart(debate) }}
       </a>
       {% else %}
       <p class="no-debates">// no debates created yet. <a href="#" onclick="openModal('createModal'); return false;">Start one.</a></p>

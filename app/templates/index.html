@@ -32,7 +32,7 @@
         <a href="?filter={{ filter }}&per_page={{ per_page }}" class="tag-filter-clear">&times;</a>
         {% else %}
         <div class="tag-search" id="tagSearch">
-          <input class="tag-search-input" id="tagSearchInput" type="text" placeholder="// filter by tag..." autocomplete="off">
+          <input class="tag-search-input" id="tagSearchInput" name="debate_tag_filter_search" type="search" placeholder="// filter by tag..." autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Filter debates by tag">
           <div class="tag-search-dropdown" id="tagSearchDropdown"></div>
         </div>
         {% endif %}
@@ -41,44 +41,56 @@
 
     <div class="debate-list">
       {% for debate in debates %}
-      {% set total_upvotes = debate.yes_upvotes + debate.no_upvotes %}
-      {% set yes_pct = (debate.yes_upvotes / total_upvotes * 100) | round | int if total_upvotes > 0 else 50 %}
-      {% set no_pct = 100 - yes_pct %}
+      {% set total_arguments = debate.yes_count + debate.no_count %}
+      {% set argument_chart_columns = 8 %}
+      {% set argument_chart_rows = 4 %}
+      {% set max_argument_people = argument_chart_columns * argument_chart_rows %}
+      {% set yes_people = (debate.yes_count / total_arguments * max_argument_people) | round | int if total_arguments > 0 else 0 %}
+      {% if total_arguments > 0 and debate.yes_count > 0 and yes_people < 1 %}
+        {% set yes_people = 1 %}
+      {% endif %}
+      {% set no_people = max_argument_people - yes_people if total_arguments > 0 else 0 %}
+      {% if total_arguments > 0 and debate.no_count > 0 and no_people < 1 %}
+        {% set no_people = 1 %}
+        {% set yes_people = max_argument_people - no_people %}
+      {% endif %}
       <a href="{{ url_for('main.debate', debate_id=debate.id) }}" class="debate-card">
-        <div class="debate-card-body">
-          <div class="debate-card-header">
-            <div class="debate-card-title">{{ debate.title }}</div>
-            <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
-              <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
-              <span>{{ debate.creator.username }}</span>
-            </div>
-          </div>
-          <div class="debate-card-footer">
-            <div class="debate-card-tags">
-              {% for tag in debate.tags %}
-              <span class="debate-tag{% if tag_filter and tag_filter|lower == tag.name|lower %} is-active{% endif %}" onclick="event.preventDefault(); window.location='?filter={{ filter }}&per_page={{ per_page }}&tag={{ tag.name }}'">{{ tag.name }}</span>
-              {% endfor %}
-            </div>
-            <div class="debate-card-counts">
-              <span class="debate-card-counts-label">// arguments</span>
-              <span class="count-yes">{{ debate.yes_count }} for</span>
-              <span class="count-no">{{ debate.no_count }} against</span>
-            </div>
-          </div>
-          <div class="debate-card-meta">
-            <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
-            {% if current_user.is_authenticated %}
-            <button class="card-save-btn{% if debate.id in saved_ids %} is-saved{% endif %}" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">{% if debate.id in saved_ids %}// saved{% else %}// save{% endif %}</button>
-            {% endif %}
-          </div>
+        <div class="debate-card-title">{{ debate.title }}</div>
+        {% if current_user.is_authenticated %}
+        <button class="card-save-btn{% if debate.id in saved_ids %} is-saved{% endif %}" data-debate-id="{{ debate.id }}" onclick="event.preventDefault(); toggleSave(this)">{% if debate.id in saved_ids %}// saved{% else %}// save{% endif %}</button>
+        {% endif %}
+        <div class="debate-card-tags">
+          {% for tag in debate.tags %}
+          <span class="debate-tag{% if tag_filter and tag_filter|lower == tag.name|lower %} is-active{% endif %}" onclick="event.preventDefault(); window.location='?filter={{ filter }}&per_page={{ per_page }}&tag={{ tag.name }}'">{{ tag.name }}</span>
+          {% endfor %}
         </div>
-        <div class="vote-bar">
-          <div class="vote-bar-yes" style="width: {{ yes_pct }}%"></div>
-          <div class="vote-bar-no" style="width: {{ no_pct }}%"></div>
-          <div class="vote-bar-hover">
-            <span class="debate-card-counts-label">// votes</span>
-            <span class="count-yes">{{ debate.yes_upvotes }} for</span>
-            <span class="count-no">{{ debate.no_upvotes }} against</span>
+        <div class="debate-card-meta">
+          <div class="debate-card-creator" onclick="event.preventDefault(); openUserPanel('{{ debate.creator.username }}')">
+            <img class="debate-card-creator-avatar" src="{{ debate.creator.avatar.image_url if debate.creator.avatar else '/static/images/avatars/robot.svg' }}" alt="">
+            <span>{{ debate.creator.username }}</span>
+          </div>
+          <span>active {{ debate.updated_at.strftime('%d %b %Y') }}</span>
+        </div>
+        <span class="debate-argument-summary">
+          <span class="count-yes">{{ debate.yes_count }} for</span>
+          <span class="count-no">{{ debate.no_count }} against</span>
+        </span>
+        <div class="debate-card-counts" aria-label="{{ debate.yes_count }} for arguments and {{ debate.no_count }} against arguments">
+          <div class="argument-people-chart">
+            <div class="argument-people-grid">
+            {% for row in range(argument_chart_rows) %}
+              {% for column in range(argument_chart_columns) %}
+                {% set person_index = column * argument_chart_rows + row %}
+                {% if person_index < yes_people %}
+                  <span class="argument-person is-yes"></span>
+                {% elif person_index < yes_people + no_people %}
+                  <span class="argument-person is-no"></span>
+                {% else %}
+                  <span class="argument-person is-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            </div>
           </div>
         </div>
       </a>
