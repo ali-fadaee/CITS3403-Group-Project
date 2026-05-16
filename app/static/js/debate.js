@@ -7,7 +7,7 @@
   const debateId = app.dataset.debateId;
   const initialTopic = app.dataset.debateTitle || "Debate";
   const DEFAULT_AVATAR_URL = "/static/images/avatars/robot.svg";
-  const REFRESH_INTERVAL_MS = 7000;
+  const REFRESH_INTERVAL_MS = 3000;
 
   const state = {
     currentPath: [{ id: "root", topic: initialTopic, author: "", authorAvatar: "", viaSide: null }],
@@ -256,6 +256,8 @@
       comment.liked = payload.liked;
       comment.upvote_count = payload.upvote_count;
       render();
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      await loadThread({ silent: true });
     } catch (error) {
       alert(error.message);
     }
