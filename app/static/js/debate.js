@@ -6,10 +6,11 @@
 
   const debateId = app.dataset.debateId;
   const initialTopic = app.dataset.debateTitle || "Debate";
+  const DEFAULT_AVATAR_URL = "/static/images/avatars/robot.svg";
   const REFRESH_INTERVAL_MS = 7000;
 
   const state = {
-    currentPath: [{ id: "root", topic: initialTopic, author: "", viaSide: null }],
+    currentPath: [{ id: "root", topic: initialTopic, author: "", authorAvatar: "", viaSide: null }],
     comments: { yes: [], no: [] },
     composerSide: null,
     isLoading: false,
@@ -75,6 +76,7 @@
       const topic = payload.topic || {};
       currentEntry().topic = topic.text || currentEntry().topic;
       currentEntry().author = topic.author || currentEntry().author;
+      currentEntry().authorAvatar = topic.author_avatar || currentEntry().authorAvatar;
       state.comments = payload.comments || { yes: [], no: [] };
       render();
     } catch (error) {
@@ -143,13 +145,26 @@
     if (!entry.author) {
       elements.topicAuthor.hidden = true;
       elements.topicAuthor.removeAttribute("data-username");
+      elements.topicAuthor.innerHTML = "";
       return;
     }
 
     elements.topicAuthor.hidden = false;
     elements.topicAuthor.dataset.username = entry.author;
-    elements.topicAuthor.textContent = `@${entry.author}`;
     elements.topicAuthor.setAttribute("aria-label", `Open profile for ${entry.author}`);
+    elements.topicAuthor.innerHTML = "";
+
+    const avatar = document.createElement("img");
+    avatar.className = "topic-author-avatar";
+    avatar.src = entry.authorAvatar || DEFAULT_AVATAR_URL;
+    avatar.alt = "";
+    avatar.setAttribute("aria-hidden", "true");
+
+    const name = document.createElement("span");
+    name.className = "topic-author-name";
+    name.textContent = `@${entry.author}`;
+
+    elements.topicAuthor.append(avatar, name);
   }
 
   function renderCommentColumn(side, target) {
@@ -216,7 +231,13 @@
 
     state.currentPath = [
       ...state.currentPath,
-      { id: comment.id, topic: comment.content, author: comment.author, viaSide: comment.side },
+      {
+        id: comment.id,
+        topic: comment.content,
+        author: comment.author,
+        authorAvatar: comment.author_avatar || "",
+        viaSide: comment.side,
+      },
     ];
     closeComposer();
     await loadThread();

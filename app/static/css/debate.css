@@ -456,16 +456,16 @@ body.debate-body .user-panel.active {
 .topic-author {
   display: inline-flex;
   align-items: center;
-  max-width: 45%;
+  gap: 0.55rem;
+  min-height: 2.45rem;
+  max-width: 52%;
   border: 1px solid rgba(157, 157, 157, 0.28);
   background: rgba(255, 255, 255, 0.035);
   color: var(--debate-text-dim);
-  padding: 0.28rem 0.55rem;
+  padding: 0.34rem 0.7rem 0.34rem 0.4rem;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
 }
@@ -474,6 +474,22 @@ body.debate-body .user-panel.active {
   border-color: rgba(214, 214, 214, 0.72);
   background: rgba(255, 255, 255, 0.075);
   color: var(--debate-text);
+}
+
+.topic-author-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 1.75rem;
+  object-fit: cover;
+  border: 1px solid rgba(157, 157, 157, 0.24);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.topic-author-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .question-text {
