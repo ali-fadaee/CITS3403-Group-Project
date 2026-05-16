@@ -6,10 +6,11 @@
 
   const debateId = app.dataset.debateId;
   const initialTopic = app.dataset.debateTitle || "Debate";
+  const DEFAULT_AVATAR_URL = "/static/images/avatars/robot.svg";
   const REFRESH_INTERVAL_MS = 3000;
 
   const state = {
-    currentPath: [{ id: "root", topic: initialTopic, viaSide: null }],
+    currentPath: [{ id: "root", topic: initialTopic, author: "", authorAvatar: "", viaSide: null }],
     comments: { yes: [], no: [] },
     composerSide: null,
     isLoading: false,
@@ -20,6 +21,7 @@
     level: document.getElementById("current-level"),
     currentPath: document.getElementById("current-path"),
     currentQuestion: document.getElementById("current-question"),
+    topicAuthor: document.getElementById("topic-author"),
     yesOptions: document.getElementById("yes-options"),
     noOptions: document.getElementById("no-options"),
     composer: document.getElementById("comment-composer"),
@@ -73,6 +75,8 @@
       const payload = await requestJson(threadUrl(currentParentId()));
       const topic = payload.topic || {};
       currentEntry().topic = topic.text || currentEntry().topic;
+      currentEntry().author = topic.author || currentEntry().author;
+      currentEntry().authorAvatar = topic.author_avatar || currentEntry().authorAvatar;
       state.comments = payload.comments || { yes: [], no: [] };
       render();
     } catch (error) {
@@ -131,7 +135,36 @@
   }
 
   function renderTopic() {
-    elements.currentQuestion.innerHTML = `${escapeHtml(currentEntry().topic)} <span class="cursor" aria-hidden="true"></span>`;
+    const entry = currentEntry();
+    elements.currentQuestion.innerHTML = `${escapeHtml(entry.topic)} <span class="cursor" aria-hidden="true"></span>`;
+
+    if (!elements.topicAuthor) {
+      return;
+    }
+
+    if (!entry.author) {
+      elements.topicAuthor.hidden = true;
+      elements.topicAuthor.removeAttribute("data-username");
+      elements.topicAuthor.innerHTML = "";
+      return;
+    }
+
+    elements.topicAuthor.hidden = false;
+    elements.topicAuthor.dataset.username = entry.author;
+    elements.topicAuthor.setAttribute("aria-label", `Open profile for ${entry.author}`);
+    elements.topicAuthor.innerHTML = "";
+
+    const avatar = document.createElement("img");
+    avatar.className = "topic-author-avatar";
+    avatar.src = entry.authorAvatar || DEFAULT_AVATAR_URL;
+    avatar.alt = "";
+    avatar.setAttribute("aria-hidden", "true");
+
+    const name = document.createElement("span");
+    name.className = "topic-author-name";
+    name.textContent = `@${entry.author}`;
+
+    elements.topicAuthor.append(avatar, name);
   }
 
   function renderCommentColumn(side, target) {
@@ -198,7 +231,13 @@
 
     state.currentPath = [
       ...state.currentPath,
-      { id: comment.id, topic: comment.content, viaSide: comment.side },
+      {
+        id: comment.id,
+        topic: comment.content,
+        author: comment.author,
+        authorAvatar: comment.author_avatar || "",
+        viaSide: comment.side,
+      },
     ];
     closeComposer();
     await loadThread();
@@ -346,6 +385,15 @@
   });
 
   elements.closeComposer.addEventListener("click", closeComposer);
+
+  if (elements.topicAuthor) {
+    elements.topicAuthor.addEventListener("click", () => {
+      const username = elements.topicAuthor.dataset.username;
+      if (username && typeof window.openUserPanel === "function") {
+        window.openUserPanel(username);
+      }
+    });
+  }
 
   [elements.yesOptions, elements.noOptions].forEach((container) => {
     container.addEventListener("click", (event) => {

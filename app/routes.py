@@ -29,6 +29,12 @@ def _parse_parent_id(raw_parent_id):
         return None, 'parent_id must be root or an integer'
 
 
+def _user_avatar_url(user):
+    if user and user.avatar:
+        return user.avatar.image_url
+    return '/static/images/avatars/robot.svg'
+
+
 def _comment_to_dict(comment, liked_comment_ids=None):
     liked_comment_ids = liked_comment_ids or set()
     return {
@@ -38,6 +44,7 @@ def _comment_to_dict(comment, liked_comment_ids=None):
         'side': comment.side.value,
         'content': comment.content,
         'author': comment.user.username if comment.user else 'unknown',
+        'author_avatar': _user_avatar_url(comment.user),
         'user_id': comment.user_id,
         'upvote_count': comment.upvote_count,
         'liked': comment.id in liked_comment_ids,
@@ -266,12 +273,12 @@ def api_debate_thread(debate_id):
     parent = None
     if parent_id is not None:
         parent = (Comment.query
-                  .options(selectinload(Comment.user))
+                  .options(selectinload(Comment.user).selectinload(User.avatar))
                   .filter_by(id=parent_id, debate_id=debate.id)
                   .first_or_404())
 
     query = (Comment.query
-             .options(selectinload(Comment.user))
+             .options(selectinload(Comment.user).selectinload(User.avatar))
              .filter_by(debate_id=debate.id))
 
     if parent is None:
@@ -281,6 +288,8 @@ def api_debate_thread(debate_id):
             'text': debate.title,
             'side': None,
             'parent_id': None,
+            'author': debate.creator.username if debate.creator else 'unknown',
+            'author_avatar': _user_avatar_url(debate.creator),
         }
     else:
         query = query.filter(Comment.parent_id == parent.id)
@@ -290,6 +299,7 @@ def api_debate_thread(debate_id):
             'side': parent.side.value,
             'parent_id': parent.parent_id,
             'author': parent.user.username if parent.user else 'unknown',
+            'author_avatar': _user_avatar_url(parent.user),
         }
 
     comments = query.order_by(Comment.upvote_count.desc(), Comment.created_at.asc()).all()
