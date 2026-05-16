@@ -281,6 +281,7 @@ def api_debate_thread(debate_id):
             'text': debate.title,
             'side': None,
             'parent_id': None,
+            'author': debate.creator.username if debate.creator else 'unknown',
         }
     else:
         query = query.filter(Comment.parent_id == parent.id)
