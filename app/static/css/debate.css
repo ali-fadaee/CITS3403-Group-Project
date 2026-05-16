@@ -57,6 +57,19 @@ body.debate-body [hidden] {
   overscroll-behavior: contain;
 }
 
+body.debate-body .user-panel {
+  left: 0;
+  right: auto;
+  width: 22rem;
+  border-right: 1px solid var(--debate-border-soft);
+  border-left: 0;
+  transform: translateX(-100%);
+}
+
+body.debate-body .user-panel.active {
+  transform: translateX(0);
+}
+
 .sidebar-tree {
   display: none !important;
 }
@@ -428,6 +441,57 @@ body.debate-body [hidden] {
   font-size: var(--font-size-md);
 }
 
+.question-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.question-panel-head .shell-command {
+  margin-bottom: 0;
+}
+
+.topic-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.45rem;
+  max-width: 52%;
+  border: 1px solid rgba(157, 157, 157, 0.28);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--debate-text-dim);
+  padding: 0.34rem 0.7rem 0.34rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.topic-author:hover {
+  border-color: rgba(214, 214, 214, 0.72);
+  background: rgba(255, 255, 255, 0.075);
+  color: var(--debate-text);
+}
+
+.topic-author-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 1.75rem;
+  object-fit: cover;
+  border: 1px solid rgba(157, 157, 157, 0.24);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.topic-author-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .question-text {
   margin: 0;
   max-width: none;
@@ -738,6 +802,10 @@ body.debate-body [hidden] {
     width: 19rem;
   }
 
+  body.debate-body .user-panel {
+    width: 19rem;
+  }
+
   .debate-main {
     padding: 1rem 1.2rem 1.1rem;
   }
@@ -776,6 +844,10 @@ body.debate-body [hidden] {
   .debate-sidebar > .sidebar-panel:last-child {
     max-height: 16rem;
     overflow-y: auto;
+  }
+
+  body.debate-body .user-panel {
+    width: min(100vw, 22rem);
   }
 
   .answer-grid {
@@ -853,6 +925,15 @@ body.debate-body [hidden] {
   .question-panel {
     min-height: auto;
     padding: 1.1rem 1rem 1.25rem;
+  }
+
+  .question-panel-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .topic-author {
+    max-width: 100%;
   }
 
   .question-text {
