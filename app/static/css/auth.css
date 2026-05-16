@@ -136,8 +136,8 @@
 .auth-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border: 1px solid var(--debate-border-soft);
   background: var(--debate-panel-soft);
   border-radius: 0;
@@ -156,11 +156,11 @@
 .auth-checkbox:checked::after {
   content: '';
   position: absolute;
-  left: 3px;
-  top: 0px;
-  width: 5px;
-  height: 9px;
-  border: 1.5px solid var(--debate-yes);
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: 2px solid var(--debate-yes);
   border-top: none;
   border-left: none;
   transform: rotate(40deg);

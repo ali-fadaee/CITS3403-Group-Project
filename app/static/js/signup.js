@@ -200,5 +200,21 @@ function setupSignupForm() {
   if (!client_validation) return;
   initSignupStepper(form, client_validation.asyncContinueCheck);
   interestCounter(form);
+
+  // Clears server-side error messages on input for all fields
+  const clearServerErrorOnInput = (fieldName, serverErrorId) => {
+    const field = form.elements[fieldName];
+    const serverError = document.getElementById(serverErrorId);
+    if (field && serverError) {
+      field.addEventListener("input", function() {
+        serverError.textContent = "";
+      });
+    }
+  };
+
+  clearServerErrorOnInput("username", "usernameServerFeedback");
+  clearServerErrorOnInput("email", "emailServerFeedback");
+  clearServerErrorOnInput("password", "passwordServerFeedback");
+  clearServerErrorOnInput("confirm_password", "confirmPasswordServerFeedback");
 }
 setupSignupForm();  

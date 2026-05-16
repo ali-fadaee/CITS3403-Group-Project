@@ -24,13 +24,10 @@
 
             <div class="mb-3">
               {{ form.email.label(class="auth-label form-label") }}
-              {{ form.email(class="form-control auth-input", placeholder="example@gmail.com") }}
-
-              {% if not form.email.errors %} 
-                <span id="emailFeedback" class="auth-help mt-2"></span>
-              {% endif %}
+              {{ form.email(class="form-control auth-input", placeholder="example@gmail.com") }}             
+              <span id="emailFeedback" class="auth-help mt-2"></span>
               {% if form.email.errors %}
-                  <span class="auth-help mt-2" style="color: red">{{ form.email.errors[0] }}</span>
+                  <span id="emailServerFeedback" class="auth-help mt-2" style="color: red">{{ form.email.errors[0] }}</span>
               {% endif %}
             </div>
 
@@ -39,7 +36,7 @@
               {{ form.password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="passwordFeedback" class="auth-help mt-2"></span>
               {% if form.password.errors %}
-                  <span class="auth-help mt-2" style="color: red">{{ form.password.errors[0] }}</span>
+                  <span id="passwordServerFeedback" class="auth-help mt-2" style="color: red">{{ form.password.errors[0] }}</span>
               {% endif %}
               <p class="auth-help mt-2">Use at least 8 characters and include at least one lowercase letter, one uppercase letter, and one number.</p>
             </div>
@@ -49,7 +46,7 @@
               {{ form.confirm_password(class="form-control auth-input", autocomplete="new-password", required=True) }}
               <span id="confirmPasswordFeedback" class="auth-help mt-2"></span>
               {% if form.confirm_password.errors %}
-                  <span class="auth-help mt-2" style="color: red">{{ form.confirm_password.errors[0] }}</span>
+                  <span id="confirmPasswordServerFeedback" class="auth-help mt-2" style="color: red">{{ form.confirm_password.errors[0] }}</span>
               {% endif %}
             </div>
 
@@ -62,12 +59,9 @@
             <div class="mb-3">
               {{ form.username.label(class="auth-label form-label") }}
               {{ form.username(class="form-control auth-input", autocomplete="username", required=True) }}
-
-              {% if not form.username.errors %}
-                <span id="usernameFeedback" class="auth-help mt-2"></span>
-              {% endif %}
+              <span id="usernameFeedback" class="auth-help mt-2"></span>
               {% if form.username.errors %}
-                  <span class="auth-help mt-2" style="color: red">{{ form.username.errors[0] }}</span>
+                  <span id="usernameServerFeedback" class="auth-help mt-2" style="color: red">{{ form.username.errors[0] }}</span>
               {% endif %}
               <p class="auth-help mt-2">Username must be 3–20 characters, using only letters, numbers, and hyphens. It cannot start or end with a hyphen.</p>
             </div>
