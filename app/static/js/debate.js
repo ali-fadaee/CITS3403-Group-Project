@@ -217,6 +217,8 @@
       comment.liked = payload.liked;
       comment.upvote_count = payload.upvote_count;
       render();
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      await loadThread({ silent: true });
     } catch (error) {
       alert(error.message);
     }
