@@ -150,8 +150,8 @@
 }
 
 .auth-checkbox:checked {
-  background: rgba(99, 240, 143, 0.12);
-  border-color: rgba(99, 240, 143, 0.55);
+  background: var(--debate-yes-bg-dim);
+  border-color: var(--debate-yes-border);
 }
 
 /* Drawing the custom checkmark */
@@ -174,7 +174,7 @@
   padding: 0.48rem 1rem;
   border: 1px solid var(--debate-border-focus);
   background:
-    linear-gradient(90deg, rgba(99, 240, 143, 0.1), rgba(157, 157, 157, 0.04)),
+    linear-gradient(90deg, var(--debate-yes-bg-dim), rgba(157, 157, 157, 0.04)),
     var(--debate-panel);
   color: var(--debate-text);
   cursor: pointer;
@@ -190,12 +190,12 @@
   border-color: var(--debate-yes-border);
   color: var(--debate-yes);
   background:
-    linear-gradient(90deg, rgba(99, 240, 143, 0.16), rgba(157, 157, 157, 0.05)),
+    linear-gradient(90deg, var(--debate-yes-bg), rgba(157, 157, 157, 0.05)),
     var(--debate-panel);
 }
 
 .auth-button:active {
-  background: rgba(99, 240, 143, 0.22);
+  background: var(--debate-yes-bg);
 }
 
 .auth-button-second {

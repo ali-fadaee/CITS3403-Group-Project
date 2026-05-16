@@ -5,7 +5,7 @@ body.debate-body {
   overflow-y: auto;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent 26%),
-    radial-gradient(circle at bottom left, rgba(255, 78, 78, 0.05), transparent 24%),
+    radial-gradient(circle at bottom left, var(--debate-danger-bg-dim), transparent 24%),
     var(--debate-bg);
   color: var(--debate-text);
   font-family: var(--font-mono);
@@ -126,11 +126,11 @@ body.debate-body [hidden] {
 }
 
 .path-card.is-yes-branch {
-  border-color: rgba(99, 240, 143, 0.5);
+  border-color: var(--debate-yes-border);
 }
 
 .path-card.is-no-branch {
-  border-color: rgba(255, 78, 78, 0.52);
+  border-color: var(--debate-danger-border);
 }
 
 .path-meta {
@@ -254,7 +254,7 @@ body.debate-body [hidden] {
 }
 
 .tree-link.is-branch {
-  color: #35d76b;
+  color: var(--debate-yes);
 }
 
 .tree-line {
@@ -467,11 +467,11 @@ body.debate-body [hidden] {
 }
 
 .comment-composer.is-yes {
-  box-shadow: inset 0 1px 0 rgba(99, 240, 143, 0.18);
+  box-shadow: inset 0 1px 0 var(--debate-yes-soft);
 }
 
 .comment-composer.is-no {
-  box-shadow: inset 0 1px 0 rgba(255, 78, 78, 0.18);
+  box-shadow: inset 0 1px 0 var(--debate-danger-bg-dim);
 }
 
 .composer-head {
@@ -515,14 +515,14 @@ body.debate-body [hidden] {
 }
 
 .answer-yes {
-  background: linear-gradient(180deg, rgba(11, 16, 12, 0.98), rgba(7, 10, 8, 0.98));
+  background: var(--debate-yes-panel-bg);
   border-top: 1px solid var(--debate-yes-soft);
   border-right: 1px solid rgba(157, 157, 157, 0.18);
 }
 
 .answer-no {
-  background: linear-gradient(180deg, rgba(16, 8, 8, 0.95), rgba(9, 4, 4, 0.96));
-  border-top: 1px solid rgba(255, 78, 78, 0.55);
+  background: var(--debate-no-panel-bg);
+  border-top: 1px solid var(--debate-danger-border);
 }
 
 .answer-title {
@@ -561,12 +561,12 @@ body.debate-body [hidden] {
 
 .add-comment-yes {
   color: var(--debate-yes);
-  border-color: rgba(99, 240, 143, 0.58);
+  border-color: var(--debate-yes-border);
 }
 
 .add-comment-no {
   color: var(--debate-danger);
-  border-color: rgba(255, 78, 78, 0.58);
+  border-color: var(--debate-danger-border);
 }
 
 .argument-label {
@@ -575,7 +575,7 @@ body.debate-body [hidden] {
 }
 
 .answer-no .argument-label {
-  color: rgba(255, 78, 78, 0.8);
+  color: var(--debate-danger-muted);
 }
 
 .comment-option {
@@ -599,14 +599,14 @@ body.debate-body [hidden] {
 }
 
 .comment-option.is-yes {
-  border-color: rgba(99, 240, 143, 0.5);
-  background: rgba(11, 18, 12, 0.96);
+  border-color: var(--debate-yes-border);
+  background: var(--debate-yes-card-bg);
 }
 
 .comment-option.is-no,
 .answer-no .comment-option {
-  border-color: rgba(255, 78, 78, 0.68);
-  background: rgba(18, 8, 8, 0.9);
+  border-color: var(--debate-danger-border);
+  background: var(--debate-no-card-bg);
 }
 
 .comment-meta {
@@ -616,11 +616,11 @@ body.debate-body [hidden] {
 }
 
 .comment-option.is-yes .comment-meta {
-  color: rgba(99, 240, 143, 0.86);
+  color: var(--debate-yes-muted);
 }
 
 .comment-option.is-no .comment-meta {
-  color: rgba(255, 78, 78, 0.82);
+  color: var(--debate-danger-muted);
 }
 
 .comment-text {
@@ -649,11 +649,11 @@ body.debate-body [hidden] {
 }
 
 .comment-option.is-yes .comment-stat {
-  color: rgba(99, 240, 143, 0.82);
+  color: var(--debate-yes-muted);
 }
 
 .comment-option.is-no .comment-stat {
-  color: rgba(255, 78, 78, 0.82);
+  color: var(--debate-danger-muted);
 }
 
 .comment-stat svg {
@@ -682,25 +682,25 @@ body.debate-body [hidden] {
 }
 
 .comment-option.is-yes .vote-button {
-  color: rgba(99, 240, 143, 0.82);
+  color: var(--debate-yes-muted);
 }
 
 .comment-option.is-no .vote-button {
-  color: rgba(255, 78, 78, 0.82);
+  color: var(--debate-danger-muted);
 }
 
 .comment-option.is-yes .vote-button.is-liked {
   color: var(--debate-yes);
-  border-color: rgba(99, 240, 143, 0.8);
-  background: rgba(99, 240, 143, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(99, 240, 143, 0.12);
+  border-color: var(--debate-yes-muted);
+  background: var(--debate-yes-bg);
+  box-shadow: inset 0 0 0 1px var(--debate-yes-bg-dim);
 }
 
 .comment-option.is-no .vote-button.is-liked {
   color: var(--debate-danger);
-  border-color: rgba(255, 78, 78, 0.82);
-  background: rgba(255, 78, 78, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(255, 78, 78, 0.1);
+  border-color: var(--debate-danger-muted);
+  background: var(--debate-danger-bg);
+  box-shadow: inset 0 0 0 1px var(--debate-danger-bg-dim);
 }
 
 .vote-button svg {
