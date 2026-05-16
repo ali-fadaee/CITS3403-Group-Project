@@ -5,9 +5,9 @@ from app.config import Config
 from app.extensions import db, csrf, limiter, login_manager, mail, migrate
 
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     if not app.config.get('SECRET_KEY'):
         raise RuntimeError('SECRET_KEY environment variable is not set.')
