@@ -6,7 +6,7 @@
 
   const debateId = app.dataset.debateId;
   const initialTopic = app.dataset.debateTitle || "Debate";
-  const REFRESH_INTERVAL_MS = 7000;
+  const REFRESH_INTERVAL_MS = 3000;
 
   const state = {
     currentPath: [{ id: "root", topic: initialTopic, viaSide: null }],
