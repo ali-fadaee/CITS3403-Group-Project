@@ -292,7 +292,7 @@ def api_debate_thread(debate_id):
             'author': parent.user.username if parent.user else 'unknown',
         }
 
-    comments = query.order_by(Comment.created_at.asc()).all()
+    comments = query.order_by(Comment.upvote_count.desc(), Comment.created_at.asc()).all()
     liked_ids = _liked_comment_ids(comments)
     yes_comments = [comment for comment in comments if comment.side == CommentSide.yes]
     no_comments = [comment for comment in comments if comment.side == CommentSide.no]
