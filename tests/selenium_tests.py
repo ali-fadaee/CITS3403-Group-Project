@@ -495,3 +495,22 @@ class ProfileSeleniumTests(SeleniumTests):
             )
         )
         assert username_span.text == "seleniumuser"
+    
+    def test_profile_weak_password_shows_error(self):
+        # Verify that entering a new password that fails requirements shows an inline error
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        change_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "changePwBtn"))
+        )
+        change_btn.click()
+        self.driver.find_element(By.ID, "currentPassword").send_keys("Password1")
+        self.driver.find_element(By.ID, "newPassword").send_keys("weak")
+        self.driver.find_element(By.ID, "confirmPassword").send_keys("weak")
+        self.driver.find_element(By.ID, "saveProfileBtn").click()
+        error = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "profileError"))
+        )
+        assert error.is_displayed()
+        assert len(error.text) > 0
