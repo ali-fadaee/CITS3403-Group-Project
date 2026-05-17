@@ -57,6 +57,7 @@ class SeleniumTests(TestCase):
 
     def tearDown(self):
         self.server_thread.terminate()
+        self.server_thread.join() # ensure the process has fully stopped
         self.driver.quit()
 
 # Selenium tests for authentication functionality, including login and signup
