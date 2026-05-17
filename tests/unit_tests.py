@@ -296,7 +296,7 @@ class CreateDebateTests(BasicTests):
         self.assertEqual(response.status_code, 201)
         debate_id = response.get_json()['id']
         from app.models import Debate
-        debate = Debate.query.get(debate_id)
+        debate = db.session.get(Debate, debate_id)
         tag_names = [t.name for t in debate.tags]
         self.assertIn('Science', tag_names)
         self.assertIn('Ethics', tag_names)
@@ -317,7 +317,7 @@ class CreateDebateTests(BasicTests):
         self.assertEqual(response.status_code, 201)
         debate_id = response.get_json()['id']
         from app.models import Debate
-        debate = Debate.query.get(debate_id)
+        debate = db.session.get(Debate, debate_id)
         self.assertIsNotNone(debate)
         self.assertEqual(debate.title, 'Stored debate check')
 
