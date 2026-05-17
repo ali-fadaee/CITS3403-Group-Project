@@ -469,3 +469,17 @@ class ProfileSeleniumTests(SeleniumTests):
             EC.visibility_of_element_located((By.ID, "interestsModal"))
         )
         assert interests_modal.is_displayed()
+    
+    def test_profile_avatar_modal_opens(self):
+        # Verify that clicking the avatar button opens the avatar picker sub-modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        avatar_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "avatarBtn"))
+        )
+        avatar_btn.click()
+        avatar_modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "avatarModal"))
+        )
+        assert avatar_modal.is_displayed()
