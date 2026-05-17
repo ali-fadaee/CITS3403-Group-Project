@@ -356,3 +356,20 @@ class CreateDebateSeleniumTests(SeleniumTests):
             EC.visibility_of_element_located((By.ID, "createModal"))
         )
         assert modal.is_displayed()
+
+    def test_create_debate_category_chip_toggles(self):
+        # Verify that clicking a category chip marks it as selected
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        assert "is-selected" in chip.get_attribute("class")
