@@ -483,3 +483,15 @@ class ProfileSeleniumTests(SeleniumTests):
             EC.visibility_of_element_located((By.ID, "avatarModal"))
         )
         assert avatar_modal.is_displayed()
+    
+    def test_profile_username_displayed_correctly(self):
+        # Verify that the logged-in user's username appears in the profile modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        username_span = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//div[@id='profileFullModal']//span[contains(@class,'field-static') and text()='seleniumuser']")
+            )
+        )
+        assert username_span.text == "seleniumuser"
