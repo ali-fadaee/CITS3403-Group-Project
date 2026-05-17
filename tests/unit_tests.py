@@ -240,3 +240,83 @@ class MyActivityTests(BasicTests):
         # Verify that an out-of-range page still returns 200 without crashing
         response = self._logged_in_client().get('/debates/mine?tab=debates&page=999')
         self.assertEqual(response.status_code, 200)
+
+
+class CreateDebateTests(BasicTests):
+    # Unit tests for the create debate API endpoint (/api/debates)
+
+    def setUp(self):
+        super().setUp()
+        # Seed the categories the route validates against
+        from app.models import Tag
+        for name in ['Technology', 'Science', 'Ethics', 'Philosophy']:
+            if not Tag.query.filter_by(name=name).first():
+                db.session.add(Tag(name=name))
+        db.session.commit()
+
+    def _logged_in_client(self):
+        client = self.app_context.app.test_client()
+        client.post('/login', data={
+            'usernameEmail': 'user1',
+            'password': 'Password1',
+            'loginSubmit': True
+        }, follow_redirects=True)
+        return client
+
+    def test_create_debate_requires_auth(self):
+        # Verify that an unauthenticated request to create a debate is rejected
+        client = self.app_context.app.test_client()
+        response = client.post('/api/debates',
+            json={'title': 'Unauthorized debate', 'categories': ['Technology']})
+        self.assertIn(response.status_code, [401, 302])
+
+    def test_create_debate_success(self):
+        # Verify that a logged-in user can create a debate and receives a debate id
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Is remote work better for productivity?', 'categories': ['Technology']})
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertIn('id', data)
+
+    def test_create_debate_empty_title_returns_400(self):
+        # Verify that submitting a blank title returns a 400 error
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': '', 'categories': ['Technology']})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertEqual(data['error'], 'title is required')
+
+    def test_create_debate_multiple_categories_all_tagged(self):
+        # Verify that all selected categories are attached as tags to the new debate
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Multi-tag debate', 'categories': ['Science', 'Ethics']})
+        self.assertEqual(response.status_code, 201)
+        debate_id = response.get_json()['id']
+        from app.models import Debate
+        debate = Debate.query.get(debate_id)
+        tag_names = [t.name for t in debate.tags]
+        self.assertIn('Science', tag_names)
+        self.assertIn('Ethics', tag_names)
+
+    def test_create_debate_no_categories_returns_400(self):
+        # Verify that omitting categories returns a 400 error (categories are required)
+        client = self._logged_in_client()
+        response = client.post('/api/debates', json={'title': 'No category debate'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('category', data['error'])
+
+    def test_create_debate_stored_in_db(self):
+        # Verify that the created debate actually exists in the database
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Stored debate check', 'categories': ['Philosophy']})
+        self.assertEqual(response.status_code, 201)
+        debate_id = response.get_json()['id']
+        from app.models import Debate
+        debate = Debate.query.get(debate_id)
+        self.assertIsNotNone(debate)
+        self.assertEqual(debate.title, 'Stored debate check')
