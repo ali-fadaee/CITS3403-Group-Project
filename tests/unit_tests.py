@@ -240,3 +240,162 @@ class MyActivityTests(BasicTests):
         # Verify that an out-of-range page still returns 200 without crashing
         response = self._logged_in_client().get('/debates/mine?tab=debates&page=999')
         self.assertEqual(response.status_code, 200)
+
+
+class CreateDebateTests(BasicTests):
+    # Unit tests for the create debate API endpoint (/api/debates)
+
+    def setUp(self):
+        super().setUp()
+        # Seed the categories the route validates against
+        from app.models import Tag
+        for name in ['Technology', 'Science', 'Ethics', 'Philosophy']:
+            if not Tag.query.filter_by(name=name).first():
+                db.session.add(Tag(name=name))
+        db.session.commit()
+
+    def _logged_in_client(self):
+        client = self.app_context.app.test_client()
+        client.post('/login', data={
+            'usernameEmail': 'user1',
+            'password': 'Password1',
+            'loginSubmit': True
+        }, follow_redirects=True)
+        return client
+
+    def test_create_debate_requires_auth(self):
+        # Verify that an unauthenticated request to create a debate is rejected
+        client = self.app_context.app.test_client()
+        response = client.post('/api/debates',
+            json={'title': 'Unauthorized debate', 'categories': ['Technology']})
+        self.assertIn(response.status_code, [401, 302])
+
+    def test_create_debate_success(self):
+        # Verify that a logged-in user can create a debate and receives a debate id
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Is remote work better for productivity?', 'categories': ['Technology']})
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertIn('id', data)
+
+    def test_create_debate_empty_title_returns_400(self):
+        # Verify that submitting a blank title returns a 400 error
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': '', 'categories': ['Technology']})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertEqual(data['error'], 'title is required')
+
+    def test_create_debate_multiple_categories_all_tagged(self):
+        # Verify that all selected categories are attached as tags to the new debate
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Multi-tag debate', 'categories': ['Science', 'Ethics']})
+        self.assertEqual(response.status_code, 201)
+        debate_id = response.get_json()['id']
+        from app.models import Debate
+        debate = Debate.query.get(debate_id)
+        tag_names = [t.name for t in debate.tags]
+        self.assertIn('Science', tag_names)
+        self.assertIn('Ethics', tag_names)
+
+    def test_create_debate_no_categories_returns_400(self):
+        # Verify that omitting categories returns a 400 error (categories are required)
+        client = self._logged_in_client()
+        response = client.post('/api/debates', json={'title': 'No category debate'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('category', data['error'])
+
+    def test_create_debate_stored_in_db(self):
+        # Verify that the created debate actually exists in the database
+        client = self._logged_in_client()
+        response = client.post('/api/debates',
+            json={'title': 'Stored debate check', 'categories': ['Philosophy']})
+        self.assertEqual(response.status_code, 201)
+        debate_id = response.get_json()['id']
+        from app.models import Debate
+        debate = Debate.query.get(debate_id)
+        self.assertIsNotNone(debate)
+        self.assertEqual(debate.title, 'Stored debate check')
+
+class ProfileTests(BasicTests):
+    # Unit tests for the profile API endpoint (/api/profile)
+
+    def setUp(self):
+        super().setUp()
+        from app.models import Avatar, Tag
+        avatar = Avatar(name='robot', image_url='/static/images/avatars/robot.svg')
+        db.session.add(avatar)
+        for name in ['Technology', 'Science']:
+            if not Tag.query.filter_by(name=name).first():
+                db.session.add(Tag(name=name))
+        db.session.commit()
+        self.avatar_id = avatar.id
+
+    def _logged_in_client(self):
+        client = self.app_context.app.test_client()
+        client.post('/login', data={
+            'usernameEmail': 'user1',
+            'password': 'Password1',
+            'loginSubmit': True
+        }, follow_redirects=True)
+        return client
+
+    def test_save_profile_requires_auth(self):
+        # Verify that an unauthenticated request to save profile is rejected
+        client = self.app_context.app.test_client()
+        response = client.post('/api/profile', json={'avatar_id': self.avatar_id})
+        self.assertEqual(response.status_code, 401)
+
+    def test_save_profile_change_avatar(self):
+        # Verify that posting a valid avatar_id updates the user's avatar in the DB
+        client = self._logged_in_client()
+        response = client.post('/api/profile', json={'avatar_id': self.avatar_id})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertEqual(user.avatar_id, self.avatar_id)
+
+    def test_save_profile_change_password_success(self):
+        # Verify that providing the correct current password updates it to the new one
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'current_password': 'Password1', 'password': 'NewPassword2'})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertTrue(user.check_password('NewPassword2'))
+
+    def test_save_profile_wrong_current_password_returns_400(self):
+        # Verify that providing a wrong current password returns a 400 error
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'current_password': 'WrongPassword', 'password': 'NewPassword2'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('current password is incorrect', data['error'])
+
+    def test_save_profile_update_interests(self):
+        # Verify that posting interests replaces the user's interest tags
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'interests': ['Technology', 'Science']})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        interest_names = [t.name.lower() for t in user.interests]
+        self.assertIn('technology', interest_names)
+        self.assertIn('science', interest_names)
+
+    def test_save_profile_clear_interests(self):
+        # Verify that posting an empty interests list removes all user interests
+        client = self._logged_in_client()
+        client.post('/api/profile', json={'interests': ['Technology']})
+        response = client.post('/api/profile', json={'interests': []})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertEqual(len(user.interests), 0)

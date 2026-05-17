@@ -335,3 +335,182 @@ class MyActivitySeleniumTests(SeleniumTests):
         btn_25.click()
         WebDriverWait(self.driver, 5).until(EC.url_contains("per_page=25"))
         assert "per_page=25" in self.driver.current_url
+
+class CreateDebateSeleniumTests(SeleniumTests):
+    def _login(self):
+        self.driver.get(localHost + "login")
+        self.driver.find_element(By.NAME, "usernameEmail").send_keys("seleniumuser")
+        self.driver.find_element(By.NAME, "password").send_keys("Password1")
+        self.driver.find_element(By.NAME, "loginSubmit").click()
+        WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
+    
+    def test_create_debate_modal_opens(self):
+        # Verify that clicking "new --debate" opens the create debate modal
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        assert modal.is_displayed()
+
+    def test_create_debate_category_chip_toggles(self):
+        # Verify that clicking a category chip marks it as selected
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        assert "is-selected" in chip.get_attribute("class")
+
+    def test_create_debate_empty_thesis_shows_error(self):
+        # Verify that submitting without a thesis shows an inline error message
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        self.driver.find_element(By.ID, "createDebateBtn").click()
+        error_el = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createError"))
+        )
+        assert "empty" in error_el.text.lower() or "cannot" in error_el.text.lower()
+    
+    def test_create_debate_submit_redirects_to_debate_page(self):
+        # Verify that submitting a valid thesis and category redirects to /debate/<id>
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        self.driver.find_element(By.ID, "thesisInput").send_keys(
+            "Should automation replace manual jobs?"
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        self.driver.find_element(By.ID, "createDebateBtn").click()
+        WebDriverWait(self.driver, 10).until(EC.url_contains("/debate/"))
+        assert "/debate/" in self.driver.current_url
+
+
+# Selenium tests for the profile modal
+class ProfileSeleniumTests(SeleniumTests):
+    def _login(self):
+        self.driver.get(localHost + "login")
+        self.driver.find_element(By.NAME, "usernameEmail").send_keys("seleniumuser")
+        self.driver.find_element(By.NAME, "password").send_keys("Password1")
+        self.driver.find_element(By.NAME, "loginSubmit").click()
+        WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
+
+    def _open_profile_modal(self):
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "profile-chip"))
+        )
+        chip.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "profileFullModal"))
+        )
+    
+    def test_profile_modal_opens(self):
+        # Verify that clicking the profile chip opens the profile modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        modal = self.driver.find_element(By.ID, "profileFullModal")
+        assert modal.is_displayed()
+
+    def test_profile_password_toggle_shows_fields(self):
+        # Verify that clicking "$ change" reveals the password input fields
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        change_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "changePwBtn"))
+        )
+        change_btn.click()
+        pw_fields = self.driver.find_element(By.ID, "pwChangeFields")
+        assert pw_fields.is_displayed()
+    
+    def test_profile_interests_modal_opens(self):
+        # Verify that clicking "= add" opens the interests sub-modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        add_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "addInterestBtn"))
+        )
+        add_btn.click()
+        interests_modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "interestsModal"))
+        )
+        assert interests_modal.is_displayed()
+    
+    def test_profile_avatar_modal_opens(self):
+        # Verify that clicking the avatar button opens the avatar picker sub-modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        avatar_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "avatarBtn"))
+        )
+        avatar_btn.click()
+        avatar_modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "avatarModal"))
+        )
+        assert avatar_modal.is_displayed()
+    
+    def test_profile_username_displayed_correctly(self):
+        # Verify that the logged-in user's username appears in the profile modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        username_span = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//div[@id='profileFullModal']//span[contains(@class,'field-static') and text()='seleniumuser']")
+            )
+        )
+        assert username_span.text == "seleniumuser"
+    
+    def test_profile_weak_password_shows_error(self):
+        # Verify that entering a new password that fails requirements shows an inline error
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        change_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "changePwBtn"))
+        )
+        change_btn.click()
+        self.driver.find_element(By.ID, "currentPassword").send_keys("Password1")
+        self.driver.find_element(By.ID, "newPassword").send_keys("weak")
+        self.driver.find_element(By.ID, "confirmPassword").send_keys("weak")
+        self.driver.find_element(By.ID, "saveProfileBtn").click()
+        error = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "profileError"))
+        )
+        assert error.is_displayed()
+        assert len(error.text) > 0
