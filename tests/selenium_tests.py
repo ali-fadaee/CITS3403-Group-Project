@@ -373,3 +373,25 @@ class CreateDebateSeleniumTests(SeleniumTests):
         )
         chip.click()
         assert "is-selected" in chip.get_attribute("class")
+
+    def test_create_debate_empty_thesis_shows_error(self):
+        # Verify that submitting without a thesis shows an inline error message
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        self.driver.find_element(By.ID, "createDebateBtn").click()
+        error_el = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createError"))
+        )
+        assert "empty" in error_el.text.lower() or "cannot" in error_el.text.lower()
+
