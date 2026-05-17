@@ -455,3 +455,17 @@ class ProfileSeleniumTests(SeleniumTests):
         change_btn.click()
         pw_fields = self.driver.find_element(By.ID, "pwChangeFields")
         assert pw_fields.is_displayed()
+    
+    def test_profile_interests_modal_opens(self):
+        # Verify that clicking "= add" opens the interests sub-modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        add_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "addInterestBtn"))
+        )
+        add_btn.click()
+        interests_modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "interestsModal"))
+        )
+        assert interests_modal.is_displayed()
