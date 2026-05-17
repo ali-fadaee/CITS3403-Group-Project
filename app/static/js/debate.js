@@ -6,6 +6,8 @@
 
   const debateId = app.dataset.debateId;
   const initialTopic = app.dataset.debateTitle || "Debate";
+  const isAuthenticated = app.dataset.authenticated === "true";
+  const loginUrl = app.dataset.loginUrl || "/login";
   const DEFAULT_AVATAR_URL = "/static/images/avatars/robot.svg";
   const REFRESH_INTERVAL_MS = 3000;
 
@@ -59,10 +61,29 @@
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(payload.error || "request failed");
+      const error = new Error(payload.error || "request failed");
+      if (response.status === 401) {
+        error.redirectedToLogin = true;
+        redirectToLogin();
+      }
+      throw error;
     }
 
     return payload;
+  }
+
+  function redirectToLogin() {
+    window.location.assign(loginUrl);
+  }
+
+  function requireLogin() {
+    // send guests to login
+    if (isAuthenticated) {
+      return true;
+    }
+
+    redirectToLogin();
+    return false;
   }
 
   async function loadThread(options = {}) {
@@ -247,6 +268,10 @@
   }
 
   async function toggleLike(commentId) {
+    if (!requireLogin()) {
+      return;
+    }
+
     // save the vote change
     const comment = findCommentById(commentId);
     if (!comment) {
@@ -263,11 +288,17 @@
       await new Promise((resolve) => setTimeout(resolve, 350));
       await loadThread({ silent: true });
     } catch (error) {
-      alert(error.message);
+      if (!error.redirectedToLogin) {
+        alert(error.message);
+      }
     }
   }
 
   function openComposer(side) {
+    if (!requireLogin()) {
+      return;
+    }
+
     state.composerSide = side;
     elements.composer.hidden = false;
     elements.composer.classList.toggle("is-yes", side === "yes");
@@ -292,6 +323,10 @@
   }
 
   async function addComment(text) {
+    if (!requireLogin()) {
+      return;
+    }
+
     // send a new comment
     if (!state.composerSide) {
       return;
@@ -309,7 +344,9 @@
       closeComposer();
       await loadThread();
     } catch (error) {
-      alert(error.message);
+      if (!error.redirectedToLogin) {
+        alert(error.message);
+      }
     }
   }
 

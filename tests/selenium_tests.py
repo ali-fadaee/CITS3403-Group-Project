@@ -96,8 +96,10 @@ class AuthSeleniumTests(SeleniumTests):
         self.driver.execute_script("arguments[0].scrollIntoView(true);", continue_btn)
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
-        time.sleep(0.5)  # wait for CSS transition to complete
-        self.driver.find_element(By.NAME, "username").send_keys("seleniumsignup")
+        username = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.NAME, "username"))
+        )
+        username.send_keys("seleniumsignup")
         self.driver.find_element(By.NAME, "signupSubmit").click()
         body = self.driver.page_source
         assert "check your email" in body
@@ -215,6 +217,31 @@ class IndexSeleniumTests(SeleniumTests):
         )
         save_btns = self.driver.find_elements(By.CLASS_NAME, "card-save-btn")
         assert len(save_btns) == 0
+
+
+# Selenium tests for anonymous debate page actions
+class DebateAccessSeleniumTests(SeleniumTests):
+    def test_debate_add_comment_anonymous_redirects_to_login(self):
+        # Verify that anonymous users are redirected to login before adding a comment
+        self.driver.get(localHost + "debate/1")
+        add_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "add-comment-yes"))
+        )
+        add_btn.click()
+        WebDriverWait(self.driver, 5).until(EC.url_contains("login"))
+        assert "login" in self.driver.current_url
+        assert "debate/1" in self.driver.current_url
+
+    def test_debate_like_anonymous_redirects_to_login(self):
+        # Verify that anonymous users are redirected to login before liking a comment
+        self.driver.get(localHost + "debate/1")
+        like_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "vote-button"))
+        )
+        like_btn.click()
+        WebDriverWait(self.driver, 5).until(EC.url_contains("login"))
+        assert "login" in self.driver.current_url
+        assert "debate/1" in self.driver.current_url
 
 
 # Selenium tests for the my-activity page (debates, arguments, and saved tabs)
@@ -431,7 +458,7 @@ class ProfileSeleniumTests(SeleniumTests):
 
     def _open_profile_modal(self):
         chip = WebDriverWait(self.driver, 5).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "profile-chip"))
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.profile-chip[aria-label='Open profile']"))
         )
         chip.click()
         WebDriverWait(self.driver, 5).until(
