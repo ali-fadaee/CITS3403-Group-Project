@@ -2,6 +2,7 @@
         AVATAR
       ══════════════════════════════ */
     let selectedAvatarId = null;
+    let selectedAvatarUrl = null;
     let avatarGridLoaded = false;
 
     const avatarDisplay = document.getElementById('avatarDisplay');
@@ -44,6 +45,7 @@
               preview.alt = a.name;
               avatarDisplay.appendChild(preview);
               selectedAvatarId = a.id;
+              selectedAvatarUrl = a.url;
               setTimeout(closeAvatarModal, 180);
             });
 
@@ -219,6 +221,10 @@
         if (res.ok) {
           clearProfileError();
           btn.textContent = '$ saved ✓';
+          if (selectedAvatarId !== null && selectedAvatarUrl) {
+              const navAvatar = document.querySelector('.profile-icon img');
+              if (navAvatar) navAvatar.src = selectedAvatarUrl;
+          }
           document.getElementById('pwChangeFields').hidden = true;
           document.getElementById('changePwBtn').textContent = '$ change --password';
           document.getElementById('currentPassword').value = '';
