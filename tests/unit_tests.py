@@ -399,3 +399,51 @@ class ProfileTests(BasicTests):
         from app.models import User
         user = User.query.filter_by(username='user1').first()
         self.assertEqual(len(user.interests), 0)
+
+
+class DebateTreeTests(BasicTests):
+    # Unit tests for the debate tree API endpoints
+
+    def _client(self):
+        return self.app_context.app.test_client()
+
+    def _logged_in_client(self):
+        # Returns a test client with user1 already logged in
+        client = self._client()
+        client.post('/login', data={
+            'usernameEmail': 'user1',
+            'password': 'Password1',
+            'loginSubmit': True
+        }, follow_redirects=True)
+        return client
+
+    def test_debate_thread_root_returns_topic_author_and_comments(self):
+        # Verify that the debate thread API returns the root topic author and comments
+        from app.models import Debate
+        debate = Debate.query.filter_by(title='Should AI replace developers?').first()
+        response = self._client().get(f'/api/debates/{debate.id}/thread')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data['topic']['text'], 'Should AI replace developers?')
+        self.assertEqual(data['topic']['author'], 'user1')
+        self.assertIn('author_avatar', data['topic'])
+        self.assertEqual(len(data['comments']['yes']), 0)
+        self.assertEqual(len(data['comments']['no']), 1)
+        self.assertEqual(data['comments']['no'][0]['content'], 'AI lacks human creativity.')
+
+    def test_comment_vote_toggle_updates_liked_and_count(self):
+        # Verify that liking a comment toggles the liked state and upvote count
+        from app.models import Comment
+        comment = Comment.query.filter_by(content='AI lacks human creativity.').first()
+        client = self._logged_in_client()
+        first_response = client.post(f'/api/comments/{comment.id}/vote')
+        self.assertEqual(first_response.status_code, 200)
+        first_data = first_response.get_json()
+        self.assertTrue(first_data['liked'])
+        self.assertEqual(first_data['upvote_count'], 1)
+
+        second_response = client.post(f'/api/comments/{comment.id}/vote')
+        self.assertEqual(second_response.status_code, 200)
+        second_data = second_response.get_json()
+        self.assertFalse(second_data['liked'])
+        self.assertEqual(second_data['upvote_count'], 0)
