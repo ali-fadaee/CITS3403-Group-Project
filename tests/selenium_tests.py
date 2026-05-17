@@ -394,4 +394,26 @@ class CreateDebateSeleniumTests(SeleniumTests):
             EC.visibility_of_element_located((By.ID, "createError"))
         )
         assert "empty" in error_el.text.lower() or "cannot" in error_el.text.lower()
+    
+    def test_create_debate_submit_redirects_to_debate_page(self):
+        # Verify that submitting a valid thesis and category redirects to /debate/<id>
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        self.driver.find_element(By.ID, "thesisInput").send_keys(
+            "Should automation replace manual jobs?"
+        )
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#createCategoryGrid .category-chip"))
+        )
+        chip.click()
+        self.driver.find_element(By.ID, "createDebateBtn").click()
+        WebDriverWait(self.driver, 10).until(EC.url_contains("/debate/"))
+        assert "/debate/" in self.driver.current_url
 
