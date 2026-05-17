@@ -54,6 +54,7 @@ class SeleniumTests(TestCase):
         self.server_thread.start()
         time.sleep(1.5)  # Wait for server to start
         self.driver = webdriver.Chrome()
+        self.driver.set_window_size(1920, 1080)
 
     def tearDown(self):
         self.server_thread.terminate()
