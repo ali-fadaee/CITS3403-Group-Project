@@ -1,0 +1,11 @@
+{% macro upvote_pill(debate) -%}
+{% set _total = debate.yes_upvotes + debate.no_upvotes %}
+{% if _total > 0 -%}
+  {% set _yes_pct = (debate.yes_upvotes / _total * 100) | round | int -%}
+  {% if debate.yes_upvotes >= debate.no_upvotes -%}
+    <span class="count-yes upvote-pill" aria-label="{{ debate.yes_upvotes }} upvotes for, {{ debate.no_upvotes }} upvotes against">{{ _yes_pct }}% &#9650;</span>
+  {%- else -%}
+    <span class="count-no upvote-pill" aria-label="{{ debate.yes_upvotes }} upvotes for, {{ debate.no_upvotes }} upvotes against">{{ 100 - _yes_pct }}% &#9660;</span>
+  {%- endif %}
+{%- endif %}
+{%- endmacro %}

@@ -134,6 +134,16 @@
   outline: none;
 }
 
+.auth-input.form-control:-webkit-autofill,
+.auth-input.form-control:-webkit-autofill:hover,
+.auth-input.form-control:-webkit-autofill:focus,
+.auth-input.form-control:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(19, 19, 19, 0.96) inset;
+  -webkit-text-fill-color: var(--debate-text);
+  caret-color: var(--debate-text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* ── custom checkbox ── */
 .auth-checkbox {
   appearance: none;
