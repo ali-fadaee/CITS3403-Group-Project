@@ -152,6 +152,7 @@ class Vote(db.Model):
 
 @event.listens_for(Comment, 'after_insert')
 def _comment_after_insert(mapper, connection, target):
+    # update debate counts
     field = 'yes_count' if target.side == CommentSide.yes else 'no_count'
     connection.execute(
         update(Debate).where(Debate.id == target.debate_id).values({
@@ -173,6 +174,7 @@ def _comment_after_delete(mapper, connection, target):
 
 
 def _update_debate_upvotes(connection, comment_id, delta):
+    # update side vote totals
     row = connection.execute(
         select(Comment.debate_id, Comment.side).where(Comment.id == comment_id)
     ).first()
