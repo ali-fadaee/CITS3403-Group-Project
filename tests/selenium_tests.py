@@ -217,6 +217,31 @@ class IndexSeleniumTests(SeleniumTests):
         assert len(save_btns) == 0
 
 
+# Selenium tests for anonymous debate page actions
+class DebateAccessSeleniumTests(SeleniumTests):
+    def test_debate_add_comment_anonymous_redirects_to_login(self):
+        # Verify that anonymous users are redirected to login before adding a comment
+        self.driver.get(localHost + "debate/1")
+        add_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "add-comment-yes"))
+        )
+        add_btn.click()
+        WebDriverWait(self.driver, 5).until(EC.url_contains("login"))
+        assert "login" in self.driver.current_url
+        assert "debate/1" in self.driver.current_url
+
+    def test_debate_like_anonymous_redirects_to_login(self):
+        # Verify that anonymous users are redirected to login before liking a comment
+        self.driver.get(localHost + "debate/1")
+        like_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "vote-button"))
+        )
+        like_btn.click()
+        WebDriverWait(self.driver, 5).until(EC.url_contains("login"))
+        assert "login" in self.driver.current_url
+        assert "debate/1" in self.driver.current_url
+
+
 # Selenium tests for the my-activity page (debates, arguments, and saved tabs)
 class MyActivitySeleniumTests(SeleniumTests):
     def _login(self):
