@@ -435,3 +435,11 @@ class ProfileSeleniumTests(SeleniumTests):
         WebDriverWait(self.driver, 5).until(
             EC.visibility_of_element_located((By.ID, "profileFullModal"))
         )
+    
+    def test_profile_modal_opens(self):
+        # Verify that clicking the profile chip opens the profile modal
+        self._login()
+        self.driver.get(localHost)
+        self._open_profile_modal()
+        modal = self.driver.find_element(By.ID, "profileFullModal")
+        assert modal.is_displayed()
