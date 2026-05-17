@@ -320,3 +320,82 @@ class CreateDebateTests(BasicTests):
         debate = Debate.query.get(debate_id)
         self.assertIsNotNone(debate)
         self.assertEqual(debate.title, 'Stored debate check')
+
+class ProfileTests(BasicTests):
+    # Unit tests for the profile API endpoint (/api/profile)
+
+    def setUp(self):
+        super().setUp()
+        from app.models import Avatar, Tag
+        avatar = Avatar(name='robot', image_url='/static/images/avatars/robot.svg')
+        db.session.add(avatar)
+        for name in ['Technology', 'Science']:
+            if not Tag.query.filter_by(name=name).first():
+                db.session.add(Tag(name=name))
+        db.session.commit()
+        self.avatar_id = avatar.id
+
+    def _logged_in_client(self):
+        client = self.app_context.app.test_client()
+        client.post('/login', data={
+            'usernameEmail': 'user1',
+            'password': 'Password1',
+            'loginSubmit': True
+        }, follow_redirects=True)
+        return client
+
+    def test_save_profile_requires_auth(self):
+        # Verify that an unauthenticated request to save profile is rejected
+        client = self.app_context.app.test_client()
+        response = client.post('/api/profile', json={'avatar_id': self.avatar_id})
+        self.assertEqual(response.status_code, 401)
+
+    def test_save_profile_change_avatar(self):
+        # Verify that posting a valid avatar_id updates the user's avatar in the DB
+        client = self._logged_in_client()
+        response = client.post('/api/profile', json={'avatar_id': self.avatar_id})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertEqual(user.avatar_id, self.avatar_id)
+
+    def test_save_profile_change_password_success(self):
+        # Verify that providing the correct current password updates it to the new one
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'current_password': 'Password1', 'password': 'NewPassword2'})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertTrue(user.check_password('NewPassword2'))
+
+    def test_save_profile_wrong_current_password_returns_400(self):
+        # Verify that providing a wrong current password returns a 400 error
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'current_password': 'WrongPassword', 'password': 'NewPassword2'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('current password is incorrect', data['error'])
+
+    def test_save_profile_update_interests(self):
+        # Verify that posting interests replaces the user's interest tags
+        client = self._logged_in_client()
+        response = client.post('/api/profile',
+            json={'interests': ['Technology', 'Science']})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        interest_names = [t.name.lower() for t in user.interests]
+        self.assertIn('technology', interest_names)
+        self.assertIn('science', interest_names)
+
+    def test_save_profile_clear_interests(self):
+        # Verify that posting an empty interests list removes all user interests
+        client = self._logged_in_client()
+        client.post('/api/profile', json={'interests': ['Technology']})
+        response = client.post('/api/profile', json={'interests': []})
+        self.assertEqual(response.status_code, 200)
+        from app.models import User
+        user = User.query.filter_by(username='user1').first()
+        self.assertEqual(len(user.interests), 0)
