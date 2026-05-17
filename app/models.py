@@ -152,6 +152,7 @@ class Vote(db.Model):
 
 @event.listens_for(Comment, 'after_insert')
 def _comment_after_insert(mapper, connection, target):
+    # update debate counts
     field = 'yes_count' if target.side == CommentSide.yes else 'no_count'
     connection.execute(
         update(Debate).where(Debate.id == target.debate_id).values({
@@ -173,17 +174,21 @@ def _comment_after_delete(mapper, connection, target):
 
 
 def _update_debate_upvotes(connection, comment_id, delta):
+    # update side vote totals
     row = connection.execute(
-        select(Comment.debate_id, Comment.side).where(Comment.id == comment_id)
+        select(Comment.debate_id, Comment.side, Comment.parent_id).where(Comment.id == comment_id)
     ).first()
-    if row:
-        side_val = row.side.value if isinstance(row.side, CommentSide) else row.side
-        field = 'yes_upvotes' if side_val == 'yes' else 'no_upvotes'
-        connection.execute(
-            update(Debate).where(Debate.id == row.debate_id).values(
-                {field: getattr(Debate, field) + delta}
-            )
+    # Only top-level comments contribute to the debate's aggregate upvote counts,
+    # so the percentage on the index card matches what's visible on the debate page.
+    if row is None or row.parent_id is not None:
+        return
+    side_val = row.side.value if isinstance(row.side, CommentSide) else row.side
+    field = 'yes_upvotes' if side_val == 'yes' else 'no_upvotes'
+    connection.execute(
+        update(Debate).where(Debate.id == row.debate_id).values(
+            {field: getattr(Debate, field) + delta}
         )
+    )
 
 
 @event.listens_for(Vote, 'after_insert')

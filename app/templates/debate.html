@@ -17,6 +17,7 @@
   data-authenticated="{{ current_user.is_authenticated | tojson }}"
   data-login-url="{{ url_for('main.login', next=request.path) }}"
 >
+  {# debate path sidebar #}
   <aside class="debate-sidebar">
     <div class="sidebar-panel">
       <div class="terminal-label">
@@ -33,6 +34,7 @@
   </aside>
 
   <main class="debate-main">
+    {# top navigation #}
     <header class="debate-topbar">
       <div class="topbar-left">
         <a class="profile-chip home-chip" href="{{ url_for('main.index') }}" aria-label="Back home">
@@ -46,20 +48,9 @@
             <div class="profile-status">all topics</div>
           </div>
         </a>
-
       </div>
 
       <div class="topbar-right">
-        {#
-        <button class="topbar-button" type="button" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4a4 4 0 0 0-4 4v1.33c0 .7-.25 1.37-.72 1.87L5.6 13.1A1 1 0 0 0 6.33 14h11.34a1 1 0 0 0 .73-1.7l-1.69-1.9a2.78 2.78 0 0 1-.71-1.87V8a4 4 0 0 0-4-4Z"></path>
-            <path d="M9.5 17a2.5 2.5 0 0 0 5 0"></path>
-          </svg>
-          <span class="notification-badge">3</span>
-        </button>
-        #}
-
         {% if current_user.is_authenticated %}
         <button class="profile-chip" type="button" onclick="openModal('profileFullModal')" aria-label="Open profile">
           <div class="profile-icon">
@@ -82,6 +73,7 @@
       <div class="hero-subline">System.out.println("Logic flow analyzer v1.0");</div>
     </section>
 
+    {# main debate area #}
     <section class="debate-shell">
       <div class="question-panel">
         <div class="question-panel-head">
@@ -95,6 +87,7 @@
         <p class="shell-hint">&gt; Select a comment to continue</p>
       </div>
 
+      {# comment form #}
       <section class="comment-composer" id="comment-composer" hidden>
         <div class="composer-head">
           <div>
@@ -130,6 +123,7 @@
         </form>
       </section>
 
+      {# yes and no branches #}
       <div class="answer-grid">
         <article class="answer-column answer-yes">
           <div class="answer-header">

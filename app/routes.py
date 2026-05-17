@@ -13,6 +13,7 @@ main = Blueprint('main', __name__)
 MAX_COMMENT_LENGTH = 1000
 
 
+# protect json endpoints
 def _json_auth_required():
     if current_user.is_authenticated:
         return None
@@ -35,6 +36,7 @@ def _user_avatar_url(user):
     return '/static/images/avatars/robot.svg'
 
 
+# format comment for the browser
 def _comment_to_dict(comment, liked_comment_ids=None):
     liked_comment_ids = liked_comment_ids or set()
     return {
@@ -265,6 +267,7 @@ def debate(debate_id):
 
 @main.route('/api/debates/<int:debate_id>/thread')
 def api_debate_thread(debate_id):
+    # load the current debate branch
     debate = db.get_or_404(Debate, debate_id)
     parent_id, error = _parse_parent_id(request.args.get('parent_id', 'root'))
     if error:
@@ -326,6 +329,7 @@ def api_debate_thread(debate_id):
 @main.route('/api/debates/<int:debate_id>/comments', methods=['POST'])
 @limiter.limit("30 per minute")
 def api_create_comment(debate_id):
+    # add a comment to the branch
     auth_error = _json_auth_required()
     if auth_error:
         return auth_error
@@ -375,6 +379,7 @@ def api_create_comment(debate_id):
 @main.route('/api/comments/<int:comment_id>/vote', methods=['POST'])
 @limiter.limit("60 per minute")
 def api_toggle_comment_vote(comment_id):
+    # toggle one comment like
     auth_error = _json_auth_required()
     if auth_error:
         return auth_error

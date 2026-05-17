@@ -96,8 +96,10 @@ class AuthSeleniumTests(SeleniumTests):
         self.driver.execute_script("arguments[0].scrollIntoView(true);", continue_btn)
         self.driver.execute_script("arguments[0].click();", continue_btn)
 
-        time.sleep(0.5)  # wait for CSS transition to complete
-        self.driver.find_element(By.NAME, "username").send_keys("seleniumsignup")
+        username = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.NAME, "username"))
+        )
+        username.send_keys("seleniumsignup")
         self.driver.find_element(By.NAME, "signupSubmit").click()
         body = self.driver.page_source
         assert "check your email" in body
@@ -456,7 +458,7 @@ class ProfileSeleniumTests(SeleniumTests):
 
     def _open_profile_modal(self):
         chip = WebDriverWait(self.driver, 5).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "profile-chip"))
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.profile-chip[aria-label='Open profile']"))
         )
         chip.click()
         WebDriverWait(self.driver, 5).until(
@@ -541,3 +543,45 @@ class ProfileSeleniumTests(SeleniumTests):
         )
         assert error.is_displayed()
         assert len(error.text) > 0
+
+
+# Selenium tests for the debate tree page
+class DebateTreeSeleniumTests(SeleniumTests):
+    def _login(self):
+        self.driver.get(localHost + "login")
+        self.driver.find_element(By.NAME, "usernameEmail").send_keys("seleniumuser")
+        self.driver.find_element(By.NAME, "password").send_keys("Password1")
+        self.driver.find_element(By.NAME, "loginSubmit").click()
+        WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
+
+    def test_debate_page_loads_thread_with_topic_author(self):
+        # Verify that the debate page loads the thread and shows the topic author
+        self.driver.get(localHost + "debate/1")
+        author = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "topic-author"))
+        )
+        comment = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//*[contains(text(), 'AI will never fully replace human creativity.')]")
+            )
+        )
+        assert "@seleniumuser" in author.text
+        assert comment is not None
+
+    def test_debate_add_comment_shows_in_yes_column(self):
+        # Verify that adding a yes comment displays it on the debate page
+        self._login()
+        self.driver.get(localHost + "debate/1")
+        add_btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "add-comment-yes"))
+        )
+        add_btn.click()
+        comment_text = "Selenium yes argument"
+        self.driver.find_element(By.ID, "comment-input").send_keys(comment_text)
+        self.driver.find_element(By.CSS_SELECTOR, "#comment-form .send-button").click()
+        added_comment = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, f"//div[@id='yes-options']//*[contains(text(), '{comment_text}')]")
+            )
+        )
+        assert added_comment is not None

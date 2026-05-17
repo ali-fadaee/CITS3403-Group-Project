@@ -77,6 +77,7 @@
   }
 
   function requireLogin() {
+    // send guests to login
     if (isAuthenticated) {
       return true;
     }
@@ -155,6 +156,7 @@
   }
 
   function renderTopic() {
+    // show the current topic author
     const entry = currentEntry();
     elements.currentQuestion.innerHTML = `${escapeHtml(entry.topic)} <span class="cursor" aria-hidden="true"></span>`;
 
@@ -202,6 +204,7 @@
   }
 
   function createCommentCard(comment, index) {
+    // build one comment card
     const card = document.createElement("article");
     card.className = "comment-option";
     card.classList.add(comment.side === "yes" ? "is-yes" : "is-no");
@@ -244,6 +247,7 @@
   }
 
   async function openCommentBranch(commentId) {
+    // open the selected branch
     const comment = findCommentById(commentId);
     if (!comment) {
       return;
@@ -268,6 +272,7 @@
       return;
     }
 
+    // save the vote change
     const comment = findCommentById(commentId);
     if (!comment) {
       return;
@@ -322,6 +327,7 @@
       return;
     }
 
+    // send a new comment
     if (!state.composerSide) {
       return;
     }
