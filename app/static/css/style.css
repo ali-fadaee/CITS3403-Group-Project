@@ -707,7 +707,6 @@ main.container { flex: 1; padding-bottom: 2rem; }
   border-radius: 0;
 }
 .profile-icon svg,
-.topbar-button svg,
 .send-button svg {
   width: 1.2rem;
   height: 1.2rem;
@@ -720,7 +719,6 @@ main.container { flex: 1; padding-bottom: 2rem; }
 .profile-name   { font-size: var(--font-size-md); font-weight: 600; }
 .profile-status { font-size: var(--font-size-xs); color: var(--debate-text-dim); }
 
-.topbar-button,
 .send-button {
   position: relative;
   display: inline-flex;
@@ -734,39 +732,14 @@ main.container { flex: 1; padding-bottom: 2rem; }
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
-.topbar-button {
-  width: 3rem;
-  height: 3rem;
-  cursor: pointer;
-}
-
-.topbar-button:hover,
 .send-button:hover {
   transform: translateY(-1px);
   border-color: var(--debate-border);
   background: var(--debate-panel-soft);
 }
 
-.topbar-button:active,
 .send-button:active {
   transform: scale(0.98);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  min-width: 1.55rem;
-  height: 1.55rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--debate-danger);
-  color: #111;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-shadow: none;
 }
 
 .form-row {
