@@ -417,3 +417,21 @@ class CreateDebateSeleniumTests(SeleniumTests):
         WebDriverWait(self.driver, 10).until(EC.url_contains("/debate/"))
         assert "/debate/" in self.driver.current_url
 
+
+# Selenium tests for the profile modal
+class ProfileSeleniumTests(SeleniumTests):
+    def _login(self):
+        self.driver.get(localHost + "login")
+        self.driver.find_element(By.NAME, "usernameEmail").send_keys("seleniumuser")
+        self.driver.find_element(By.NAME, "password").send_keys("Password1")
+        self.driver.find_element(By.NAME, "loginSubmit").click()
+        WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
+
+    def _open_profile_modal(self):
+        chip = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "profile-chip"))
+        )
+        chip.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "profileFullModal"))
+        )
