@@ -344,7 +344,7 @@ class CreateDebateSeleniumTests(SeleniumTests):
         self.driver.find_element(By.NAME, "loginSubmit").click()
         WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
     
-        def test_create_debate_modal_opens(self):
+    def test_create_debate_modal_opens(self):
         # Verify that clicking "new --debate" opens the create debate modal
         self._login()
         self.driver.get(localHost)
