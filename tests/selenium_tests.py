@@ -335,3 +335,24 @@ class MyActivitySeleniumTests(SeleniumTests):
         btn_25.click()
         WebDriverWait(self.driver, 5).until(EC.url_contains("per_page=25"))
         assert "per_page=25" in self.driver.current_url
+
+class CreateDebateSeleniumTests(SeleniumTests):
+    def _login(self):
+        self.driver.get(localHost + "login")
+        self.driver.find_element(By.NAME, "usernameEmail").send_keys("seleniumuser")
+        self.driver.find_element(By.NAME, "password").send_keys("Password1")
+        self.driver.find_element(By.NAME, "loginSubmit").click()
+        WebDriverWait(self.driver, 5).until(EC.url_changes(localHost + "login"))
+    
+        def test_create_debate_modal_opens(self):
+        # Verify that clicking "new --debate" opens the create debate modal
+        self._login()
+        self.driver.get(localHost)
+        btn = WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "new-debate-btn"))
+        )
+        btn.click()
+        modal = WebDriverWait(self.driver, 5).until(
+            EC.visibility_of_element_located((By.ID, "createModal"))
+        )
+        assert modal.is_displayed()
